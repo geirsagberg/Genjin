@@ -1,8 +1,9 @@
 ﻿using Genjin.Core;
 
-Game x = new();
+MyGame x = new();
 
-while (true)
+x.Start();
+
+internal class MyGame : Game
 {
-    x.Start();
 }

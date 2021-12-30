@@ -8,6 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="MessagePack" Version="2.3.85" />
         <PackageReference Include="Peridot.Veldrid" Version="0.2.2-alpha" />
         <PackageReference Include="Veldrid" Version="4.8.0" />
         <PackageReference Include="Veldrid.StartupUtilities" Version="4.8.0" />

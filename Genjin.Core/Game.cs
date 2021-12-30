@@ -1,9 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
-using System.Text;
 using Veldrid;
 using Veldrid.Sdl2;
-using Veldrid.SPIRV;
 using Veldrid.StartupUtilities;
 
 namespace Genjin.Core;
@@ -16,7 +14,8 @@ public class Game : IDisposable
     protected CommandList CommandList { get; }
     protected DeviceBuffer VertexBuffer { get; }
     protected DeviceBuffer IndexBuffer { get; }
-    protected Pipeline Pipeline { get; }
+
+    protected ResourceFactory ResourceFactory => GraphicsDevice.ResourceFactory;
 
     public Game()
     {
@@ -29,7 +28,7 @@ public class Game : IDisposable
 
         GraphicsDevice = VeldridStartup.CreateGraphicsDevice(Window, options);
 
-        Window.Resized += () => GraphicsDevice.ResizeMainWindow((uint)Window.Width, (uint)Window.Height);
+        Window.Resized += OnWindowOnResized;
 
         var resourceFactory = GraphicsDevice.ResourceFactory;
 
@@ -45,18 +44,11 @@ public class Game : IDisposable
                 VertexElementFormat.Float2),
             new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float4));
 
-        var pipelineDescription = new GraphicsPipelineDescription(
-            BlendStateDescription.SingleOverrideBlend,
-            new DepthStencilStateDescription(true, true, ComparisonKind.LessEqual),
-            new RasterizerStateDescription(FaceCullMode.Back, PolygonFillMode.Solid, FrontFace.Clockwise, true, false),
-            PrimitiveTopology.TriangleStrip,
-            new ShaderSetDescription(new[] { vertexLayout }, Shaders),
-            Array.Empty<ResourceLayout>(),
-            GraphicsDevice.SwapchainFramebuffer.OutputDescription
-        );
-        Pipeline = resourceFactory.CreateGraphicsPipeline(pipelineDescription);
         CommandList = resourceFactory.CreateCommandList();
     }
+
+    private void OnWindowOnResized()
+        => GraphicsDevice.ResizeMainWindow((uint)Window.Width, (uint)Window.Height);
 
     public async Task Start()
     {
@@ -84,7 +76,6 @@ public class Game : IDisposable
         CommandList.ClearColorTarget(0, RgbaFloat.Black);
         CommandList.SetVertexBuffer(0, VertexBuffer);
         CommandList.SetIndexBuffer(IndexBuffer, IndexFormat.UInt16);
-        CommandList.SetPipeline(Pipeline);
         CommandList.DrawIndexed(4, 1, 0, 0, 0);
         CommandList.End();
         GraphicsDevice.SubmitCommands(CommandList);
@@ -102,10 +93,6 @@ public class Game : IDisposable
             CommandList.Dispose();
             VertexBuffer.Dispose();
             IndexBuffer.Dispose();
-            Pipeline.Dispose();
-            foreach (var shader in Shaders) {
-                shader.Dispose();
-            }
         }
     }
 

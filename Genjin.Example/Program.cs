@@ -1,9 +1,5 @@
-﻿using Genjin.Core;
+﻿using Genjin.Example;
 
 MyGame x = new();
 
 x.Start();
-
-internal class MyGame : Game
-{
-}

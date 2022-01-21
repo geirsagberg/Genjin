@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
+using Peridot.Veldrid;
 using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
@@ -12,9 +13,7 @@ public class Game : IDisposable
     protected Sdl2Window Window { get; }
     protected GraphicsDevice GraphicsDevice { get; }
     protected CommandList CommandList { get; }
-    protected DeviceBuffer VertexBuffer { get; }
-    protected DeviceBuffer IndexBuffer { get; }
-
+    protected VeldridSpriteBatch SpriteBatch { get; }
     protected ResourceFactory ResourceFactory => GraphicsDevice.ResourceFactory;
 
     public Game()
@@ -32,19 +31,12 @@ public class Game : IDisposable
 
         var resourceFactory = GraphicsDevice.ResourceFactory;
 
-
-        VertexBuffer = resourceFactory.CreateBuffer(
-            new BufferDescription(4 * VertexPositionColor.SizeInBytes,
-                BufferUsage.VertexBuffer));
-        IndexBuffer =
-            resourceFactory.CreateBuffer(new BufferDescription(4 * sizeof(ushort),
-                BufferUsage.IndexBuffer));
-        var vertexLayout = new VertexLayoutDescription(
-            new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate,
-                VertexElementFormat.Float2),
-            new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float4));
-
         CommandList = resourceFactory.CreateCommandList();
+
+        var shaders = VeldridSpriteBatch.LoadDefaultShaders(GraphicsDevice);
+
+        SpriteBatch = new VeldridSpriteBatch(GraphicsDevice, GraphicsDevice.SwapchainFramebuffer.OutputDescription,
+            shaders);
     }
 
     private void OnWindowOnResized()
@@ -71,14 +63,12 @@ public class Game : IDisposable
 
     protected virtual void Draw(GameTime gameTime)
     {
+        
         CommandList.Begin();
         CommandList.SetFramebuffer(GraphicsDevice.SwapchainFramebuffer);
         CommandList.ClearColorTarget(0, RgbaFloat.Black);
-        CommandList.SetVertexBuffer(0, VertexBuffer);
-        CommandList.SetIndexBuffer(IndexBuffer, IndexFormat.UInt16);
-        CommandList.DrawIndexed(4, 1, 0, 0, 0);
         CommandList.End();
-        GraphicsDevice.SubmitCommands(CommandList);
+        GraphicsDevice.SubmitCommands(CommandList);4
         GraphicsDevice.SwapBuffers();
     }
 
@@ -91,8 +81,6 @@ public class Game : IDisposable
         if (disposing) {
             GraphicsDevice.Dispose();
             CommandList.Dispose();
-            VertexBuffer.Dispose();
-            IndexBuffer.Dispose();
         }
     }
 
@@ -106,9 +94,4 @@ public class Game : IDisposable
 public record struct GameTime
 {
     public TimeSpan Elapsed;
-}
-
-public record struct VertexPositionColor(Vector2 Position, RgbaFloat Color)
-{
-    public const uint SizeInBytes = 24;
 }

@@ -12,11 +12,16 @@ internal interface IDrawable
 
 internal class MyGame : Game
 {
-    private TextureWrapper playerSprite = null!;
+    private TextureWrapper playerSprite;
 
     public async Task Init()
     {
         playerSprite = await LoadTexture("Assets/Sprites/player.png");
+    }
+
+    protected override void Draw(GameTime gameTime)
+    {
+        base.Draw(gameTime);
     }
 
     public void Draw(GameTime gameTime, VeldridSpriteBatch spriteBatch)

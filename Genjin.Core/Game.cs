@@ -7,19 +7,20 @@ using Veldrid.StartupUtilities;
 
 namespace Genjin.Core;
 
-public class Game : IDisposable
+public abstract class Game
 {
     private bool running = true;
     protected Sdl2Window Window { get; }
-    protected GraphicsDevice GraphicsDevice { get; }
-    protected CommandList CommandList { get; }
-    protected VeldridSpriteBatch SpriteBatch { get; }
+    private GraphicsDevice GraphicsDevice { get; }
+    private CommandList CommandList { get; }
+    private VeldridSpriteBatch SpriteBatch { get; }
+    private Fence Fence { get; }
     protected ResourceFactory ResourceFactory => GraphicsDevice.ResourceFactory;
 
     public Game()
     {
         var windowCreateInfo = new WindowCreateInfo(100, 100, 1024, 768, WindowState.Normal, "Game");
-        Window = VeldridStartup.CreateWindow(ref windowCreateInfo);
+        Window = VeldridStartup.CreateWindow(windowCreateInfo);
         var options = new GraphicsDeviceOptions {
             PreferStandardClipSpaceYDirection = true,
             PreferDepthRangeZeroToOne = true,
@@ -29,11 +30,10 @@ public class Game : IDisposable
 
         Window.Resized += OnWindowOnResized;
 
-        var resourceFactory = GraphicsDevice.ResourceFactory;
-
-        CommandList = resourceFactory.CreateCommandList();
-
         var shaders = VeldridSpriteBatch.LoadDefaultShaders(GraphicsDevice);
+        CommandList = ResourceFactory.CreateCommandList();
+
+        Fence = ResourceFactory.CreateFence(false);
 
         SpriteBatch = new VeldridSpriteBatch(GraphicsDevice, GraphicsDevice.SwapchainFramebuffer.OutputDescription,
             shaders);
@@ -61,33 +61,31 @@ public class Game : IDisposable
 
     protected void Stop() => running = false;
 
+    protected abstract void DrawSprites(GameTime gameTime, VeldridSpriteBatch spriteBatch);
+    
     protected virtual void Draw(GameTime gameTime)
     {
-        
         CommandList.Begin();
         CommandList.SetFramebuffer(GraphicsDevice.SwapchainFramebuffer);
         CommandList.ClearColorTarget(0, RgbaFloat.Black);
+        CommandList.ClearDepthStencil(0f);
+
+        SpriteBatch.Begin();
+        SpriteBatch.ViewMatrix = Matrix4x4.CreateOrthographic(Window.Width, Window.Height, 0.01f, -100f);
+        DrawSprites(gameTime, SpriteBatch);
+        SpriteBatch.DrawBatch(CommandList);
+        SpriteBatch.End();
+
         CommandList.End();
-        GraphicsDevice.SubmitCommands(CommandList);4
+
+        Fence.Reset();
+        GraphicsDevice.SubmitCommands(CommandList, Fence);
+        GraphicsDevice.WaitForFence(Fence);
         GraphicsDevice.SwapBuffers();
     }
 
     protected virtual void Update(GameTime gameTime)
     {
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (disposing) {
-            GraphicsDevice.Dispose();
-            CommandList.Dispose();
-        }
-    }
-
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
     }
 }
 

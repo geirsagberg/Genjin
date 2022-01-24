@@ -16,7 +16,7 @@ internal class MyGame : Game
 
     public async Task Init()
     {
-        playerSprite = await LoadTexture("Assets/Sprites/player.png");
+        playerSprite = await LoadTexture("Resources/Sprites/player.png");
     }
 
     protected override void Draw(GameTime gameTime)

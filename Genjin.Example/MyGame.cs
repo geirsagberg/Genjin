@@ -1,8 +1,5 @@
-﻿using System.Diagnostics;
-using Genjin.Core;
+﻿using Genjin.Core;
 using Peridot.Veldrid;
-using StbImageSharp;
-using Veldrid;
 
 namespace Genjin.Example;
 
@@ -13,39 +10,27 @@ internal interface IDrawable
 internal class MyGame : Game
 {
     private TextureWrapper playerSprite;
+    private Transform2 transform;
 
-    public async Task Init()
+
+    protected override async Task Init()
     {
         playerSprite = await LoadTexture("Resources/Sprites/player.png");
+
+        transform = new Transform2(default, default, playerSprite.Size);
     }
 
-    protected override void Draw(GameTime gameTime)
+    protected override void DrawSprites(GameTime gameTime, VeldridSpriteBatch spriteBatch)
     {
-        base.Draw(gameTime);
-    }
-
-    public void Draw(GameTime gameTime, VeldridSpriteBatch spriteBatch)
-    {
-        var transform = new Transform2(default, default, playerSprite.Size);
         spriteBatch.DrawSprite(playerSprite, transform);
     }
 
-    private async Task<TextureWrapper> LoadTexture(string path)
+    protected override void Update(GameTime gameTime)
     {
-        var bytes = await File.ReadAllBytesAsync(path);
-        var image = ImageResult.FromMemory(bytes);
-        Debug.Assert(image != null);
-        var textureDescription = new TextureDescription(
-            (uint)image.Width, (uint)image.Height,
-            1, 1, 1,
-            PixelFormat.R8_G8_B8_A8_UNorm,
-            TextureUsage.Sampled,
-            TextureType.Texture2D
-        );
-        var texture = ResourceFactory.CreateTexture(textureDescription);
-        GraphicsDevice.UpdateTexture(texture, image.Data, 0, 0, 0, textureDescription.Width, textureDescription.Height,
-            textureDescription.Depth, 0, 0);
-
-        return new TextureWrapper(texture);
+        transform = transform with {
+            Position = transform.Position with {
+                X = (float)((transform.Position.X + gameTime.ElapsedMilliseconds) / 10 % Window.Width)
+            }
+        };
     }
 }

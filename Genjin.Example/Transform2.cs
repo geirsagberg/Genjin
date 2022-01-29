@@ -20,12 +20,9 @@ public readonly record struct Transform2(
     Size Size
 )
 {
-    public Transform2(Vector2 position, float rotation, Size size) : this()
+    public Transform2(Vector2 position, float rotation, Size size) : this(position, rotation, Vector2.One, default,
+        size)
     {
-        Position = position;
-        Rotation = rotation;
-        Scale = Vector2.One;
-        Size = size;
     }
 
     public Rectangle Rectangle => new((int)Position.X, (int)Position.Y, (int)(Size.Width * Scale.X),

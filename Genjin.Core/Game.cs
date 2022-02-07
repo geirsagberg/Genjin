@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
+using System.Runtime.CompilerServices;
+using Nito.AsyncEx;
 using Peridot.Veldrid;
 using StbImageSharp;
 using Veldrid;
@@ -29,7 +31,7 @@ public abstract class Game
             Debug = true,
         };
 
-        GraphicsDevice = VeldridStartup.CreateGraphicsDevice(Window, options);
+        GraphicsDevice = VeldridStartup.CreateGraphicsDevice(Window, options, GraphicsBackend.Vulkan);
 
         Window.Resized += OnWindowOnResized;
 
@@ -45,9 +47,9 @@ public abstract class Game
     private void OnWindowOnResized()
         => GraphicsDevice.ResizeMainWindow((uint)Window.Width, (uint)Window.Height);
 
-    protected async Task<TextureWrapper> LoadTexture(string path)
+    protected TextureWrapper LoadTexture(string path)
     {
-        var bytes = await File.ReadAllBytesAsync(path);
+        var bytes = File.ReadAllBytes(path);
         var image = ImageResult.FromMemory(bytes);
         Debug.Assert(image != null);
         var textureDescription = new TextureDescription(
@@ -64,11 +66,11 @@ public abstract class Game
         return new TextureWrapper(texture);
     }
 
-    protected abstract Task Init();
+    protected abstract void Init();
 
-    public async Task Start()
+    public void Start()
     {
-        await Init();
+        Init();
         var stopwatch = Stopwatch.StartNew();
         var elapsed = new GameTime { Elapsed = stopwatch.Elapsed };
         var fps = 60;
@@ -80,7 +82,7 @@ public abstract class Game
             Draw(elapsed);
             var timeLeft = stopwatch.Elapsed - elapsed.Elapsed + timespanPerFrame;
             if (timeLeft > TimeSpan.Zero) {
-                await Task.Delay(timeLeft);
+                Thread.Sleep(timeLeft);
             }
 
             elapsed = elapsed with { Elapsed = stopwatch.Elapsed };
@@ -123,4 +125,38 @@ public record struct GameTime
 {
     public TimeSpan Elapsed;
     public double ElapsedMilliseconds => Elapsed.TotalMilliseconds;
+}
+
+public static class TaskExtension {
+    public static CustomTaskAwaitable ConfigureScheduler(this Task task, TaskScheduler scheduler) {
+        return new CustomTaskAwaitable(task, scheduler);
+    }
+}
+
+public readonly struct CustomTaskAwaitable {
+    private readonly CustomTaskAwaiter awaitable;
+
+    public CustomTaskAwaitable(Task task, TaskScheduler scheduler) {
+        awaitable = new CustomTaskAwaiter(task, scheduler);
+    }
+
+    public CustomTaskAwaiter GetAwaiter() { return awaitable; }
+
+    public readonly struct CustomTaskAwaiter : INotifyCompletion {
+        private readonly Task task;
+        private readonly TaskScheduler scheduler;
+
+        public CustomTaskAwaiter(Task task, TaskScheduler scheduler) {
+            this.task = task;
+            this.scheduler = scheduler;
+        }
+
+        public void OnCompleted(Action continuation) {
+            // ContinueWith sets the scheduler to use for the continuation action
+            task.ContinueWith(x => continuation(), scheduler);
+        }
+
+        public bool IsCompleted => task.IsCompleted;
+        public void GetResult() { }
+    }
 }

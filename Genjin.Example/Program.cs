@@ -2,4 +2,4 @@
 
 MyGame x = new();
 
-await x.Start();
+x.Start();

@@ -13,9 +13,9 @@ internal class MyGame : Game
     private Transform2 transform;
 
 
-    protected override async Task Init()
+    protected override void Init()
     {
-        playerSprite = await LoadTexture("Resources/Sprites/player.png");
+        playerSprite = LoadTexture("Resources/Sprites/player.png");
 
         transform = new Transform2(default, default, playerSprite.Size);
     }

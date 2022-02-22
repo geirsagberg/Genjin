@@ -5,7 +5,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Update="Resources\**\*.*">
+        <None Update="Assets\**\*.*">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>

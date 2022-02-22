@@ -1,7 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
-using System.Runtime.CompilerServices;
-using Nito.AsyncEx;
 using Peridot.Veldrid;
 using StbImageSharp;
 using Veldrid;
@@ -17,6 +15,7 @@ public abstract class Game
     private GraphicsDevice GraphicsDevice { get; }
     private CommandList CommandList { get; }
     private VeldridSpriteBatch SpriteBatch { get; }
+    private TextRenderer TextRenderer { get; }
     private Fence Fence { get; }
     protected ResourceFactory ResourceFactory => GraphicsDevice.ResourceFactory;
 
@@ -42,6 +41,7 @@ public abstract class Game
 
         SpriteBatch = new VeldridSpriteBatch(GraphicsDevice, GraphicsDevice.SwapchainFramebuffer.OutputDescription,
             shaders);
+        TextRenderer = new TextRenderer(GraphicsDevice, SpriteBatch);
     }
 
     private void OnWindowOnResized()
@@ -66,26 +66,62 @@ public abstract class Game
         return new TextureWrapper(texture);
     }
 
+    protected static Font LoadFont(string path)
+    {
+        var bytes = File.ReadAllBytes(path);
+        var font = new Font();
+        font.AddFont(bytes);
+        return font;
+    }
+
     protected abstract void Init();
 
-    public void Start()
+    public async Task Start()
     {
         Init();
-        var stopwatch = Stopwatch.StartNew();
-        var elapsed = new GameTime { Elapsed = stopwatch.Elapsed };
-        var fps = 60;
-        var secsPerFrame = 1.0 / fps;
-        var timespanPerFrame = TimeSpan.FromSeconds(secsPerFrame);
+
+        // Can we live without real time?
+
+
+        // 1 physics update -must- take shorter real time than physics time
+        // if not? do 0-1 physics update + 1 draw (?) 
+
+
+        // Physics: |----------|----------|----------|
+        // Draw:    |------|------|------|------|------|
+
+        // Scenario 1: Drawing takes shorter than target update interval
+
+        // Scenario 2: Drawing takes longer than target update interval
+        // - Physics clock and game must slow down
+
+
+        // New frame!
+        // How much time has passed?
+        // - Less than 1 update interval
+        //   - Do not update, just draw again
+        // - More than 1 update interval
+        //   - Update 
+
+
+        var physicsFrequency = 60;
+        var physicsInterval = TimeSpan.FromSeconds(1.0 / physicsFrequency);
+
+        var realTime = Stopwatch.StartNew();
+
+        var physicsTime = TimeSpan.Zero;
+
         while (running && Window.Exists) {
-            Window.PumpEvents();
-            Update(elapsed);
-            Draw(elapsed);
-            var timeLeft = stopwatch.Elapsed - elapsed.Elapsed + timespanPerFrame;
-            if (timeLeft > TimeSpan.Zero) {
-                Thread.Sleep(timeLeft);
+            var frameStart = realTime.Elapsed;
+
+            while (physicsTime < frameStart) {
+                await Update(physicsInterval);
+                physicsTime += physicsInterval;
             }
 
-            elapsed = elapsed with { Elapsed = stopwatch.Elapsed };
+            Window.PumpEvents();
+
+            Draw();
         }
     }
 
@@ -96,17 +132,17 @@ public abstract class Game
 
     protected void Stop() => running = false;
 
-    protected abstract void DrawSprites(GameTime gameTime, VeldridSpriteBatch spriteBatch);
+    protected abstract void DrawSprites(VeldridSpriteBatch spriteBatch, TextRenderer textRenderer);
 
-    protected virtual void Draw(GameTime gameTime)
+    protected virtual void Draw()
     {
         CommandList.Begin();
         CommandList.SetFramebuffer(GraphicsDevice.SwapchainFramebuffer);
         CommandList.ClearColorTarget(0, RgbaFloat.Black);
 
         SpriteBatch.Begin();
-        SpriteBatch.ViewMatrix = Matrix4x4.CreateOrthographic(Window.Width, Window.Height, 0.01f, -100f);
-        DrawSprites(gameTime, SpriteBatch);
+        SpriteBatch.ViewMatrix = Matrix4x4.CreateOrthographicOffCenter(0, Window.Width, 0, Window.Height, -10, 10);
+        DrawSprites(SpriteBatch, TextRenderer);
         SpriteBatch.DrawBatch(CommandList);
         SpriteBatch.End();
 
@@ -118,45 +154,5 @@ public abstract class Game
         GraphicsDevice.SwapBuffers();
     }
 
-    protected abstract void Update(GameTime gameTime);
-}
-
-public record struct GameTime
-{
-    public TimeSpan Elapsed;
-    public double ElapsedMilliseconds => Elapsed.TotalMilliseconds;
-}
-
-public static class TaskExtension {
-    public static CustomTaskAwaitable ConfigureScheduler(this Task task, TaskScheduler scheduler) {
-        return new CustomTaskAwaitable(task, scheduler);
-    }
-}
-
-public readonly struct CustomTaskAwaitable {
-    private readonly CustomTaskAwaiter awaitable;
-
-    public CustomTaskAwaitable(Task task, TaskScheduler scheduler) {
-        awaitable = new CustomTaskAwaiter(task, scheduler);
-    }
-
-    public CustomTaskAwaiter GetAwaiter() { return awaitable; }
-
-    public readonly struct CustomTaskAwaiter : INotifyCompletion {
-        private readonly Task task;
-        private readonly TaskScheduler scheduler;
-
-        public CustomTaskAwaiter(Task task, TaskScheduler scheduler) {
-            this.task = task;
-            this.scheduler = scheduler;
-        }
-
-        public void OnCompleted(Action continuation) {
-            // ContinueWith sets the scheduler to use for the continuation action
-            task.ContinueWith(x => continuation(), scheduler);
-        }
-
-        public bool IsCompleted => task.IsCompleted;
-        public void GetResult() { }
-    }
+    protected abstract Task Update(TimeSpan interval);
 }

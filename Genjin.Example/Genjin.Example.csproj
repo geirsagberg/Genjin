@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <ItemGroup>
-        <ProjectReference Include="..\Genjin.Core\Genjin.Core.csproj" />
+        <ProjectReference Include="..\Genjin.Core\Genjin.Core.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="Resources\Sprites\player.png">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
+        <None Update="Resources\**\*.*">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <PropertyGroup>
@@ -19,12 +19,12 @@
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <Prefer32bit>false</Prefer32bit>
-      <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+        <Prefer32bit>false</Prefer32bit>
+        <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+        <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     </PropertyGroup>
 
 </Project>

@@ -104,25 +104,40 @@ public abstract class Game
         //   - Update 
 
 
-        var physicsFrequency = 60;
-        var physicsInterval = TimeSpan.FromSeconds(1.0 / physicsFrequency);
-
         var realTime = Stopwatch.StartNew();
 
         var physicsTime = TimeSpan.Zero;
 
         while (running && Window.Exists) {
-            var frameStart = realTime.Elapsed;
-
-            while (physicsTime < frameStart) {
-                await Update(physicsInterval);
-                physicsTime += physicsInterval;
-            }
-
-            Window.PumpEvents();
-
-            Draw();
+            physicsTime = await GameLoop(realTime, physicsTime);
         }
+    }
+
+    private async Task<TimeSpan> GameLoop(Stopwatch realTime, TimeSpan physicsTime)
+    {
+        var physicsFrequency = 10;
+        var physicsInterval = TimeSpan.FromSeconds(1.0 / physicsFrequency);
+        var maxFrameSkip = 5;
+
+        var frameStart = realTime.Elapsed;
+
+        var framesSkipped = 0;
+        while (physicsTime < frameStart
+               && framesSkipped < maxFrameSkip
+              ) {
+            await Update(physicsInterval);
+            physicsTime += physicsInterval;
+            framesSkipped++;
+        }
+
+        // await Task.Delay(100);
+        // Thread.Sleep(100);
+
+        Window.PumpEvents();
+
+        Draw(realTime);
+
+        return physicsTime;
     }
 
     private void CreateResources()
@@ -132,9 +147,9 @@ public abstract class Game
 
     protected void Stop() => running = false;
 
-    protected abstract void DrawSprites(VeldridSpriteBatch spriteBatch, TextRenderer textRenderer);
+    protected abstract void DrawSprites(VeldridSpriteBatch spriteBatch, TextRenderer textRenderer, Stopwatch realTime);
 
-    protected virtual void Draw()
+    protected virtual void Draw(Stopwatch realTime)
     {
         CommandList.Begin();
         CommandList.SetFramebuffer(GraphicsDevice.SwapchainFramebuffer);
@@ -142,7 +157,7 @@ public abstract class Game
 
         SpriteBatch.Begin();
         SpriteBatch.ViewMatrix = Matrix4x4.CreateOrthographicOffCenter(0, Window.Width, 0, Window.Height, -10, 10);
-        DrawSprites(SpriteBatch, TextRenderer);
+        DrawSprites(SpriteBatch, TextRenderer, realTime);
         SpriteBatch.DrawBatch(CommandList);
         SpriteBatch.End();
 

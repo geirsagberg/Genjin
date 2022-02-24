@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Diagnostics;
+using System.Drawing;
 using System.Numerics;
 using Genjin.Core;
 using Peridot.Veldrid;
@@ -32,10 +33,28 @@ internal class MyGame : Game
         transform = new Transform2(new Vector2(100, 100), default, spriteSheet.SpriteSize);
     }
 
-    protected override void DrawSprites(VeldridSpriteBatch spriteBatch, TextRenderer textRenderer)
+    private int draws;
+    private int updates;
+
+    private int fps;
+
+    protected override void DrawSprites(VeldridSpriteBatch spriteBatch, TextRenderer textRenderer, Stopwatch realTime)
     {
+        fps++;
+        if (realTime.ElapsedMilliseconds % 1000 < 100) {
+            fps = 0;
+        }
+
         spriteBatch.DrawSprite(spriteSheet, 0, 0, transform);
-        textRenderer.DrawString(arial, 32, $"{transform.Position}", Vector2.Zero, Color.Aqua, 0f, Vector2.Zero,
+        textRenderer.DrawString(arial, 32, $"{transform.Position.X}", Vector2.Zero, Color.Aqua, 0f, Vector2.Zero,
+            Vector2.One, 0f);
+        textRenderer.DrawString(arial, 32, $"{transform.Position.Y}", new Vector2(150, 0), Color.Aqua, 0f, Vector2.Zero,
+            Vector2.One, 0f);
+        textRenderer.DrawString(arial, 32, $"Draws: {draws++}", new Vector2(0, 40), Color.Aqua, 0f, Vector2.Zero,
+            Vector2.One, 0f);
+        textRenderer.DrawString(arial, 32, $"FPS: {fps++}", new Vector2(200, 40), Color.Aqua, 0f, Vector2.Zero,
+            Vector2.One, 0f);
+        textRenderer.DrawString(arial, 32, $"Updates: {updates}", new Vector2(0, 80), Color.Aqua, 0f, Vector2.Zero,
             Vector2.One, 0f);
     }
 
@@ -50,5 +69,6 @@ internal class MyGame : Game
                 Y = (float)((transform.Position.Y + change) % Window.Height)
             }
         };
+        updates++;
     }
 }

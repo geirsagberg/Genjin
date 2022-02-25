@@ -38,23 +38,28 @@ internal class MyGame : Game
 
     private int fps;
 
-    protected override void DrawSprites(VeldridSpriteBatch spriteBatch, TextRenderer textRenderer, Stopwatch realTime)
+    protected override void DrawSprites(Stopwatch realTime)
     {
         fps++;
         if (realTime.ElapsedMilliseconds % 1000 < 100) {
             fps = 0;
         }
 
-        spriteBatch.DrawSprite(spriteSheet, 0, 0, transform);
-        textRenderer.DrawString(arial, 32, $"{transform.Position.X}", Vector2.Zero, Color.Aqua, 0f, Vector2.Zero,
+        SpriteBatch.DrawSprite(spriteSheet, 0, 0, transform);
+        DrawString(TextRenderer, $"{transform.Position.X}", Vector2.Zero);
+        TextRenderer.DrawString(arial, 32, $"{transform.Position.Y}", new Vector2(150, 0), Color.Aqua, 0f, Vector2.Zero,
             Vector2.One, 0f);
-        textRenderer.DrawString(arial, 32, $"{transform.Position.Y}", new Vector2(150, 0), Color.Aqua, 0f, Vector2.Zero,
+        TextRenderer.DrawString(arial, 32, $"Draws: {draws++}", new Vector2(0, 40), Color.Aqua, 0f, Vector2.Zero,
             Vector2.One, 0f);
-        textRenderer.DrawString(arial, 32, $"Draws: {draws++}", new Vector2(0, 40), Color.Aqua, 0f, Vector2.Zero,
+        TextRenderer.DrawString(arial, 32, $"FPS: {fps++}", new Vector2(200, 40), Color.Aqua, 0f, Vector2.Zero,
             Vector2.One, 0f);
-        textRenderer.DrawString(arial, 32, $"FPS: {fps++}", new Vector2(200, 40), Color.Aqua, 0f, Vector2.Zero,
+        TextRenderer.DrawString(arial, 32, $"Updates: {updates}", new Vector2(0, 80), Color.Aqua, 0f, Vector2.Zero,
             Vector2.One, 0f);
-        textRenderer.DrawString(arial, 32, $"Updates: {updates}", new Vector2(0, 80), Color.Aqua, 0f, Vector2.Zero,
+    }
+
+    private void DrawString(TextRenderer textRenderer, string text, Vector2 position)
+    {
+        textRenderer.DrawString(arial, 32, text, position, Color.Aqua, 0f, Vector2.Zero,
             Vector2.One, 0f);
     }
 

@@ -14,15 +14,16 @@ public abstract class Game
     protected Sdl2Window Window { get; }
     private GraphicsDevice GraphicsDevice { get; }
     private CommandList CommandList { get; }
-    private VeldridSpriteBatch SpriteBatch { get; }
-    private TextRenderer TextRenderer { get; }
+    protected VeldridSpriteBatch SpriteBatch { get; }
+    protected TextRenderer TextRenderer { get; }
     private Fence Fence { get; }
     protected ResourceFactory ResourceFactory => GraphicsDevice.ResourceFactory;
 
     protected Game()
     {
-        var windowCreateInfo = new WindowCreateInfo(100, 100, 1024, 768, WindowState.Normal, "Game");
-        Window = VeldridStartup.CreateWindow(windowCreateInfo);
+        // var windowCreateInfo = new WindowCreateInfo(100, 100, 1024, 768, WindowState.Normal, "Game");
+        // Window = VeldridStartup.CreateWindow(windowCreateInfo);
+        Window = new Sdl2Window("Game", 100, 100, 1024, 768, SDL_WindowFlags.Resizable | SDL_WindowFlags.Shown, true);
         var options = new GraphicsDeviceOptions {
             PreferStandardClipSpaceYDirection = true,
             PreferDepthRangeZeroToOne = true,
@@ -45,7 +46,11 @@ public abstract class Game
     }
 
     private void OnWindowOnResized()
-        => GraphicsDevice.ResizeMainWindow((uint)Window.Width, (uint)Window.Height);
+    {
+        lock (Window) {
+            GraphicsDevice.ResizeMainWindow((uint)Window.Width, (uint)Window.Height);
+        }
+    }
 
     protected TextureWrapper LoadTexture(string path)
     {
@@ -80,30 +85,6 @@ public abstract class Game
     {
         Init();
 
-        // Can we live without real time?
-
-
-        // 1 physics update -must- take shorter real time than physics time
-        // if not? do 0-1 physics update + 1 draw (?) 
-
-
-        // Physics: |----------|----------|----------|
-        // Draw:    |------|------|------|------|------|
-
-        // Scenario 1: Drawing takes shorter than target update interval
-
-        // Scenario 2: Drawing takes longer than target update interval
-        // - Physics clock and game must slow down
-
-
-        // New frame!
-        // How much time has passed?
-        // - Less than 1 update interval
-        //   - Do not update, just draw again
-        // - More than 1 update interval
-        //   - Update 
-
-
         var realTime = Stopwatch.StartNew();
 
         var physicsTime = TimeSpan.Zero;
@@ -122,9 +103,7 @@ public abstract class Game
         var frameStart = realTime.Elapsed;
 
         var framesSkipped = 0;
-        while (physicsTime < frameStart
-               && framesSkipped < maxFrameSkip
-              ) {
+        while (physicsTime < frameStart && framesSkipped < maxFrameSkip) {
             await Update(physicsInterval);
             physicsTime += physicsInterval;
             framesSkipped++;
@@ -147,26 +126,28 @@ public abstract class Game
 
     protected void Stop() => running = false;
 
-    protected abstract void DrawSprites(VeldridSpriteBatch spriteBatch, TextRenderer textRenderer, Stopwatch realTime);
+    protected abstract void DrawSprites(Stopwatch realTime);
 
     protected virtual void Draw(Stopwatch realTime)
     {
-        CommandList.Begin();
-        CommandList.SetFramebuffer(GraphicsDevice.SwapchainFramebuffer);
-        CommandList.ClearColorTarget(0, RgbaFloat.Black);
+        lock (Window) {
+            CommandList.Begin();
+            CommandList.SetFramebuffer(GraphicsDevice.SwapchainFramebuffer);
+            CommandList.ClearColorTarget(0, RgbaFloat.Black);
 
-        SpriteBatch.Begin();
-        SpriteBatch.ViewMatrix = Matrix4x4.CreateOrthographicOffCenter(0, Window.Width, 0, Window.Height, -10, 10);
-        DrawSprites(SpriteBatch, TextRenderer, realTime);
-        SpriteBatch.DrawBatch(CommandList);
-        SpriteBatch.End();
+            SpriteBatch.Begin();
+            SpriteBatch.ViewMatrix = Matrix4x4.CreateOrthographicOffCenter(0, Window.Width, 0, Window.Height, -10, 10);
+            DrawSprites(realTime);
+            SpriteBatch.DrawBatch(CommandList);
+            SpriteBatch.End();
 
-        CommandList.End();
+            CommandList.End();
 
-        Fence.Reset();
-        GraphicsDevice.SubmitCommands(CommandList, Fence);
-        GraphicsDevice.WaitForFence(Fence);
-        GraphicsDevice.SwapBuffers();
+            Fence.Reset();
+            GraphicsDevice.SubmitCommands(CommandList, Fence);
+            GraphicsDevice.WaitForFence(Fence);
+            GraphicsDevice.SwapBuffers();
+        }
     }
 
     protected abstract Task Update(TimeSpan interval);

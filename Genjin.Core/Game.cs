@@ -21,13 +21,11 @@ public abstract class Game
 
     protected Game()
     {
-        // var windowCreateInfo = new WindowCreateInfo(100, 100, 1024, 768, WindowState.Normal, "Game");
-        // Window = VeldridStartup.CreateWindow(windowCreateInfo);
         Window = new Sdl2Window("Game", 100, 100, 1024, 768, SDL_WindowFlags.Resizable | SDL_WindowFlags.Shown, true);
         var options = new GraphicsDeviceOptions {
             PreferStandardClipSpaceYDirection = true,
             PreferDepthRangeZeroToOne = true,
-            SyncToVerticalBlank = true,
+            SyncToVerticalBlank = false,
             Debug = true,
         };
 
@@ -109,19 +107,11 @@ public abstract class Game
             framesSkipped++;
         }
 
-        // await Task.Delay(100);
-        // Thread.Sleep(100);
-
         Window.PumpEvents();
 
         Draw(realTime);
 
         return physicsTime;
-    }
-
-    private void CreateResources()
-    {
-        // throw new NotImplementedException();
     }
 
     protected void Stop() => running = false;

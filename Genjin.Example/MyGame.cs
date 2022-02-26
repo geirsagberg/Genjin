@@ -36,14 +36,19 @@ internal class MyGame : Game
     private int draws;
     private int updates;
 
-    private int fps;
+    private double fps;
+
+    private readonly double fpsSmoothing = 0.9;
+
+    private TimeSpan previousRealTime = TimeSpan.Zero;
 
     protected override void DrawSprites(Stopwatch realTime)
     {
-        fps++;
-        if (realTime.ElapsedMilliseconds % 1000 < 100) {
-            fps = 0;
-        }
+        var timeToDrawPreviousFrame = realTime.Elapsed - previousRealTime;
+        var currentFps = 1.0 / timeToDrawPreviousFrame.TotalSeconds;
+        fps = fps * fpsSmoothing + currentFps * (1.0 - fpsSmoothing);
+
+        previousRealTime = realTime.Elapsed;
 
         SpriteBatch.DrawSprite(spriteSheet, 0, 0, transform);
         DrawString(TextRenderer, $"{transform.Position.X}", Vector2.Zero);
@@ -51,7 +56,7 @@ internal class MyGame : Game
             Vector2.One, 0f);
         TextRenderer.DrawString(arial, 32, $"Draws: {draws++}", new Vector2(0, 40), Color.Aqua, 0f, Vector2.Zero,
             Vector2.One, 0f);
-        TextRenderer.DrawString(arial, 32, $"FPS: {fps++}", new Vector2(200, 40), Color.Aqua, 0f, Vector2.Zero,
+        TextRenderer.DrawString(arial, 32, $"FPS: {fps}", new Vector2(200, 40), Color.Aqua, 0f, Vector2.Zero,
             Vector2.One, 0f);
         TextRenderer.DrawString(arial, 32, $"Updates: {updates}", new Vector2(0, 80), Color.Aqua, 0f, Vector2.Zero,
             Vector2.One, 0f);

@@ -25,7 +25,7 @@ public abstract class Game
         var options = new GraphicsDeviceOptions {
             PreferStandardClipSpaceYDirection = true,
             PreferDepthRangeZeroToOne = true,
-            SyncToVerticalBlank = false,
+            SyncToVerticalBlank = true,
             Debug = true,
         };
 
@@ -98,27 +98,27 @@ public abstract class Game
         var physicsInterval = TimeSpan.FromSeconds(1.0 / physicsFrequency);
         var maxFrameSkip = 5;
 
-        var frameStart = realTime.Elapsed;
-
         var framesSkipped = 0;
-        while (physicsTime < frameStart && framesSkipped < maxFrameSkip) {
+        while (physicsTime < realTime.Elapsed && framesSkipped < maxFrameSkip) {
             await Update(physicsInterval);
             physicsTime += physicsInterval;
             framesSkipped++;
         }
 
+        var interpolation = (realTime.Elapsed + physicsInterval - physicsTime) / physicsInterval;
+
         Window.PumpEvents();
 
-        Draw(realTime);
+        Draw(realTime, interpolation, physicsInterval);
 
         return physicsTime;
     }
 
     protected void Stop() => running = false;
 
-    protected abstract void DrawSprites(Stopwatch realTime);
+    protected abstract void DrawSprites(Stopwatch realTime, double interpolation, TimeSpan physicsInterval);
 
-    protected virtual void Draw(Stopwatch realTime)
+    protected virtual void Draw(Stopwatch realTime, double interpolation, TimeSpan physicsInterval)
     {
         lock (Window) {
             CommandList.Begin();
@@ -127,7 +127,7 @@ public abstract class Game
 
             SpriteBatch.Begin();
             SpriteBatch.ViewMatrix = Matrix4x4.CreateOrthographicOffCenter(0, Window.Width, 0, Window.Height, -10, 10);
-            DrawSprites(realTime);
+            DrawSprites(realTime, interpolation, physicsInterval);
             SpriteBatch.DrawBatch(CommandList);
             SpriteBatch.End();
 
@@ -140,5 +140,5 @@ public abstract class Game
         }
     }
 
-    protected abstract Task Update(TimeSpan interval);
+    protected abstract Task Update(TimeSpan physicsInterval);
 }

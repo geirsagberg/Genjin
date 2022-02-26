@@ -42,7 +42,7 @@ internal class MyGame : Game
 
     private TimeSpan previousRealTime = TimeSpan.Zero;
 
-    protected override void DrawSprites(Stopwatch realTime)
+    protected override void DrawSprites(Stopwatch realTime, double interpolation, TimeSpan physicsInterval)
     {
         var timeToDrawPreviousFrame = realTime.Elapsed - previousRealTime;
         var currentFps = 1.0 / timeToDrawPreviousFrame.TotalSeconds;
@@ -50,35 +50,42 @@ internal class MyGame : Game
 
         previousRealTime = realTime.Elapsed;
 
-        SpriteBatch.DrawSprite(spriteSheet, 0, 0, transform);
-        DrawString(TextRenderer, $"{transform.Position.X}", Vector2.Zero);
-        TextRenderer.DrawString(arial, 32, $"{transform.Position.Y}", new Vector2(150, 0), Color.Aqua, 0f, Vector2.Zero,
-            Vector2.One, 0f);
-        TextRenderer.DrawString(arial, 32, $"Draws: {draws++}", new Vector2(0, 40), Color.Aqua, 0f, Vector2.Zero,
-            Vector2.One, 0f);
-        TextRenderer.DrawString(arial, 32, $"FPS: {fps}", new Vector2(200, 40), Color.Aqua, 0f, Vector2.Zero,
-            Vector2.One, 0f);
-        TextRenderer.DrawString(arial, 32, $"Updates: {updates}", new Vector2(0, 80), Color.Aqua, 0f, Vector2.Zero,
+        var viewPosition = transform.Position + velocity * GetFactor(physicsInterval) * (float)interpolation;
+
+        SpriteBatch.DrawSprite(spriteSheet, 0, 0, transform with { Position = viewPosition });
+        DrawString($"{transform.Position.X}", Vector2.Zero);
+        DrawString($"{transform.Position.Y}", new Vector2(150, 0));
+        DrawString($"Draws: {draws++}", new Vector2(0, 40));
+        DrawString($"FPS: {fps}", new Vector2(200, 40));
+        DrawString($"Updates: {updates}", new Vector2(0, 80));
+    }
+
+    private void DrawString(string text, Vector2 position)
+    {
+        TextRenderer.DrawString(arial, 32, text, position, Color.Aqua, 0f, Vector2.Zero,
             Vector2.One, 0f);
     }
 
-    private void DrawString(TextRenderer textRenderer, string text, Vector2 position)
-    {
-        textRenderer.DrawString(arial, 32, text, position, Color.Aqua, 0f, Vector2.Zero,
-            Vector2.One, 0f);
-    }
+    private readonly Vector2 velocity = Vector2.One;
 
-    protected override async Task Update(TimeSpan interval)
+    protected override async Task Update(TimeSpan physicsInterval)
     {
-        Console.WriteLine($"{transform.Position}");
-        var change = interval.TotalMilliseconds / 5;
-        var newX = transform.Position.X + change;
+        var newPosition = transform.Position + velocity * GetFactor(physicsInterval);
         transform = transform with {
-            Position = transform.Position with {
-                X = (float)(newX % Window.Width),
-                Y = (float)((transform.Position.Y + change) % Window.Height)
-            }
+            Position = Wrap(newPosition, Window.Bounds.Size)
         };
         updates++;
     }
+
+    private static float GetFactor(TimeSpan interval)
+    {
+        var factor = (float)interval.TotalSeconds * 100;
+        return factor;
+    }
+
+    private static Vector2 Wrap(Vector2 position, Vector2 size) =>
+        new(Wrap(position.X, size.X), Wrap(position.Y, size.Y));
+
+    private static float Wrap(float position, float max) =>
+        position < 0 ? position + max : position >= max ? position - max : position;
 }

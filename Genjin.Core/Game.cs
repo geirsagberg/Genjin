@@ -94,25 +94,30 @@ public abstract class Game
 
     private async Task<TimeSpan> GameLoop(Stopwatch realTime, TimeSpan physicsTime)
     {
-        var physicsFrequency = 10;
+        var input = Window.PumpEvents();
+
+        await UpdateBasedOnInput(input);
+
+        var physicsFrequency = 60;
         var physicsInterval = TimeSpan.FromSeconds(1.0 / physicsFrequency);
         var maxFrameSkip = 5;
-
         var framesSkipped = 0;
         while (physicsTime < realTime.Elapsed && framesSkipped < maxFrameSkip) {
-            await Update(physicsInterval);
+            await UpdatePhysics(physicsInterval);
             physicsTime += physicsInterval;
             framesSkipped++;
         }
 
         var interpolation = (realTime.Elapsed + physicsInterval - physicsTime) / physicsInterval;
 
-        Window.PumpEvents();
-
         Draw(realTime, interpolation, physicsInterval);
+
+        // await Task.Delay(100);
 
         return physicsTime;
     }
+
+    protected abstract Task UpdateBasedOnInput(InputSnapshot input);
 
     protected void Stop() => running = false;
 
@@ -140,5 +145,5 @@ public abstract class Game
         }
     }
 
-    protected abstract Task Update(TimeSpan physicsInterval);
+    protected abstract Task UpdatePhysics(TimeSpan physicsInterval);
 }

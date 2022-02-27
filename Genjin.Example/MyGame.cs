@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Numerics;
 using Genjin.Core;
 using Peridot.Veldrid;
+using Veldrid;
 
 namespace Genjin.Example;
 
@@ -38,15 +39,55 @@ internal class MyGame : Game
 
     private double fps;
 
-    private readonly double fpsSmoothing = 0.9;
+    private const double FpsSmoothing = 0.9;
 
     private TimeSpan previousRealTime = TimeSpan.Zero;
+
+    private enum GameKey : byte
+    {
+        Up,
+        Down,
+        Left,
+        Right
+    }
+
+    private readonly HashSet<GameKey> pressedKeys = new();
+
+    private readonly Dictionary<Key, GameKey> keyMap = new() {
+        { Key.A, GameKey.Left },
+        { Key.W, GameKey.Up },
+        { Key.S, GameKey.Down },
+        { Key.D, GameKey.Right },
+    };
+
+    protected override async Task UpdateBasedOnInput(InputSnapshot input)
+    {
+        UpdatePressedKeys(input);
+
+        var newVelocity =
+            new Vector2((pressedKeys.Contains(GameKey.Left) ? -1f : 0) + (pressedKeys.Contains(GameKey.Right) ? 1f : 0),
+                (pressedKeys.Contains(GameKey.Up) ? -1f : 0) + (pressedKeys.Contains(GameKey.Down) ? 1f : 0));
+
+        velocity = newVelocity.NormalizeOrZero();
+    }
+
+    private void UpdatePressedKeys(InputSnapshot input)
+    {
+        foreach (var keyEvent in input.KeyEvents) {
+            if (keyMap.TryGetValue(keyEvent.Key, out var key)) {
+                if (keyEvent.Down)
+                    pressedKeys.Add(key);
+                else
+                    pressedKeys.Remove(key);
+            }
+        }
+    }
 
     protected override void DrawSprites(Stopwatch realTime, double interpolation, TimeSpan physicsInterval)
     {
         var timeToDrawPreviousFrame = realTime.Elapsed - previousRealTime;
         var currentFps = 1.0 / timeToDrawPreviousFrame.TotalSeconds;
-        fps = fps * fpsSmoothing + currentFps * (1.0 - fpsSmoothing);
+        fps = fps * FpsSmoothing + currentFps * (1.0 - FpsSmoothing);
 
         previousRealTime = realTime.Elapsed;
 
@@ -66,9 +107,9 @@ internal class MyGame : Game
             Vector2.One, 0f);
     }
 
-    private readonly Vector2 velocity = Vector2.One;
+    private Vector2 velocity = Vector2.Zero;
 
-    protected override async Task Update(TimeSpan physicsInterval)
+    protected override async Task UpdatePhysics(TimeSpan physicsInterval)
     {
         var newPosition = transform.Position + velocity * GetFactor(physicsInterval);
         transform = transform with {
@@ -78,14 +119,11 @@ internal class MyGame : Game
     }
 
     private static float GetFactor(TimeSpan interval)
-    {
-        var factor = (float)interval.TotalSeconds * 100;
-        return factor;
-    }
+        => (float)interval.TotalSeconds * 1000;
 
-    private static Vector2 Wrap(Vector2 position, Vector2 size) =>
-        new(Wrap(position.X, size.X), Wrap(position.Y, size.Y));
+    private static Vector2 Wrap(Vector2 position, Vector2 size)
+        => new(Wrap(position.X, size.X), Wrap(position.Y, size.Y));
 
-    private static float Wrap(float position, float max) =>
-        position < 0 ? position + max : position >= max ? position - max : position;
+    private static float Wrap(float position, float max)
+        => position < 0 ? position + max : position >= max ? position - max : position;
 }

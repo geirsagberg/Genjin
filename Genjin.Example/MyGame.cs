@@ -4,6 +4,7 @@ using System.Numerics;
 using Genjin.Core;
 using Peridot.Veldrid;
 using Veldrid;
+using Rectangle = System.Drawing.Rectangle;
 
 namespace Genjin.Example;
 
@@ -94,11 +95,13 @@ internal class MyGame : Game
         var viewPosition = transform.Position + velocity * GetFactor(physicsInterval) * (float)interpolation;
 
         SpriteBatch.DrawSprite(spriteSheet, 0, 0, transform with { Position = viewPosition });
-        DrawString($"{transform.Position.X}", Vector2.Zero);
-        DrawString($"{transform.Position.Y}", new Vector2(150, 0));
+        DrawString($"{transform.Position.X:F2}", Vector2.Zero);
+        DrawString($"{transform.Position.Y:F2}", new Vector2(150, 0));
         DrawString($"Draws: {draws++}", new Vector2(0, 40));
-        DrawString($"FPS: {fps}", new Vector2(200, 40));
+        DrawString($"FPS: {fps:F0}", new Vector2(200, 40));
         DrawString($"Updates: {updates}", new Vector2(0, 80));
+
+        FillRectangle(new Rectangle(100, 100, 200, 200), Color.Aqua);
     }
 
     private void DrawString(string text, Vector2 position)

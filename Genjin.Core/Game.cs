@@ -1,10 +1,13 @@
 ﻿using System.Diagnostics;
+using System.Drawing;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using Peridot.Veldrid;
 using StbImageSharp;
 using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
+using Rectangle = System.Drawing.Rectangle;
 
 namespace Genjin.Core;
 
@@ -21,7 +24,8 @@ public abstract class Game
 
     protected Game()
     {
-        Window = new Sdl2Window("Game", 100, 100, 1024, 768, SDL_WindowFlags.Resizable | SDL_WindowFlags.Shown, true);
+        Window = new Sdl2Window("Game", 100, 100, 1024, 768, SDL_WindowFlags.Resizable | SDL_WindowFlags.Shown,
+            RuntimeInformation.IsOSPlatform(OSPlatform.Windows));
         var options = new GraphicsDeviceOptions {
             PreferStandardClipSpaceYDirection = true,
             PreferDepthRangeZeroToOne = true,
@@ -41,6 +45,17 @@ public abstract class Game
         SpriteBatch = new VeldridSpriteBatch(GraphicsDevice, GraphicsDevice.SwapchainFramebuffer.OutputDescription,
             shaders);
         TextRenderer = new TextRenderer(GraphicsDevice, SpriteBatch);
+
+        WhitePixelTexture = CreateWhitePixelTexture();
+    }
+
+    private TextureWrapper CreateWhitePixelTexture()
+    {
+        var textureDescription = new TextureDescription(1, 1, 1, 1, 1, PixelFormat.R8_G8_B8_A8_UNorm,
+            TextureUsage.Sampled, TextureType.Texture2D);
+        var texture = ResourceFactory.CreateTexture(textureDescription);
+        GraphicsDevice.UpdateTexture(texture, new byte[] { 255, 255, 255, 255 }, 0, 0, 0, 1, 1, 1, 0, 0);
+        return new TextureWrapper(texture);
     }
 
     private void OnWindowOnResized()
@@ -78,6 +93,15 @@ public abstract class Game
     }
 
     protected abstract void Init();
+
+    protected void FillRectangle(Rectangle rectangle, Color color)
+    {
+        SpriteBatch.Draw(WhitePixelTexture, rectangle, new Rectangle(0, 0, 1, 1), color, 0,
+            Vector2.Zero,
+            0);
+    }
+
+    private TextureWrapper WhitePixelTexture { get; }
 
     public async Task Start()
     {

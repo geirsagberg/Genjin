@@ -20,6 +20,7 @@ public abstract class Game
     protected VeldridSpriteBatch SpriteBatch { get; }
     protected TextRenderer TextRenderer { get; }
     private Fence Fence { get; }
+    private TextureWrapper WhitePixelTexture { get; }
     protected ResourceFactory ResourceFactory => GraphicsDevice.ResourceFactory;
 
     protected Game()
@@ -100,8 +101,6 @@ public abstract class Game
             Vector2.Zero,
             0);
     }
-
-    private TextureWrapper WhitePixelTexture { get; }
 
     public async Task Start()
     {

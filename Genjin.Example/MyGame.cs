@@ -70,6 +70,8 @@ internal class MyGame : Game
                 (pressedKeys.Contains(GameKey.Up) ? -1f : 0) + (pressedKeys.Contains(GameKey.Down) ? 1f : 0));
 
         velocity = newVelocity.NormalizeOrZero();
+
+        mousePosition = input.MousePosition;
     }
 
     private void UpdatePressedKeys(InputSnapshot input)
@@ -101,7 +103,7 @@ internal class MyGame : Game
         DrawString($"FPS: {fps:F0}", new Vector2(200, 40));
         DrawString($"Updates: {updates}", new Vector2(0, 80));
 
-        FillRectangle(new Rectangle(100, 100, 200, 200), Color.Aqua);
+        FillRectangle(new Rectangle((int)mousePosition.X, (int)mousePosition.Y, 200, 200), Color.Aqua);
     }
 
     private void DrawString(string text, Vector2 position)
@@ -111,6 +113,7 @@ internal class MyGame : Game
     }
 
     private Vector2 velocity = Vector2.Zero;
+    private Vector2 mousePosition;
 
     protected override async Task UpdatePhysics(TimeSpan physicsInterval)
     {

@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Drawing;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using Peridot.Veldrid;
@@ -7,7 +6,6 @@ using StbImageSharp;
 using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
-using Rectangle = System.Drawing.Rectangle;
 
 namespace Genjin.Core;
 
@@ -20,7 +18,7 @@ public abstract class Game
     protected VeldridSpriteBatch SpriteBatch { get; }
     protected TextRenderer TextRenderer { get; }
     private Fence Fence { get; }
-    private TextureWrapper WhitePixelTexture { get; }
+    protected ShapeBatch ShapeBatch { get; }
     protected ResourceFactory ResourceFactory => GraphicsDevice.ResourceFactory;
 
     protected Game()
@@ -47,16 +45,7 @@ public abstract class Game
             shaders);
         TextRenderer = new TextRenderer(GraphicsDevice, SpriteBatch);
 
-        WhitePixelTexture = CreateWhitePixelTexture();
-    }
-
-    private TextureWrapper CreateWhitePixelTexture()
-    {
-        var textureDescription = new TextureDescription(1, 1, 1, 1, 1, PixelFormat.R8_G8_B8_A8_UNorm,
-            TextureUsage.Sampled, TextureType.Texture2D);
-        var texture = ResourceFactory.CreateTexture(textureDescription);
-        GraphicsDevice.UpdateTexture(texture, new byte[] { 255, 255, 255, 255 }, 0, 0, 0, 1, 1, 1, 0, 0);
-        return new TextureWrapper(texture);
+        ShapeBatch = new ShapeBatch(SpriteBatch, GraphicsDevice);
     }
 
     private void OnWindowOnResized()
@@ -95,13 +84,6 @@ public abstract class Game
 
     protected abstract void Init();
 
-    protected void FillRectangle(Rectangle rectangle, Color color)
-    {
-        SpriteBatch.Draw(WhitePixelTexture, rectangle, new Rectangle(0, 0, 1, 1), color, 0,
-            Vector2.Zero,
-            0);
-    }
-
     public async Task Start()
     {
         Init();
@@ -135,8 +117,6 @@ public abstract class Game
 
         Draw(realTime, interpolation, physicsInterval);
 
-        // await Task.Delay(100);
-
         return physicsTime;
     }
 
@@ -149,22 +129,25 @@ public abstract class Game
     protected virtual void Draw(Stopwatch realTime, double interpolation, TimeSpan physicsInterval)
     {
         lock (Window) {
-            CommandList.Begin();
-            CommandList.SetFramebuffer(GraphicsDevice.SwapchainFramebuffer);
-            CommandList.ClearColorTarget(0, RgbaFloat.Black);
+            if (Window.Exists) {
+                CommandList.Begin();
+                CommandList.SetFramebuffer(GraphicsDevice.SwapchainFramebuffer);
+                CommandList.ClearColorTarget(0, RgbaFloat.Black);
 
-            SpriteBatch.Begin();
-            SpriteBatch.ViewMatrix = Matrix4x4.CreateOrthographicOffCenter(0, Window.Width, 0, Window.Height, -10, 10);
-            DrawSprites(realTime, interpolation, physicsInterval);
-            SpriteBatch.DrawBatch(CommandList);
-            SpriteBatch.End();
+                SpriteBatch.Begin();
+                SpriteBatch.ViewMatrix =
+                    Matrix4x4.CreateOrthographicOffCenter(0, Window.Width, 0, Window.Height, -10, 10);
+                DrawSprites(realTime, interpolation, physicsInterval);
+                SpriteBatch.DrawBatch(CommandList);
+                SpriteBatch.End();
 
-            CommandList.End();
+                CommandList.End();
 
-            Fence.Reset();
-            GraphicsDevice.SubmitCommands(CommandList, Fence);
-            GraphicsDevice.WaitForFence(Fence);
-            GraphicsDevice.SwapBuffers();
+                Fence.Reset();
+                GraphicsDevice.SubmitCommands(CommandList, Fence);
+                GraphicsDevice.WaitForFence(Fence);
+                GraphicsDevice.SwapBuffers();
+            }
         }
     }
 

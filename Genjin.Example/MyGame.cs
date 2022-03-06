@@ -103,7 +103,7 @@ internal class MyGame : Game
         DrawString($"FPS: {fps:F0}", new Vector2(200, 40));
         DrawString($"Updates: {updates}", new Vector2(0, 80));
 
-        FillRectangle(new Rectangle((int)mousePosition.X, (int)mousePosition.Y, 200, 200), Color.Aqua);
+        ShapeBatch.FillRectangle(new Rectangle((int)mousePosition.X, (int)mousePosition.Y, 200, 200), Color.Aqua);
     }
 
     private void DrawString(string text, Vector2 position)

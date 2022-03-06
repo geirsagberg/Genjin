@@ -8,8 +8,10 @@ using Rectangle = System.Drawing.Rectangle;
 
 namespace Genjin.Example;
 
-internal interface IDrawable
+internal enum PlayerState
 {
+    Idle,
+    Running
 }
 
 internal class MyGame : Game
@@ -17,18 +19,23 @@ internal class MyGame : Game
     private TextureWrapper playerSprite;
     private Transform2 transform;
     private Font arial = null!;
-    private AnimatedSprite animatedSprite = null!;
+    private AnimatedSprite<PlayerState> animatedSprite = null!;
     private SpriteSheet spriteSheet = null!;
 
+    private TimeSpan animationTime;
+
+    private int currentAnimationFrame;
+
+    private PlayerState currentPlayerState;
 
     protected override Task Init()
     {
         playerSprite = LoadTexture("Assets/Sprites/player.png");
 
         spriteSheet = new SpriteSheet(playerSprite, 21, 1);
-        animatedSprite = new AnimatedSprite(spriteSheet, new Dictionary<string, Animation> {
-            { "idle", new(..0) },
-            { "running", new(1..9) }
+        animatedSprite = new AnimatedSprite<PlayerState>(spriteSheet, new Dictionary<PlayerState, Animation> {
+            { PlayerState.Idle, new(..0) },
+            { PlayerState.Running, new(1..9) }
         });
 
         arial = LoadFont("Assets/Fonts/arial.ttf");
@@ -63,7 +70,7 @@ internal class MyGame : Game
         { Key.D, GameKey.Right },
     };
 
-    protected override async Task UpdateBasedOnInput(InputSnapshot input)
+    protected override Task UpdateBasedOnInput(InputSnapshot input)
     {
         UpdatePressedKeys(input);
 
@@ -74,6 +81,8 @@ internal class MyGame : Game
         velocity = newVelocity.NormalizeOrZero();
 
         mousePosition = input.MousePosition;
+
+        return Task.CompletedTask;
     }
 
     private void UpdatePressedKeys(InputSnapshot input)
@@ -88,7 +97,7 @@ internal class MyGame : Game
         }
     }
 
-    protected override void DrawSprites(Stopwatch realTime, double interpolation, TimeSpan physicsInterval)
+    protected override void DrawSprites(Stopwatch realTime, float interpolation, TimeSpan physicsInterval)
     {
         var timeToDrawPreviousFrame = realTime.Elapsed - previousRealTime;
         var currentFps = 1.0 / timeToDrawPreviousFrame.TotalSeconds;
@@ -96,7 +105,17 @@ internal class MyGame : Game
 
         previousRealTime = realTime.Elapsed;
 
-        var viewPosition = transform.Position + velocity * GetFactor(physicsInterval) * (float)interpolation;
+        animationTime += timeToDrawPreviousFrame;
+
+        var newPlayerState = pressedKeys.Any() ? PlayerState.Running : PlayerState.Idle;
+
+        if (newPlayerState == PlayerState.Running) {
+            if (currentPlayerState != PlayerState.Running)
+                currentAnimationFrame = 0;
+            // animatedSprite.Animations[]
+        }
+
+        var viewPosition = transform.Position + velocity * GetFactor(physicsInterval) * interpolation;
 
         SpriteBatch.DrawSprite(spriteSheet, 0, 0, transform with { Position = viewPosition });
         DrawString($"{transform.Position.X:F2}", Vector2.Zero);
@@ -127,13 +146,15 @@ internal class MyGame : Game
     private Vector2 velocity = Vector2.Zero;
     private Vector2 mousePosition;
 
-    protected override async Task UpdatePhysics(TimeSpan physicsInterval)
+    protected override Task UpdatePhysics(TimeSpan physicsInterval)
     {
         var newPosition = transform.Position + velocity * GetFactor(physicsInterval);
         transform = transform with {
             Position = Wrap(newPosition, Window.Bounds.Size)
         };
         updates++;
+
+        return Task.CompletedTask;
     }
 
     private static float GetFactor(TimeSpan interval)

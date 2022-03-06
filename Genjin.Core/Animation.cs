@@ -1,3 +1,10 @@
 ﻿namespace Genjin.Example;
 
-public record Animation(Range Frames);
+public enum AnimationMode
+{
+    Once,
+    Loop,
+    PingPong
+}
+
+public record Animation(Range Frames, float Fps = 15, AnimationMode Mode = AnimationMode.Loop);

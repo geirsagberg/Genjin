@@ -128,7 +128,7 @@ public abstract class Game
             framesSkipped++;
         }
 
-        var interpolation = (realTime.Elapsed + physicsInterval - elapsedPhysicsTime) / physicsInterval;
+        var interpolation = (float)((realTime.Elapsed + physicsInterval - elapsedPhysicsTime) / physicsInterval);
 
         Draw(realTime, interpolation, physicsInterval);
 
@@ -139,9 +139,9 @@ public abstract class Game
 
     protected void Stop() => running = false;
 
-    protected abstract void DrawSprites(Stopwatch realTime, double interpolation, TimeSpan physicsInterval);
+    protected abstract void DrawSprites(Stopwatch realTime, float interpolation, TimeSpan physicsInterval);
 
-    protected virtual void Draw(Stopwatch realTime, double interpolation, TimeSpan physicsInterval)
+    protected virtual void Draw(Stopwatch realTime, float interpolation, TimeSpan physicsInterval)
     {
         lock (Window) {
             CommandList.Begin();

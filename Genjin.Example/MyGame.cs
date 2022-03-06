@@ -21,7 +21,7 @@ internal class MyGame : Game
     private SpriteSheet spriteSheet = null!;
 
 
-    protected override void Init()
+    protected override Task Init()
     {
         playerSprite = LoadTexture("Assets/Sprites/player.png");
 
@@ -33,6 +33,8 @@ internal class MyGame : Game
 
         arial = LoadFont("Assets/Fonts/arial.ttf");
         transform = new Transform2(new Vector2(100, 100), default, spriteSheet.SpriteSize);
+
+        return Task.CompletedTask;
     }
 
     private int draws;
@@ -103,17 +105,17 @@ internal class MyGame : Game
         DrawString($"FPS: {fps:F0}", new Vector2(200, 40));
         DrawString($"Updates: {updates}", new Vector2(0, 80));
 
-        ShapeBatch.FillRectangle(new Rectangle((int)mousePosition.X, (int)mousePosition.Y, 200, 200), Color.Aqua);
+        ShapeRenderer.FillRectangle(new Rectangle((int)mousePosition.X, (int)mousePosition.Y, 20, 20), Color.Aqua);
 
-        ShapeBatch.DrawPoint(new Vector2(400), Color.Aqua, 1f);
-        ShapeBatch.DrawPoint(new Vector2(450, 400), Color.Aqua, 50f);
+        ShapeRenderer.DrawPoint(new Vector2(400), Color.Aqua, 1f);
+        ShapeRenderer.DrawPoint(new Vector2(450, 400), Color.Aqua, 50f);
 
-        ShapeBatch.DrawRectangle(new RectangleF(300, 400, 50, 90), Color.Chartreuse, 3f);
+        ShapeRenderer.DrawRectangle(new RectangleF(300, 400, 50, 90), Color.Chartreuse, 3f);
 
-        ShapeBatch.DrawPolygon(new Vector2(600, 200),
+        ShapeRenderer.DrawPolygon(new Vector2(600, 200),
             new Vector2[] { new(0, 0), new(30, 100), new(-60, 120) }, Color.Khaki, 10f);
 
-        ShapeBatch.DrawCircle(new Vector2(300, 350), 100, 32, Color.Coral, 50f);
+        ShapeRenderer.DrawCircle(new Vector2(300, 350), 100, 32, Color.Coral, 50f);
     }
 
     private void DrawString(string text, Vector2 position)

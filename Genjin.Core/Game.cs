@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using Microsoft.Extensions.Configuration;
 using Peridot.Veldrid;
 using StbImageSharp;
 using Veldrid;
@@ -18,18 +19,25 @@ public abstract class Game
     protected VeldridSpriteBatch SpriteBatch { get; }
     protected TextRenderer TextRenderer { get; }
     private Fence Fence { get; }
-    protected ShapeBatch ShapeBatch { get; }
+    protected ShapeBatch ShapeRenderer { get; }
     protected ResourceFactory ResourceFactory => GraphicsDevice.ResourceFactory;
 
-    protected Game()
+    protected Game(string title = "Game")
     {
-        Window = new Sdl2Window("Game", 100, 100, 1024, 768, SDL_WindowFlags.Resizable | SDL_WindowFlags.Shown,
+        var gameSettings = LoadGenjinSettings();
+
+        Window = new Sdl2Window(title, 100, 100, gameSettings.Width, gameSettings.Height, SDL_WindowFlags.Resizable |
+            SDL_WindowFlags.Shown |
+            gameSettings.Display switch {
+                DisplayMode.Fullscreen => SDL_WindowFlags.Fullscreen,
+                DisplayMode.Borderless => SDL_WindowFlags.FullScreenDesktop,
+                _ => 0
+            },
             RuntimeInformation.IsOSPlatform(OSPlatform.Windows));
         var options = new GraphicsDeviceOptions {
             PreferStandardClipSpaceYDirection = true,
             PreferDepthRangeZeroToOne = true,
-            SyncToVerticalBlank = true,
-            Debug = true,
+            SyncToVerticalBlank = gameSettings.VSync
         };
 
         GraphicsDevice = VeldridStartup.CreateGraphicsDevice(Window, options, GraphicsBackend.Vulkan);
@@ -45,8 +53,15 @@ public abstract class Game
             shaders);
         TextRenderer = new TextRenderer(GraphicsDevice, SpriteBatch);
 
-        ShapeBatch = new ShapeBatch(SpriteBatch, GraphicsDevice);
+        ShapeRenderer = new ShapeBatch(SpriteBatch, GraphicsDevice);
     }
+
+    private static GenjinSettings LoadGenjinSettings() =>
+        new ConfigurationBuilder()
+            .AddIniFile("defaultConfig.ini", false)
+            .AddIniFile("config.ini", true, true)
+            .Build()
+            .GetSection("Genjin").Get<GenjinSettings>();
 
     private void OnWindowOnResized()
     {
@@ -82,22 +97,22 @@ public abstract class Game
         return font;
     }
 
-    protected abstract void Init();
+    protected abstract Task Init();
 
     public async Task Start()
     {
-        Init();
+        await Init();
 
         var realTime = Stopwatch.StartNew();
 
-        var physicsTime = TimeSpan.Zero;
+        var elapsedPhysicsTime = TimeSpan.Zero;
 
         while (running && Window.Exists) {
-            physicsTime = await GameLoop(realTime, physicsTime);
+            elapsedPhysicsTime = await GameLoop(realTime, elapsedPhysicsTime);
         }
     }
 
-    private async Task<TimeSpan> GameLoop(Stopwatch realTime, TimeSpan physicsTime)
+    private async Task<TimeSpan> GameLoop(Stopwatch realTime, TimeSpan elapsedPhysicsTime)
     {
         var input = Window.PumpEvents();
 
@@ -107,17 +122,17 @@ public abstract class Game
         var physicsInterval = TimeSpan.FromSeconds(1.0 / physicsFrequency);
         var maxFrameSkip = 5;
         var framesSkipped = 0;
-        while (physicsTime < realTime.Elapsed && framesSkipped < maxFrameSkip) {
+        while (elapsedPhysicsTime < realTime.Elapsed && framesSkipped < maxFrameSkip) {
             await UpdatePhysics(physicsInterval);
-            physicsTime += physicsInterval;
+            elapsedPhysicsTime += physicsInterval;
             framesSkipped++;
         }
 
-        var interpolation = (realTime.Elapsed + physicsInterval - physicsTime) / physicsInterval;
+        var interpolation = (realTime.Elapsed + physicsInterval - elapsedPhysicsTime) / physicsInterval;
 
         Draw(realTime, interpolation, physicsInterval);
 
-        return physicsTime;
+        return elapsedPhysicsTime;
     }
 
     protected abstract Task UpdateBasedOnInput(InputSnapshot input);
@@ -129,23 +144,23 @@ public abstract class Game
     protected virtual void Draw(Stopwatch realTime, double interpolation, TimeSpan physicsInterval)
     {
         lock (Window) {
+            CommandList.Begin();
+            CommandList.SetFramebuffer(GraphicsDevice.SwapchainFramebuffer);
+            CommandList.ClearColorTarget(0, RgbaFloat.Black);
+
+            SpriteBatch.Begin();
+            SpriteBatch.ViewMatrix =
+                Matrix4x4.CreateOrthographicOffCenter(0, Window.Width, 0, Window.Height, -10, 10);
+            DrawSprites(realTime, interpolation, physicsInterval);
+            SpriteBatch.DrawBatch(CommandList);
+            SpriteBatch.End();
+
+            CommandList.End();
+
+            Fence.Reset();
+            GraphicsDevice.SubmitCommands(CommandList, Fence);
+            GraphicsDevice.WaitForFence(Fence);
             if (Window.Exists) {
-                CommandList.Begin();
-                CommandList.SetFramebuffer(GraphicsDevice.SwapchainFramebuffer);
-                CommandList.ClearColorTarget(0, RgbaFloat.Black);
-
-                SpriteBatch.Begin();
-                SpriteBatch.ViewMatrix =
-                    Matrix4x4.CreateOrthographicOffCenter(0, Window.Width, 0, Window.Height, -10, 10);
-                DrawSprites(realTime, interpolation, physicsInterval);
-                SpriteBatch.DrawBatch(CommandList);
-                SpriteBatch.End();
-
-                CommandList.End();
-
-                Fence.Reset();
-                GraphicsDevice.SubmitCommands(CommandList, Fence);
-                GraphicsDevice.WaitForFence(Fence);
                 GraphicsDevice.SwapBuffers();
             }
         }

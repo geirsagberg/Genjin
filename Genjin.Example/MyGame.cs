@@ -104,6 +104,16 @@ internal class MyGame : Game
         DrawString($"Updates: {updates}", new Vector2(0, 80));
 
         ShapeBatch.FillRectangle(new Rectangle((int)mousePosition.X, (int)mousePosition.Y, 200, 200), Color.Aqua);
+
+        ShapeBatch.DrawPoint(new Vector2(400), Color.Aqua, 1f);
+        ShapeBatch.DrawPoint(new Vector2(450, 400), Color.Aqua, 50f);
+
+        ShapeBatch.DrawRectangle(new RectangleF(300, 400, 50, 90), Color.Chartreuse, 3f);
+
+        ShapeBatch.DrawPolygon(new Vector2(600, 200),
+            new Vector2[] { new(0, 0), new(30, 100), new(-60, 120) }, Color.Khaki, 10f);
+
+        ShapeBatch.DrawCircle(new Vector2(300, 350), 100, 32, Color.Coral, 50f);
     }
 
     private void DrawString(string text, Vector2 position)

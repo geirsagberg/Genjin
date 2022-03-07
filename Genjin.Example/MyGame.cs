@@ -14,6 +14,12 @@ internal enum PlayerState
     Running
 }
 
+internal enum Facing
+{
+    Left,
+    Right
+}
+
 internal class MyGame : Game
 {
     private TextureWrapper playerSprite;
@@ -21,6 +27,7 @@ internal class MyGame : Game
     private Font arial = null!;
     private AnimatedSprite<PlayerState> animatedSprite = null!;
     private SpriteSheet spriteSheet = null!;
+
 
     private TimeSpan animationTime;
 
@@ -70,6 +77,8 @@ internal class MyGame : Game
         { Key.D, GameKey.Right },
     };
 
+    private Facing facing = Facing.Right;
+
     protected override Task UpdateBasedOnInput(InputSnapshot input)
     {
         UpdatePressedKeys(input);
@@ -79,6 +88,12 @@ internal class MyGame : Game
                 (pressedKeys.Contains(GameKey.Up) ? -1f : 0) + (pressedKeys.Contains(GameKey.Down) ? 1f : 0));
 
         velocity = newVelocity.NormalizeOrZero();
+
+        facing = velocity.X switch {
+            > 0 => Facing.Right,
+            < 0 => Facing.Left,
+            _ => facing
+        };
 
         mousePosition = input.MousePosition;
 
@@ -109,15 +124,35 @@ internal class MyGame : Game
 
         var newPlayerState = pressedKeys.Any() ? PlayerState.Running : PlayerState.Idle;
 
+        var animation = animatedSprite.Animations[newPlayerState];
+
         if (newPlayerState == PlayerState.Running) {
-            if (currentPlayerState != PlayerState.Running)
+            if (currentPlayerState != PlayerState.Running) {
                 currentAnimationFrame = 0;
-            // animatedSprite.Animations[]
+                Console.WriteLine("Reset animation");
+            }
+
+            currentPlayerState = newPlayerState;
+            var animationFrameInterval = TimeSpan.FromSeconds(1 / animation.Fps);
+            while (animationTime > animationFrameInterval) {
+                currentAnimationFrame++;
+                animationTime -= animationFrameInterval;
+            }
         }
+
+        currentAnimationFrame %= animation.Frames.GetLength();
+
+        Console.WriteLine($"{currentAnimationFrame} {newPlayerState}");
 
         var viewPosition = transform.Position + velocity * GetFactor(physicsInterval) * interpolation;
 
-        SpriteBatch.DrawSprite(spriteSheet, 0, 0, transform with { Position = viewPosition });
+        var spriteSheetIndex = animation.Frames.Start.Value + currentAnimationFrame;
+
+        SpriteBatch.DrawSprite(spriteSheet, spriteSheetIndex,
+            transform with {
+                Position = viewPosition
+            }, facing == Facing.Right ? SpriteEffects.None : SpriteEffects.FlipHorizontally);
+
         DrawString($"{transform.Position.X:F2}", Vector2.Zero);
         DrawString($"{transform.Position.Y:F2}", new Vector2(150, 0));
         DrawString($"Draws: {draws++}", new Vector2(0, 40));

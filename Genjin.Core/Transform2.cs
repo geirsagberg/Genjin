@@ -20,7 +20,7 @@ public readonly record struct Transform2(
     Size Size
 )
 {
-    public Transform2(Vector2 position, float rotation, Size size) : this(position, rotation, Vector2.One, default,
+    public Transform2(Vector2 position, float rotation, Size size) : this(position, rotation, Vector2.One, new Vector2(size.Width / 2f, size.Height / 2f),
         size)
     {
     }

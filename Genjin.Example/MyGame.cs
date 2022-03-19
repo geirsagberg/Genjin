@@ -193,7 +193,7 @@ internal class MyGame : Game
     }
 
     private static float GetFactor(TimeSpan interval)
-        => (float)interval.TotalSeconds * 1000;
+        => (float)interval.TotalSeconds * 200;
 
     private static Vector2 Wrap(Vector2 position, Vector2 size)
         => new(Wrap(position.X, size.X), Wrap(position.Y, size.Y));

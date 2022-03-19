@@ -12,7 +12,7 @@
         <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0" />
         <PackageReference Include="Microsoft.Extensions.Configuration.Ini" Version="6.0.0" />
         <PackageReference Include="Nito.AsyncEx.Context" Version="5.1.2" />
-        <PackageReference Include="Peridot.Veldrid" Version="0.2.2-alpha" />
+        <PackageReference Include="Peridot.Veldrid" Version="0.2.3-alpha" />
         <PackageReference Include="Veldrid" Version="4.8.0" />
         <PackageReference Include="Veldrid.StartupUtilities" Version="4.8.0" />
         <PackageReference Include="Veldrid.SPIRV" Version="1.0.14" />

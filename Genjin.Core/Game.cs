@@ -10,9 +10,24 @@ using Veldrid.StartupUtilities;
 
 namespace Genjin.Core;
 
-public abstract class Game
-{
+public abstract class Game {
     private bool running = true;
+
+    protected Game(string title = "Game") {
+        var gameSettings = LoadGenjinSettings();
+        Window = CreateWindow(title, gameSettings);
+        Window.Resized += OnWindowOnResized;
+        var options = GetGraphicsDeviceOptions(gameSettings);
+        GraphicsDevice = VeldridStartup.CreateGraphicsDevice(Window, options, GraphicsBackend.Vulkan);
+        var shaders = VeldridSpriteBatch.LoadDefaultShaders(GraphicsDevice);
+        CommandList = ResourceFactory.CreateCommandList();
+        Fence = ResourceFactory.CreateFence(false);
+        SpriteBatch = new VeldridSpriteBatch(GraphicsDevice, GraphicsDevice.SwapchainFramebuffer.OutputDescription,
+            shaders);
+        TextRenderer = new TextRenderer(GraphicsDevice, SpriteBatch);
+        ShapeRenderer = new ShapeBatch(SpriteBatch, GraphicsDevice);
+    }
+
     protected Sdl2Window Window { get; }
     private GraphicsDevice GraphicsDevice { get; }
     private CommandList CommandList { get; }
@@ -22,39 +37,25 @@ public abstract class Game
     protected ShapeBatch ShapeRenderer { get; }
     protected ResourceFactory ResourceFactory => GraphicsDevice.ResourceFactory;
 
-    protected Game(string title = "Game")
-    {
-        var gameSettings = LoadGenjinSettings();
-
-        Window = new Sdl2Window(title, 100, 100, gameSettings.Width, gameSettings.Height, SDL_WindowFlags.Resizable |
-            SDL_WindowFlags.Shown |
-            gameSettings.Display switch {
-                DisplayMode.Fullscreen => SDL_WindowFlags.Fullscreen,
-                DisplayMode.Borderless => SDL_WindowFlags.FullScreenDesktop,
-                _ => 0
-            },
+    private static Sdl2Window CreateWindow(string title, GenjinSettings gameSettings) =>
+        new(title, 100, 100, gameSettings.Width, gameSettings.Height, GetWindowFlags(gameSettings),
             RuntimeInformation.IsOSPlatform(OSPlatform.Windows));
-        var options = new GraphicsDeviceOptions {
+
+    private static GraphicsDeviceOptions GetGraphicsDeviceOptions(GenjinSettings gameSettings) =>
+        new() {
             PreferStandardClipSpaceYDirection = true,
             PreferDepthRangeZeroToOne = true,
             SyncToVerticalBlank = gameSettings.VSync
         };
 
-        GraphicsDevice = VeldridStartup.CreateGraphicsDevice(Window, options, GraphicsBackend.Vulkan);
-
-        Window.Resized += OnWindowOnResized;
-
-        var shaders = VeldridSpriteBatch.LoadDefaultShaders(GraphicsDevice);
-        CommandList = ResourceFactory.CreateCommandList();
-
-        Fence = ResourceFactory.CreateFence(false);
-
-        SpriteBatch = new VeldridSpriteBatch(GraphicsDevice, GraphicsDevice.SwapchainFramebuffer.OutputDescription,
-            shaders);
-        TextRenderer = new TextRenderer(GraphicsDevice, SpriteBatch);
-
-        ShapeRenderer = new ShapeBatch(SpriteBatch, GraphicsDevice);
-    }
+    private static SDL_WindowFlags GetWindowFlags(GenjinSettings gameSettings) =>
+        SDL_WindowFlags.Resizable |
+        SDL_WindowFlags.Shown |
+        gameSettings.Display switch {
+            DisplayMode.Fullscreen => SDL_WindowFlags.Fullscreen,
+            DisplayMode.Borderless => SDL_WindowFlags.FullScreenDesktop,
+            _ => 0
+        };
 
     private static GenjinSettings LoadGenjinSettings() =>
         new ConfigurationBuilder()
@@ -63,15 +64,13 @@ public abstract class Game
             .Build()
             .GetSection("Genjin").Get<GenjinSettings>();
 
-    private void OnWindowOnResized()
-    {
+    private void OnWindowOnResized() {
         lock (Window) {
             GraphicsDevice.ResizeMainWindow((uint)Window.Width, (uint)Window.Height);
         }
     }
 
-    protected TextureWrapper LoadTexture(string path)
-    {
+    protected TextureWrapper LoadTexture(string path) {
         var bytes = File.ReadAllBytes(path);
         var image = ImageResult.FromMemory(bytes);
         Debug.Assert(image != null);
@@ -89,8 +88,7 @@ public abstract class Game
         return new TextureWrapper(texture);
     }
 
-    protected static Font LoadFont(string path)
-    {
+    protected static Font LoadFont(string path) {
         var bytes = File.ReadAllBytes(path);
         var font = new Font();
         font.AddFont(bytes);
@@ -99,8 +97,7 @@ public abstract class Game
 
     protected abstract Task Init();
 
-    public async Task Start()
-    {
+    public async Task Start() {
         await Init();
 
         var realTime = Stopwatch.StartNew();
@@ -112,15 +109,14 @@ public abstract class Game
         }
     }
 
-    private async Task<TimeSpan> GameLoop(Stopwatch realTime, TimeSpan elapsedPhysicsTime)
-    {
+    private async Task<TimeSpan> GameLoop(Stopwatch realTime, TimeSpan elapsedPhysicsTime) {
         var input = Window.PumpEvents();
 
         await UpdateBasedOnInput(input);
 
-        var physicsFrequency = 60;
+        const int physicsFrequency = 60;
         var physicsInterval = TimeSpan.FromSeconds(1.0 / physicsFrequency);
-        var maxFrameSkip = 5;
+        const int maxFrameSkip = 5;
         var framesSkipped = 0;
         while (elapsedPhysicsTime < realTime.Elapsed && framesSkipped < maxFrameSkip) {
             await UpdatePhysics(physicsInterval);
@@ -130,7 +126,7 @@ public abstract class Game
 
         var interpolation = (float)((realTime.Elapsed + physicsInterval - elapsedPhysicsTime) / physicsInterval);
 
-        Draw(realTime, interpolation, physicsInterval);
+        DrawInternal(realTime, interpolation, physicsInterval);
 
         return elapsedPhysicsTime;
     }
@@ -139,10 +135,9 @@ public abstract class Game
 
     protected void Stop() => running = false;
 
-    protected abstract void DrawSprites(Stopwatch realTime, float interpolation, TimeSpan physicsInterval);
+    protected abstract void Draw(Stopwatch realTime, float interpolation, TimeSpan physicsInterval);
 
-    protected virtual void Draw(Stopwatch realTime, float interpolation, TimeSpan physicsInterval)
-    {
+    private void DrawInternal(Stopwatch realTime, float interpolation, TimeSpan physicsInterval) {
         lock (Window) {
             CommandList.Begin();
             CommandList.SetFramebuffer(GraphicsDevice.SwapchainFramebuffer);
@@ -151,7 +146,7 @@ public abstract class Game
             SpriteBatch.Begin();
             SpriteBatch.ViewMatrix =
                 Matrix4x4.CreateOrthographicOffCenter(0, Window.Width, 0, Window.Height, -10, 10);
-            DrawSprites(realTime, interpolation, physicsInterval);
+            Draw(realTime, interpolation, physicsInterval);
             SpriteBatch.DrawBatch(CommandList);
             SpriteBatch.End();
 

@@ -1,7 +1,6 @@
 ﻿namespace Genjin.Example;
 
-public enum AnimationMode
-{
+public enum AnimationMode {
     Once,
     Loop,
     PingPong

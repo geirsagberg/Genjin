@@ -7,21 +7,19 @@ using Rectangle = System.Drawing.Rectangle;
 
 namespace Genjin.Core;
 
-public class ShapeBatch
-{
-    private readonly VeldridSpriteBatch spriteBatch;
+public class ShapeBatch {
     private static readonly Rectangle SinglePixelRectangle = new(0, 0, 1, 1);
-    private TextureWrapper WhitePixelTexture { get; }
+    private readonly VeldridSpriteBatch spriteBatch;
 
-    public ShapeBatch(VeldridSpriteBatch spriteBatch, GraphicsDevice graphicsDevice)
-    {
+    public ShapeBatch(VeldridSpriteBatch spriteBatch, GraphicsDevice graphicsDevice) {
         this.spriteBatch = spriteBatch;
 
         WhitePixelTexture = CreateWhitePixelTexture(graphicsDevice);
     }
 
-    private static TextureWrapper CreateWhitePixelTexture(GraphicsDevice graphicsDevice)
-    {
+    private TextureWrapper WhitePixelTexture { get; }
+
+    private static TextureWrapper CreateWhitePixelTexture(GraphicsDevice graphicsDevice) {
         var textureDescription = new TextureDescription(1, 1, 1, 1, 1, PixelFormat.R8_G8_B8_A8_UNorm,
             TextureUsage.Sampled, TextureType.Texture2D);
         var texture = graphicsDevice.ResourceFactory.CreateTexture(textureDescription);
@@ -29,16 +27,11 @@ public class ShapeBatch
         return new TextureWrapper(texture);
     }
 
-    public void FillRectangle(Rectangle rectangle, Color color)
-    {
-        spriteBatch.Draw(WhitePixelTexture, rectangle, SinglePixelRectangle, color, 0,
-            Vector2.Zero,
-            0);
-    }
+    public void FillRectangle(Rectangle rectangle, Color color) =>
+        spriteBatch.Draw(WhitePixelTexture, rectangle, SinglePixelRectangle, color, 0, Vector2.Zero, 0);
 
     public void DrawPolygon(Vector2 offset, IReadOnlyList<Vector2> points, Color color, float thickness = 1f,
-        float layerDepth = 0f)
-    {
+        float layerDepth = 0f) {
         switch (points.Count) {
             case 0:
                 break;
@@ -56,8 +49,7 @@ public class ShapeBatch
         }
     }
 
-    public void DrawPoint(Vector2 position, Color color, float size = 1f, float layerDepth = 0f)
-    {
+    public void DrawPoint(Vector2 position, Color color, float size = 1f, float layerDepth = 0f) {
         var scale = Vector2.One * size;
         var offset = new Vector2(0.5f) - new Vector2(size * 0.5f);
         spriteBatch.Draw(WhitePixelTexture, position + offset, SinglePixelRectangle, color, 0, Vector2.Zero, scale,
@@ -68,8 +60,7 @@ public class ShapeBatch
     private static float Angle(Vector2 point1, Vector2 point2) =>
         MathF.Atan2(point2.Y - point1.Y, point2.X - point1.X);
 
-    public void DrawRectangle(RectangleF rectangle, Color color, float thickness = 1, float layerDepth = 0)
-    {
+    public void DrawRectangle(RectangleF rectangle, Color color, float thickness = 1, float layerDepth = 0) {
         var topLeft = new Vector2(rectangle.X, rectangle.Y);
         var topRight = new Vector2(rectangle.Right - thickness, rectangle.Y);
         var bottomLeft = new Vector2(rectangle.X, rectangle.Bottom - thickness);
@@ -85,8 +76,7 @@ public class ShapeBatch
             layerDepth);
     }
 
-    private void DrawPolygonEdge(Vector2 point1, Vector2 point2, Color color, float thickness, float layerDepth)
-    {
+    private void DrawPolygonEdge(Vector2 point1, Vector2 point2, Color color, float thickness, float layerDepth) {
         var vector = Vector2.Distance(point1, point2);
         var rotation = Angle(point1, point2);
         var scaled = new Vector2(vector, thickness);
@@ -95,34 +85,27 @@ public class ShapeBatch
     }
 
     public void DrawLine(Vector2 start, float length, float angle, Color color, float thickness = 1,
-        float layerDepth = 0)
-    {
+        float layerDepth = 0) {
         var origin = new Vector2(0, 0.5f);
         var scale = new Vector2(length, thickness);
         spriteBatch.Draw(WhitePixelTexture, start, SinglePixelRectangle, color, angle, origin, scale, layerDepth);
     }
 
-    public void DrawLine(Vector2 start, Vector2 end, Color color, float thickness = 1, float layerDepth = 0)
-    {
+    public void DrawLine(Vector2 start, Vector2 end, Color color, float thickness = 1, float layerDepth = 0) {
         var length = Vector2.Distance(start, end);
         var angle = Angle(start, end);
         DrawLine(start, length, angle, color, thickness, layerDepth);
     }
 
     public void DrawCircle(Vector2 center, float radius, int sides, Color color, float thickness = 1,
-        float layerDepth = 0)
-    {
+        float layerDepth = 0) =>
         DrawPolygon(center, CreateCircle(radius, sides), color, thickness, layerDepth);
-    }
 
     public void DrawEllipse(Vector2 center, Vector2 radius, int sides, Color color, float thickness = 1,
-        float layerDepth = 0)
-    {
+        float layerDepth = 0) =>
         DrawPolygon(center, CreateEllipse(radius.X, radius.Y, sides), color, thickness, layerDepth);
-    }
 
-    private static Vector2[] CreateEllipse(float radiusX, float radiusY, int sides)
-    {
+    private static Vector2[] CreateEllipse(float radiusX, float radiusY, int sides) {
         var ellipsePoints = new Vector2[sides];
         var deltaAngle = MathF.Tau / sides;
         var currentAngle = 0f;
@@ -136,8 +119,7 @@ public class ShapeBatch
         return ellipsePoints;
     }
 
-    private static Vector2[] CreateCircle(float radius, int sides)
-    {
+    private static Vector2[] CreateCircle(float radius, int sides) {
         var circlePoints = new Vector2[sides];
         var deltaAngle = MathF.Tau / sides;
         var currentAngle = 0f;

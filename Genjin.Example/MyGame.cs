@@ -8,35 +8,53 @@ using Rectangle = System.Drawing.Rectangle;
 
 namespace Genjin.Example;
 
-internal enum PlayerState
-{
+internal enum PlayerState {
     Idle,
     Running
 }
 
-internal enum Facing
-{
+internal enum Facing {
     Left,
     Right
 }
 
-internal class MyGame : Game
-{
-    private TextureWrapper playerSprite;
-    private Transform2 transform;
-    private Font arial = null!;
+internal class MyGame : Game {
+    private const double FpsSmoothing = 0.9;
+
+    private readonly Dictionary<Key, GameKey> keyMap = new() {
+        { Key.A, GameKey.Left },
+        { Key.W, GameKey.Up },
+        { Key.S, GameKey.Down },
+        { Key.D, GameKey.Right }
+    };
+
+    private readonly HashSet<GameKey> pressedKeys = new();
     private AnimatedSprite<PlayerState> animatedSprite = null!;
-    private SpriteSheet spriteSheet = null!;
 
 
     private TimeSpan animationTime;
+    private Font arial = null!;
 
     private int currentAnimationFrame;
 
     private PlayerState currentPlayerState;
 
-    protected override Task Init()
-    {
+    private int draws;
+
+    private Facing facing = Facing.Right;
+
+    private double fps;
+    private Vector2 mousePosition;
+    private TextureWrapper playerSprite;
+
+    private TimeSpan previousRealTime = TimeSpan.Zero;
+    private SpriteSheet spriteSheet = null!;
+    private Transform2 transform;
+    private int updates;
+
+    private Vector2 velocity = Vector2.Zero;
+
+    protected override Task Init() {
         playerSprite = LoadTexture("Assets/Sprites/player.png");
 
         spriteSheet = new SpriteSheet(playerSprite, 21, 1);
@@ -51,36 +69,7 @@ internal class MyGame : Game
         return Task.CompletedTask;
     }
 
-    private int draws;
-    private int updates;
-
-    private double fps;
-
-    private const double FpsSmoothing = 0.9;
-
-    private TimeSpan previousRealTime = TimeSpan.Zero;
-
-    private enum GameKey : byte
-    {
-        Up,
-        Down,
-        Left,
-        Right
-    }
-
-    private readonly HashSet<GameKey> pressedKeys = new();
-
-    private readonly Dictionary<Key, GameKey> keyMap = new() {
-        { Key.A, GameKey.Left },
-        { Key.W, GameKey.Up },
-        { Key.S, GameKey.Down },
-        { Key.D, GameKey.Right },
-    };
-
-    private Facing facing = Facing.Right;
-
-    protected override Task UpdateBasedOnInput(InputSnapshot input)
-    {
+    protected override Task UpdateBasedOnInput(InputSnapshot input) {
         UpdatePressedKeys(input);
 
         var newVelocity =
@@ -100,23 +89,22 @@ internal class MyGame : Game
         return Task.CompletedTask;
     }
 
-    private void UpdatePressedKeys(InputSnapshot input)
-    {
+    private void UpdatePressedKeys(InputSnapshot input) {
         foreach (var keyEvent in input.KeyEvents) {
             if (keyMap.TryGetValue(keyEvent.Key, out var key)) {
-                if (keyEvent.Down)
+                if (keyEvent.Down) {
                     pressedKeys.Add(key);
-                else
+                } else {
                     pressedKeys.Remove(key);
+                }
             }
         }
     }
 
-    protected override void DrawSprites(Stopwatch realTime, float interpolation, TimeSpan physicsInterval)
-    {
+    protected override void Draw(Stopwatch realTime, float interpolation, TimeSpan physicsInterval) {
         var timeToDrawPreviousFrame = realTime.Elapsed - previousRealTime;
         var currentFps = 1.0 / timeToDrawPreviousFrame.TotalSeconds;
-        fps = fps * FpsSmoothing + currentFps * (1.0 - FpsSmoothing);
+        fps = (fps * FpsSmoothing) + (currentFps * (1.0 - FpsSmoothing));
 
         previousRealTime = realTime.Elapsed;
 
@@ -144,7 +132,7 @@ internal class MyGame : Game
 
         Console.WriteLine($"{currentAnimationFrame} {newPlayerState}");
 
-        var viewPosition = transform.Position + velocity * GetFactor(physicsInterval) * interpolation;
+        var viewPosition = transform.Position + (velocity * GetFactor(physicsInterval) * interpolation);
 
         var spriteSheetIndex = animation.Frames.Start.Value + currentAnimationFrame;
 
@@ -172,32 +160,26 @@ internal class MyGame : Game
         ShapeRenderer.DrawCircle(new Vector2(300, 350), 100, 32, Color.Coral, 50f);
     }
 
-    private void DrawString(string text, Vector2 position)
-    {
+    private void DrawString(string text, Vector2 position) =>
         TextRenderer.DrawString(arial, 32, text, position, Color.Aqua, 0f, Vector2.Zero,
             Vector2.One, 0f);
-    }
 
-    private Vector2 velocity = Vector2.Zero;
-    private Vector2 mousePosition;
-
-    protected override Task UpdatePhysics(TimeSpan physicsInterval)
-    {
-        var newPosition = transform.Position + velocity * GetFactor(physicsInterval);
+    protected override Task UpdatePhysics(TimeSpan physicsInterval) {
+        var newPosition = transform.Position + (velocity * GetFactor(physicsInterval));
         transform = transform with {
-            Position = Wrap(newPosition, Window.Bounds.Size)
+            Position = newPosition.Wrap(Window.Bounds.Size)
         };
         updates++;
 
         return Task.CompletedTask;
     }
 
-    private static float GetFactor(TimeSpan interval)
-        => (float)interval.TotalSeconds * 200;
+    private static float GetFactor(TimeSpan interval) => (float)interval.TotalSeconds * 200;
 
-    private static Vector2 Wrap(Vector2 position, Vector2 size)
-        => new(Wrap(position.X, size.X), Wrap(position.Y, size.Y));
-
-    private static float Wrap(float position, float max)
-        => position < 0 ? position + max : position >= max ? position - max : position;
+    private enum GameKey : byte {
+        Up,
+        Down,
+        Left,
+        Right
+    }
 }

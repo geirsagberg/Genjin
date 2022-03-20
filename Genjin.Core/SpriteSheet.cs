@@ -3,14 +3,16 @@ using Peridot.Veldrid;
 
 namespace Genjin.Example;
 
-public record SpriteSheet
-{
-    public SpriteSheet(TextureWrapper texture, int columns, int rows)
-    {
-        if (texture.Size.Width % columns > 0)
+public record SpriteSheet {
+    public SpriteSheet(TextureWrapper texture, int columns, int rows) {
+        if (texture.Size.Width % columns > 0) {
             throw new ArgumentException("Columns must be divisor of texture width");
-        if (texture.Size.Height % rows > 0)
+        }
+
+        if (texture.Size.Height % rows > 0) {
             throw new ArgumentException("Rows must be divisor of texture height");
+        }
+
         Texture = texture;
         Columns = columns;
         Rows = rows;
@@ -27,4 +29,4 @@ public record SpriteSheet
 
     public Rectangle GetSpriteRectangle(int column, int row) =>
         new(SpriteWidth * column, SpriteHeight * row, SpriteWidth, SpriteHeight);
-};
+}

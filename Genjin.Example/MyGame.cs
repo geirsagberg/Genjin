@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Numerics;
 using Genjin.Core;
 using Peridot.Veldrid;
@@ -47,12 +46,12 @@ internal class MyGame : Game {
     private Vector2 mousePosition;
     private TextureWrapper playerSprite;
 
-    private TimeSpan previousRealTime = TimeSpan.Zero;
     private SpriteSheet spriteSheet = null!;
     private Transform2 transform;
     private int updates;
 
     private Vector2 velocity = Vector2.Zero;
+    private Simulation simulation = null!;
 
     protected override Task Init() {
         playerSprite = LoadTexture("Assets/Sprites/player.png");
@@ -65,6 +64,8 @@ internal class MyGame : Game {
 
         arial = LoadFont("Assets/Fonts/arial.ttf");
         transform = new Transform2(new Vector2(100, 100), default, spriteSheet.SpriteSize);
+
+        simulation = StartSimulation(UpdatePhysics);
 
         return Task.CompletedTask;
     }
@@ -101,14 +102,12 @@ internal class MyGame : Game {
         }
     }
 
-    protected override void Draw(Stopwatch realTime, float interpolation, TimeSpan physicsInterval) {
-        var timeToDrawPreviousFrame = realTime.Elapsed - previousRealTime;
-        var currentFps = 1.0 / timeToDrawPreviousFrame.TotalSeconds;
+    protected override void Draw(TimeSpan sincePreviousFrame) {
+        Console.WriteLine($"Draw {sincePreviousFrame}");
+        var currentFps = 1.0 / sincePreviousFrame.TotalSeconds;
         fps = (fps * FpsSmoothing) + (currentFps * (1.0 - FpsSmoothing));
 
-        previousRealTime = realTime.Elapsed;
-
-        animationTime += timeToDrawPreviousFrame;
+        animationTime += sincePreviousFrame;
 
         var newPlayerState = pressedKeys.Any() ? PlayerState.Running : PlayerState.Idle;
 
@@ -130,9 +129,10 @@ internal class MyGame : Game {
 
         currentAnimationFrame %= animation.Frames.GetLength();
 
-        Console.WriteLine($"{currentAnimationFrame} {newPlayerState}");
+        Console.WriteLine($"{currentAnimationFrame} {newPlayerState} {animationTime}");
 
-        var viewPosition = transform.Position + (velocity * GetFactor(physicsInterval) * interpolation);
+        var viewPosition = transform.Position +
+            (velocity * GetFactor(simulation.UpdateInterval) * simulation.CurrentInterpolation);
 
         var spriteSheetIndex = animation.Frames.Start.Value + currentAnimationFrame;
 
@@ -164,7 +164,7 @@ internal class MyGame : Game {
         TextRenderer.DrawString(arial, 32, text, position, Color.Aqua, 0f, Vector2.Zero,
             Vector2.One, 0f);
 
-    protected override Task UpdatePhysics(TimeSpan physicsInterval) {
+    protected Task UpdatePhysics(TimeSpan physicsInterval) {
         var newPosition = transform.Position + (velocity * GetFactor(physicsInterval));
         transform = transform with {
             Position = newPosition.Wrap(Window.Bounds.Size)

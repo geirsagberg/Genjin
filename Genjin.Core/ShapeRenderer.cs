@@ -7,11 +7,11 @@ using Rectangle = System.Drawing.Rectangle;
 
 namespace Genjin.Core;
 
-public class ShapeBatch {
+public class ShapeRenderer {
     private static readonly Rectangle SinglePixelRectangle = new(0, 0, 1, 1);
     private readonly VeldridSpriteBatch spriteBatch;
 
-    public ShapeBatch(VeldridSpriteBatch spriteBatch, GraphicsDevice graphicsDevice) {
+    public ShapeRenderer(GraphicsDevice graphicsDevice, VeldridSpriteBatch spriteBatch) {
         this.spriteBatch = spriteBatch;
 
         WhitePixelTexture = CreateWhitePixelTexture(graphicsDevice);

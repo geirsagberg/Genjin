@@ -25,7 +25,7 @@ public abstract class Game {
         SpriteBatch = new VeldridSpriteBatch(GraphicsDevice, GraphicsDevice.SwapchainFramebuffer.OutputDescription,
             shaders);
         TextRenderer = new TextRenderer(GraphicsDevice, SpriteBatch);
-        ShapeRenderer = new ShapeBatch(SpriteBatch, GraphicsDevice);
+        ShapeRenderer = new ShapeRenderer(GraphicsDevice, SpriteBatch);
     }
 
     protected Sdl2Window Window { get; }
@@ -34,7 +34,7 @@ public abstract class Game {
     protected VeldridSpriteBatch SpriteBatch { get; }
     protected TextRenderer TextRenderer { get; }
     private Fence Fence { get; }
-    protected ShapeBatch ShapeRenderer { get; }
+    protected ShapeRenderer ShapeRenderer { get; }
     protected ResourceFactory ResourceFactory => GraphicsDevice.ResourceFactory;
 
     private static Sdl2Window CreateWindow(string title, GenjinSettings gameSettings) =>
@@ -100,44 +100,40 @@ public abstract class Game {
     public async Task Start() {
         await Init();
 
-        var realTime = Stopwatch.StartNew();
-
-        var elapsedPhysicsTime = TimeSpan.Zero;
+        realTime = Stopwatch.StartNew();
 
         while (running && Window.Exists) {
-            elapsedPhysicsTime = await GameLoop(realTime, elapsedPhysicsTime);
+            await GameLoop();
         }
     }
 
-    private async Task<TimeSpan> GameLoop(Stopwatch realTime, TimeSpan elapsedPhysicsTime) {
+    private TimeSpan previousFrame = TimeSpan.Zero;
+
+    private async Task GameLoop() {
+        var thisFrame = realTime.Elapsed;
         var input = Window.PumpEvents();
 
         await UpdateBasedOnInput(input);
 
-        const int physicsFrequency = 60;
-        var physicsInterval = TimeSpan.FromSeconds(1.0 / physicsFrequency);
-        const int maxFrameSkip = 5;
-        var framesSkipped = 0;
-        while (elapsedPhysicsTime < realTime.Elapsed && framesSkipped < maxFrameSkip) {
-            await UpdatePhysics(physicsInterval);
-            elapsedPhysicsTime += physicsInterval;
-            framesSkipped++;
+        foreach (var simulation in simulations) {
+            await simulation.Update(thisFrame);
         }
 
-        var interpolation = (float)((realTime.Elapsed + physicsInterval - elapsedPhysicsTime) / physicsInterval);
+        DrawInternal(thisFrame - previousFrame);
 
-        DrawInternal(realTime, interpolation, physicsInterval);
-
-        return elapsedPhysicsTime;
+        previousFrame = thisFrame;
     }
+
+    private readonly List<Simulation> simulations = new();
+    private Stopwatch realTime;
 
     protected abstract Task UpdateBasedOnInput(InputSnapshot input);
 
     protected void Stop() => running = false;
 
-    protected abstract void Draw(Stopwatch realTime, float interpolation, TimeSpan physicsInterval);
+    protected abstract void Draw(TimeSpan sincePreviousFrame);
 
-    private void DrawInternal(Stopwatch realTime, float interpolation, TimeSpan physicsInterval) {
+    private void DrawInternal(TimeSpan sincePreviousFrame) {
         lock (Window) {
             CommandList.Begin();
             CommandList.SetFramebuffer(GraphicsDevice.SwapchainFramebuffer);
@@ -146,7 +142,7 @@ public abstract class Game {
             SpriteBatch.Begin();
             SpriteBatch.ViewMatrix =
                 Matrix4x4.CreateOrthographicOffCenter(0, Window.Width, 0, Window.Height, -10, 10);
-            Draw(realTime, interpolation, physicsInterval);
+            Draw(sincePreviousFrame);
             SpriteBatch.DrawBatch(CommandList);
             SpriteBatch.End();
 
@@ -161,5 +157,10 @@ public abstract class Game {
         }
     }
 
-    protected abstract Task UpdatePhysics(TimeSpan physicsInterval);
+    protected Simulation StartSimulation(Func<TimeSpan, Task> onUpdate, ushort updatesPerSecond = 60,
+        ushort maxSkippedUpdates = 5) {
+        var simulation = new Simulation(onUpdate, TimeSpan.Zero, updatesPerSecond, maxSkippedUpdates);
+        simulations.Add(simulation);
+        return simulation;
+    }
 }

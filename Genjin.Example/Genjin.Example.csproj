@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\Genjin.Core\Genjin.Core.csproj"/>
+    <ProjectReference Include="..\Genjin.Core\Genjin.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

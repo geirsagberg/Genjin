@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Drawing;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Configuration;
@@ -10,8 +11,14 @@ using Veldrid.StartupUtilities;
 
 namespace Genjin.Core;
 
+public class Scene {
+    
+}
+
 public abstract class Game {
     private bool running = true;
+    
+    protected Font DefaultFont { get; }
 
     protected Game(string title = "Game") {
         var gameSettings = LoadGenjinSettings();
@@ -26,6 +33,7 @@ public abstract class Game {
             shaders);
         TextRenderer = new TextRenderer(GraphicsDevice, SpriteBatch);
         ShapeRenderer = new ShapeRenderer(GraphicsDevice, SpriteBatch);
+        DefaultFont = LoadFont("Assets/Fonts/arial.ttf");
     }
 
     protected Sdl2Window Window { get; }
@@ -125,7 +133,7 @@ public abstract class Game {
     }
 
     private readonly List<Simulation> simulations = new();
-    private Stopwatch realTime;
+    private Stopwatch realTime = null!;
 
     protected abstract Task UpdateBasedOnInput(InputSnapshot input);
 
@@ -163,4 +171,8 @@ public abstract class Game {
         simulations.Add(simulation);
         return simulation;
     }
+
+    protected void DrawString(string text, Vector2 position) =>
+        TextRenderer.DrawString(DefaultFont, 32, text, position, Color.Aqua, 0f, Vector2.Zero,
+            Vector2.One, 0f);
 }

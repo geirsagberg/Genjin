@@ -7,16 +7,6 @@ using Rectangle = System.Drawing.Rectangle;
 
 namespace Genjin.Example;
 
-internal enum PlayerState {
-    Idle,
-    Running
-}
-
-internal enum Facing {
-    Left,
-    Right
-}
-
 internal class MyGame : Game {
     private const double FpsSmoothing = 0.9;
 
@@ -30,9 +20,7 @@ internal class MyGame : Game {
     private readonly HashSet<GameKey> pressedKeys = new();
     private AnimatedSprite<PlayerState> animatedSprite = null!;
 
-
     private TimeSpan animationTime;
-    private Font arial = null!;
 
     private int currentAnimationFrame;
 
@@ -62,7 +50,6 @@ internal class MyGame : Game {
             { PlayerState.Running, new(1..9) }
         });
 
-        arial = LoadFont("Assets/Fonts/arial.ttf");
         transform = new Transform2(new Vector2(100, 100), default, spriteSheet.SpriteSize);
 
         simulation = StartSimulation(UpdatePhysics);
@@ -146,23 +133,7 @@ internal class MyGame : Game {
         DrawString($"Draws: {draws++}", new Vector2(0, 40));
         DrawString($"FPS: {fps:F0}", new Vector2(200, 40));
         DrawString($"Updates: {updates}", new Vector2(0, 80));
-
-        ShapeRenderer.FillRectangle(new Rectangle((int)mousePosition.X, (int)mousePosition.Y, 20, 20), Color.Aqua);
-
-        ShapeRenderer.DrawPoint(new Vector2(400), Color.Aqua, 1f);
-        ShapeRenderer.DrawPoint(new Vector2(450, 400), Color.Aqua, 50f);
-
-        ShapeRenderer.DrawRectangle(new RectangleF(300, 400, 50, 90), Color.Chartreuse, 3f);
-
-        ShapeRenderer.DrawPolygon(new Vector2(600, 200),
-            new Vector2[] { new(0, 0), new(30, 100), new(-60, 120) }, Color.Khaki, 10f);
-
-        ShapeRenderer.DrawCircle(new Vector2(300, 350), 100, 32, Color.Coral, 50f);
     }
-
-    private void DrawString(string text, Vector2 position) =>
-        TextRenderer.DrawString(arial, 32, text, position, Color.Aqua, 0f, Vector2.Zero,
-            Vector2.One, 0f);
 
     protected Task UpdatePhysics(TimeSpan physicsInterval) {
         var newPosition = transform.Position + (velocity * GetFactor(physicsInterval));

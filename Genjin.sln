@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Genjin.Core", "Genjin.Core\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Genjin.Example", "Genjin.Example\Genjin.Example.csproj", "{F9739210-0DCF-4D26-9A3F-C24F7FAE0A7D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Genjin.Breakout", "Genjin.Breakout\Genjin.Breakout.csproj", "{4CF4D322-CD36-4486-B191-4CDB9C450AAC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{F9739210-0DCF-4D26-9A3F-C24F7FAE0A7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F9739210-0DCF-4D26-9A3F-C24F7FAE0A7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F9739210-0DCF-4D26-9A3F-C24F7FAE0A7D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4CF4D322-CD36-4486-B191-4CDB9C450AAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4CF4D322-CD36-4486-B191-4CDB9C450AAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4CF4D322-CD36-4486-B191-4CDB9C450AAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4CF4D322-CD36-4486-B191-4CDB9C450AAC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

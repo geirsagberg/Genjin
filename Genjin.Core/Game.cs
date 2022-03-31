@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Peridot.Veldrid;
 using StbImageSharp;
 using Veldrid;
@@ -12,13 +13,14 @@ using Veldrid.StartupUtilities;
 namespace Genjin.Core;
 
 public class Scene {
-    
 }
 
 public abstract class Game {
+    private readonly List<Simulation> simulations = new();
+
+    private TimeSpan previousFrame = TimeSpan.Zero;
+    private Stopwatch realTime = null!;
     private bool running = true;
-    
-    protected Font DefaultFont { get; }
 
     protected Game(string title = "Game") {
         var gameSettings = LoadGenjinSettings();
@@ -33,8 +35,14 @@ public abstract class Game {
             shaders);
         TextRenderer = new TextRenderer(GraphicsDevice, SpriteBatch);
         ShapeRenderer = new ShapeRenderer(GraphicsDevice, SpriteBatch);
+        GuiRenderer = new ImGuiRenderer(GraphicsDevice, GraphicsDevice.SwapchainFramebuffer.OutputDescription,
+            gameSettings.Width, gameSettings.Height);
         DefaultFont = LoadFont("Assets/Fonts/arial.ttf");
     }
+
+    public ImGuiRenderer GuiRenderer { get; }
+
+    protected Font DefaultFont { get; }
 
     protected Sdl2Window Window { get; }
     private GraphicsDevice GraphicsDevice { get; }
@@ -44,6 +52,8 @@ public abstract class Game {
     private Fence Fence { get; }
     protected ShapeRenderer ShapeRenderer { get; }
     protected ResourceFactory ResourceFactory => GraphicsDevice.ResourceFactory;
+
+    protected IServiceProvider Services { get; private set; } = null!;
 
     private static Sdl2Window CreateWindow(string title, GenjinSettings gameSettings) =>
         new(title, 100, 100, gameSettings.Width, gameSettings.Height, GetWindowFlags(gameSettings),
@@ -75,6 +85,7 @@ public abstract class Game {
     private void OnWindowOnResized() {
         lock (Window) {
             GraphicsDevice.ResizeMainWindow((uint)Window.Width, (uint)Window.Height);
+            GuiRenderer.WindowResized(Window.Width, Window.Height);
         }
     }
 
@@ -105,7 +116,13 @@ public abstract class Game {
 
     protected abstract Task Init();
 
+    protected virtual void ConfigureServices(IServiceCollection services) { }
+
     public async Task Start() {
+        var services = new ServiceCollection();
+        ConfigureServices(services);
+        Services = services.BuildServiceProvider();
+
         await Init();
 
         realTime = Stopwatch.StartNew();
@@ -114,8 +131,6 @@ public abstract class Game {
             await GameLoop();
         }
     }
-
-    private TimeSpan previousFrame = TimeSpan.Zero;
 
     private async Task GameLoop() {
         var thisFrame = realTime.Elapsed;
@@ -131,9 +146,6 @@ public abstract class Game {
 
         previousFrame = thisFrame;
     }
-
-    private readonly List<Simulation> simulations = new();
-    private Stopwatch realTime = null!;
 
     protected abstract Task UpdateBasedOnInput(InputSnapshot input);
 

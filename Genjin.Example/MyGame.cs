@@ -1,9 +1,8 @@
-﻿using System.Drawing;
-using System.Numerics;
+﻿using System.Numerics;
 using Genjin.Core;
+using Peridot;
 using Peridot.Veldrid;
 using Veldrid;
-using Rectangle = System.Drawing.Rectangle;
 
 namespace Genjin.Example;
 
@@ -33,13 +32,13 @@ internal class MyGame : Game {
     private double fps;
     private Vector2 mousePosition;
     private TextureWrapper playerSprite;
+    private Simulation simulation = null!;
 
     private SpriteSheet spriteSheet = null!;
     private Transform2 transform;
     private int updates;
 
     private Vector2 velocity = Vector2.Zero;
-    private Simulation simulation = null!;
 
     protected override Task Init() {
         playerSprite = LoadTexture("Assets/Sprites/player.png");
@@ -126,7 +125,7 @@ internal class MyGame : Game {
         SpriteBatch.DrawSprite(spriteSheet, spriteSheetIndex,
             transform with {
                 Position = viewPosition
-            }, facing == Facing.Right ? SpriteEffects.None : SpriteEffects.FlipHorizontally);
+            }, facing == Facing.Right ? SpriteOptions.None : SpriteOptions.FlipHorizontally);
 
         DrawString($"{transform.Position.X:F2}", Vector2.Zero);
         DrawString($"{transform.Position.Y:F2}", new Vector2(150, 0));

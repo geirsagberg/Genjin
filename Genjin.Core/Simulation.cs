@@ -1,14 +1,10 @@
 namespace Genjin.Core;
 
 public class Simulation {
-    private readonly Func<TimeSpan, Task> onUpdate;
     private readonly ushort maxSkippedUpdates;
+    private readonly Func<TimeSpan, Task> onUpdate;
 
     private TimeSpan simulatedTime;
-
-    public float CurrentInterpolation { get; private set; }
-
-    public TimeSpan UpdateInterval { get; }
 
     public Simulation(Func<TimeSpan, Task> onUpdate, TimeSpan startTime = default, ushort updatesPerSecond = 60,
         ushort maxSkippedUpdates = 5) {
@@ -18,6 +14,10 @@ public class Simulation {
         simulatedTime = startTime;
         UpdateInterval = TimeSpan.FromSeconds(1.0 / updatesPerSecond);
     }
+
+    public float CurrentInterpolation { get; private set; }
+
+    public TimeSpan UpdateInterval { get; }
 
     public async Task Update(TimeSpan realTime) {
         var updatesSkipped = 0;

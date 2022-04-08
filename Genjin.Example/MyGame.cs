@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Diagnostics;
+using System.Numerics;
 using Genjin.Core;
 using Peridot;
 using Peridot.Veldrid;
@@ -87,9 +88,8 @@ internal class MyGame : Game {
             }
         }
     }
-
+    
     protected override void Draw(TimeSpan sincePreviousFrame) {
-        Console.WriteLine($"Draw {sincePreviousFrame}");
         var currentFps = 1.0 / sincePreviousFrame.TotalSeconds;
         fps = (fps * FpsSmoothing) + (currentFps * (1.0 - FpsSmoothing));
 
@@ -102,7 +102,6 @@ internal class MyGame : Game {
         if (newPlayerState == PlayerState.Running) {
             if (currentPlayerState != PlayerState.Running) {
                 currentAnimationFrame = 0;
-                Console.WriteLine("Reset animation");
             }
 
             currentPlayerState = newPlayerState;
@@ -114,8 +113,6 @@ internal class MyGame : Game {
         }
 
         currentAnimationFrame %= animation.Frames.GetLength();
-
-        Console.WriteLine($"{currentAnimationFrame} {newPlayerState} {animationTime}");
 
         var viewPosition = transform.Position +
             (velocity * GetFactor(simulation.UpdateInterval) * simulation.CurrentInterpolation);

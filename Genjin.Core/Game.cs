@@ -18,7 +18,7 @@ public class Scene {
 public abstract class Game {
     private readonly List<Simulation> simulations = new();
 
-    private TimeSpan previousFrame = TimeSpan.Zero;
+    private TimeSpan lastFrame = TimeSpan.Zero;
     private Stopwatch realTime = null!;
     private bool running = true;
 
@@ -40,7 +40,7 @@ public abstract class Game {
         DefaultFont = LoadFont("Assets/Fonts/arial.ttf");
     }
 
-    public ImGuiRenderer GuiRenderer { get; }
+    private Fence Fence { get; }
 
     protected Font DefaultFont { get; }
 
@@ -49,8 +49,8 @@ public abstract class Game {
     private CommandList CommandList { get; }
     protected VeldridSpriteBatch SpriteBatch { get; }
     protected TextRenderer TextRenderer { get; }
-    private Fence Fence { get; }
     protected ShapeRenderer ShapeRenderer { get; }
+    protected ImGuiRenderer GuiRenderer { get; }
     protected ResourceFactory ResourceFactory => GraphicsDevice.ResourceFactory;
 
     protected IServiceProvider Services { get; private set; } = null!;
@@ -135,6 +135,9 @@ public abstract class Game {
     private async Task GameLoop() {
         var thisFrame = realTime.Elapsed;
         var input = Window.PumpEvents();
+        var deltaTime = thisFrame - lastFrame;
+        
+        GuiRenderer.Update((float)deltaTime.TotalSeconds, input);
 
         await UpdateBasedOnInput(input);
 
@@ -142,9 +145,9 @@ public abstract class Game {
             await simulation.Update(thisFrame);
         }
 
-        DrawInternal(thisFrame - previousFrame);
+        DrawInternal(deltaTime);
 
-        previousFrame = thisFrame;
+        lastFrame = thisFrame;
     }
 
     protected abstract Task UpdateBasedOnInput(InputSnapshot input);
@@ -165,6 +168,8 @@ public abstract class Game {
             Draw(sincePreviousFrame);
             SpriteBatch.DrawBatch(CommandList);
             SpriteBatch.End();
+            
+            GuiRenderer.Render(GraphicsDevice, CommandList);
 
             CommandList.End();
 

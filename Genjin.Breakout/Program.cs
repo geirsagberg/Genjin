@@ -8,18 +8,18 @@ await new BreakoutGame().Start();
 internal class SceneManager : IDrawable {
     public IScene CurrentScene { get; private set; } = new DefaultScene();
 
+    public void Draw() {
+        CurrentScene.Draw();
+    }
+
     public async Task SetScene(IScene newScene) {
         CurrentScene = newScene;
         await CurrentScene.OnLoad();
     }
-
-    public void Draw() {
-        CurrentScene.Draw();
-    }
 }
 
 internal interface IDrawable {
-    void Draw() {}
+    void Draw() { }
 }
 
 internal class BreakoutGame : Game {
@@ -55,22 +55,22 @@ internal class MenuScene : IScene {
     public MenuScene(Action stop) {
         this.stop = stop;
     }
-    
+
     public void Draw() {
-        if (ImGui.BeginMainMenuBar()) {
-            if (ImGui.BeginMenu("File")) {
+        using (Gui.MainMenuBar()) {
+            using (Gui.Menu("File")) {
                 if (ImGui.MenuItem("Exit")) {
                     stop();
                 }
-
-                ImGui.EndMenu();
             }
-            
-            ImGui.EndMainMenuBar();
         }
-        
-        if(ImGui.Button("Hello")){
-            Console.WriteLine("Hello");
+
+        using (Gui.Window("",
+                   ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoTitleBar |
+                   ImGuiWindowFlags.NoMove)) {
+            if (ImGui.Button("Hello")) {
+                Console.WriteLine("Hello");
+            }
         }
     }
 }

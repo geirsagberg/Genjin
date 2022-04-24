@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using BunnyLand.DesktopGL.Utils;
+using Dynamitey;
 
 namespace Genjin.Example;
 
@@ -28,7 +29,7 @@ public class MessageHub {
 
     public async Task<TResponse> Send<TResponse>(IRequest<TResponse> request) {
         if (RequestHandlers.TryGetValue(request.GetType(), out var handler)) {
-            var result = handler.DynamicInvoke(request);
+            var result = handler.FastDynamicInvoke(request);
             return result switch {
                 Task<TResponse> task => await task,
                 TResponse response => response,

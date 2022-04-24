@@ -1,5 +1,4 @@
 ﻿using System.Drawing;
-using System.Numerics;
 using Genjin.Example;
 using Peridot;
 using Peridot.Veldrid;

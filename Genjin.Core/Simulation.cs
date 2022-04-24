@@ -2,11 +2,11 @@ namespace Genjin.Core;
 
 public class Simulation {
     private readonly ushort maxSkippedUpdates;
-    private readonly Func<TimeSpan, Task> onUpdate;
+    private readonly Func<TimeSpan, ValueTask> onUpdate;
 
     private TimeSpan simulatedTime;
 
-    public Simulation(Func<TimeSpan, Task> onUpdate, TimeSpan startTime = default, ushort updatesPerSecond = 60,
+    public Simulation(Func<TimeSpan, ValueTask> onUpdate, TimeSpan startTime = default, ushort updatesPerSecond = 60,
         ushort maxSkippedUpdates = 5) {
         if (updatesPerSecond == 0) throw new ArgumentOutOfRangeException(nameof(updatesPerSecond), "Must be non-zero");
         this.onUpdate = onUpdate;
@@ -19,7 +19,7 @@ public class Simulation {
 
     public TimeSpan UpdateInterval { get; }
 
-    public async Task Update(TimeSpan realTime) {
+    public async ValueTask Update(TimeSpan realTime) {
         var updatesSkipped = 0;
         while (simulatedTime < realTime && (maxSkippedUpdates == 0 || updatesSkipped < maxSkippedUpdates)) {
             await onUpdate(UpdateInterval);

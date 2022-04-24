@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Genjin.Core\Genjin.Core.csproj" />
+    <ProjectReference Include="..\Genjin.Core\Genjin.Core.csproj"/>
   </ItemGroup>
 
 </Project>

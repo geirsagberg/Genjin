@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Numerics;
+﻿using System.Numerics;
 using Genjin.Core;
 using Peridot;
 using Peridot.Veldrid;
@@ -88,7 +87,7 @@ internal class MyGame : Game {
             }
         }
     }
-    
+
     protected override void Draw(TimeSpan sincePreviousFrame) {
         var currentFps = 1.0 / sincePreviousFrame.TotalSeconds;
         fps = (fps * FpsSmoothing) + (currentFps * (1.0 - FpsSmoothing));
@@ -131,14 +130,14 @@ internal class MyGame : Game {
         DrawString($"Updates: {updates}", new Vector2(0, 80));
     }
 
-    protected Task UpdatePhysics(TimeSpan physicsInterval) {
+    protected ValueTask UpdatePhysics(TimeSpan physicsInterval) {
         var newPosition = transform.Position + (velocity * GetFactor(physicsInterval));
         transform = transform with {
             Position = newPosition.Wrap(Window.Bounds.Size)
         };
         updates++;
 
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 
     private static float GetFactor(TimeSpan interval) => (float)interval.TotalSeconds * 200;

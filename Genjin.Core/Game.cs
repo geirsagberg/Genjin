@@ -22,9 +22,9 @@ public abstract class Game {
     private Stopwatch realTime = null!;
     private bool running = true;
 
-    protected Game(string title = "Game") {
+    protected Game() {
         var gameSettings = LoadGenjinSettings();
-        Window = CreateWindow(title, gameSettings);
+        Window = CreateWindow("Game", gameSettings);
         Window.Resized += OnWindowOnResized;
         var options = GetGraphicsDeviceOptions(gameSettings);
         GraphicsDevice = VeldridStartup.CreateGraphicsDevice(Window, options, GraphicsBackend.Vulkan);
@@ -132,11 +132,11 @@ public abstract class Game {
         }
     }
 
-    private async Task GameLoop() {
+    private async ValueTask GameLoop() {
         var thisFrame = realTime.Elapsed;
         var input = Window.PumpEvents();
         var deltaTime = thisFrame - lastFrame;
-        
+
         GuiRenderer.Update((float)deltaTime.TotalSeconds, input);
 
         await UpdateBasedOnInput(input);
@@ -168,7 +168,7 @@ public abstract class Game {
             Draw(sincePreviousFrame);
             SpriteBatch.DrawBatch(CommandList);
             SpriteBatch.End();
-            
+
             GuiRenderer.Render(GraphicsDevice, CommandList);
 
             CommandList.End();
@@ -182,7 +182,7 @@ public abstract class Game {
         }
     }
 
-    protected Simulation StartSimulation(Func<TimeSpan, Task> onUpdate, ushort updatesPerSecond = 60,
+    protected Simulation StartSimulation(Func<TimeSpan, ValueTask> onUpdate, ushort updatesPerSecond = 60,
         ushort maxSkippedUpdates = 5) {
         var simulation = new Simulation(onUpdate, TimeSpan.Zero, updatesPerSecond, maxSkippedUpdates);
         simulations.Add(simulation);

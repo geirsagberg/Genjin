@@ -1,14 +1,15 @@
 using System.Numerics;
 using Genjin.Core;
+using Genjin.Example;
 using ImGuiNET;
 
 namespace Genjin.Breakout;
 
 internal class MenuScene : IScene {
-    private readonly Action stop;
+    private readonly MessageHub hub;
 
-    public MenuScene(Action stop) {
-        this.stop = stop;
+    public MenuScene(MessageHub hub) {
+        this.hub = hub;
     }
 
     public void Draw() {
@@ -26,7 +27,7 @@ internal class MenuScene : IScene {
 
             ImGui.SetCursorPos(new Vector2(size.X / 4, ImGui.GetCursorPosY()));
             if (ImGui.Button("Exit", size with { X = size.X / 2, Y = buttonHeight })) {
-                stop();
+                hub.Publish(new StopMessage());
             }
         }
     }

@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using Genjin.Example;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Peridot.Veldrid;
@@ -12,9 +13,6 @@ using Veldrid.StartupUtilities;
 
 namespace Genjin.Core;
 
-public class Scene {
-}
-
 public abstract class Game {
     private readonly List<Simulation> simulations = new();
 
@@ -22,6 +20,8 @@ public abstract class Game {
     private Stopwatch realTime = null!;
     private bool running = true;
 
+    protected readonly MessageHub MessageHub = new();
+    
     protected Game() {
         var gameSettings = LoadGenjinSettings();
         Window = CreateWindow("Game", gameSettings);
@@ -38,6 +38,8 @@ public abstract class Game {
         GuiRenderer = new ImGuiRenderer(GraphicsDevice, GraphicsDevice.SwapchainFramebuffer.OutputDescription,
             gameSettings.Width, gameSettings.Height);
         DefaultFont = LoadFont("Assets/Fonts/arial.ttf");
+        
+        MessageHub.Subscribe<StopMessage>(delegate { Stop(); });
     }
 
     private Fence Fence { get; }
@@ -193,3 +195,5 @@ public abstract class Game {
         TextRenderer.DrawString(DefaultFont, 32, text, position, Color.Aqua, 0f, Vector2.Zero,
             Vector2.One, 0f);
 }
+
+public record struct StopMessage : INotification;

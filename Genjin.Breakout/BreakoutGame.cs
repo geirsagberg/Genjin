@@ -5,15 +5,20 @@ using Veldrid;
 namespace Genjin.Breakout;
 
 internal class BreakoutGame : Game {
+    private readonly MenuScene menuScene;
     protected SceneManager SceneManager => Services.GetRequiredService<SceneManager>();
 
     protected override void ConfigureServices(IServiceCollection services) {
         services.AddSingleton<SceneManager>();
     }
 
+    public BreakoutGame() {
+        menuScene = new MenuScene(MessageHub);
+    }
+
     protected override async Task Init() {
         Window.Title = "Breakout";
-        await SceneManager.SetScene(new MenuScene(Stop));
+        await SceneManager.SetScene(menuScene);
     }
 
     protected override Task UpdateBasedOnInput(InputSnapshot input) {

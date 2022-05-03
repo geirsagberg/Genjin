@@ -35,7 +35,7 @@ internal class MyGame : Game {
     private Simulation simulation = null!;
 
     private SpriteSheet spriteSheet = null!;
-    private Transform2 transform;
+    private Transform transform;
     private int updates;
 
     private Vector2 velocity = Vector2.Zero;
@@ -49,7 +49,7 @@ internal class MyGame : Game {
             { PlayerState.Running, new(1..9) }
         });
 
-        transform = new Transform2(new Vector2(100, 100), default, spriteSheet.SpriteSize);
+        transform = new Transform(new Vector2(100, 100), default, spriteSheet.SpriteSize);
 
         simulation = StartSimulation(UpdatePhysics);
 
@@ -140,7 +140,7 @@ internal class MyGame : Game {
         return ValueTask.CompletedTask;
     }
 
-    private static float GetFactor(TimeSpan interval) => (float)interval.TotalSeconds * 200;
+    private static float GetFactor(TimeSpan interval) => (float) interval.TotalSeconds * 200;
 
     private enum GameKey : byte {
         Up,

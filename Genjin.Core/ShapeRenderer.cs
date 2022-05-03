@@ -27,6 +27,9 @@ public class ShapeRenderer {
         return new TextureWrapper(texture);
     }
 
+    public void FillRectangle(RectangleF rectangle, Color color) => FillRectangle(
+        new Rectangle((int) rectangle.X, (int) rectangle.Y, (int) rectangle.Width, (int) rectangle.Height), color);
+
     public void FillRectangle(Rectangle rectangle, Color color) =>
         spriteBatch.Draw(WhitePixelTexture, rectangle, SinglePixelRectangle, color, 0, Vector2.Zero, 0);
 

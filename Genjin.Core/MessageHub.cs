@@ -68,6 +68,11 @@ public class MessageHub {
         notificationHandlers.GetOrAdd(typeof(T), new List<Delegate>());
         notificationHandlers[typeof(T)].Add(action);
     }
+    
+    public void Subscribe<T>(Func<T, Task> action) where T : INotification {
+        notificationHandlers.GetOrAdd(typeof(T), new List<Delegate>());
+        notificationHandlers[typeof(T)].Add(action);
+    }
 
     public void Handle<TRequest, TResponse>(Func<TRequest, TResponse> handler) where TRequest : IRequest<TResponse> {
         if (!requestHandlers.TryAdd(typeof(TRequest), handler)) {

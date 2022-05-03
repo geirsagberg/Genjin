@@ -12,18 +12,18 @@ namespace Genjin.Example;
  * M32 = y translation
  * Size = Original size
  */
-public readonly record struct Transform2(
+public readonly record struct Transform(
     Vector2 Position,
     float Rotation,
     Vector2 Scale,
     Vector2 Origin,
     Size Size
 ) {
-    public Transform2(Vector2 position, float rotation, Size size) : this(position, rotation, Vector2.One,
+    public Transform(Vector2 position, float rotation, Size size) : this(position, rotation, Vector2.One,
         new Vector2(size.Width / 2f, size.Height / 2f),
         size) {
     }
 
-    public Rectangle Rectangle => new((int)Position.X, (int)Position.Y, (int)(Size.Width * Scale.X),
-        (int)(Size.Height * Scale.Y));
+    // public Rectangle Rectangle => new((int)Position.X, (int)Position.Y, (int)(Size.Width * Scale.X),
+    //     (int)(Size.Height * Scale.Y));
 }

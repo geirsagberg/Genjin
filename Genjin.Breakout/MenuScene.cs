@@ -22,7 +22,7 @@ internal class MenuScene : IScene {
             const int buttonHeight = 30;
             ImGui.SetCursorPos(new Vector2(size.X / 4, (size.Y / 2) - buttonHeight));
             if (ImGui.Button("Start game", size with { X = size.X / 2, Y = buttonHeight })) {
-                Console.WriteLine("Start game");
+                hub.Publish(new StartGameMessage());
             }
 
             ImGui.SetCursorPos(new Vector2(size.X / 4, ImGui.GetCursorPosY()));

@@ -2,23 +2,12 @@ using Genjin.Core.Extensions;
 
 namespace Genjin.Breakout.Components;
 
-public readonly record struct Aspect(long ) {
-    
-    public bool IsInterested(long componentBits) {
-        
-    }
-}
-
-public class EntityList : List<long> {
-    public void Add(Entity entity) => Add(entity.Id);
-}
-
 public class World : IDrawable {
     private readonly Dictionary<long, long> componentBitsByEntity = new();
     private readonly Dictionary<Type, int> componentIdsByType = new();
     private readonly Dictionary<Type, Dictionary<long, Object>> componentsByEntityByType = new();
     private readonly Dictionary<long, Entity> entitiesById = new();
-    private readonly Dictionary<Aspect, List<Entity>> entitiesByAspect = new();
+    private readonly Dictionary<Aspect, HashSet<Entity>> entitiesByAspect = new();
 
     private readonly List<ISystem> systems = new();
 
@@ -56,20 +45,18 @@ public class World : IDrawable {
         var componentBits = componentBitsByEntity.GetOrCreate(entity, 0) |
             (1L << (componentIdsByType[typeof(T)] - 1));
         componentBitsByEntity[entity] = componentBits;
-        // Remove entities from Exclude aspect lists that exclude the new component
         foreach (var (aspect, entities) in entitiesByAspect) {
-            switch (aspect.Type) {
-                case AspectType.All:
-                    if (aspect)
+            if (aspect.MatchesExclude(componentBits)) {
+                entities.Remove(entitiesById[entity]);
+            } else if (aspect.MatchesAll(componentBits) || aspect.MatchesAny(componentBits)) {
+                entities.Add(entitiesById[entity]);
             }
         }
-        // Add entities to All aspect lists that now have all the components
-        // Add entities to One aspect lists that now have the new component
     }
 
-    public IReadOnlyList<Entity> GetEntitiesMatchingAll(params Type[] types) {
+    public IEnumerable<Entity> GetEntitiesMatchingAll(params Type[] types) {
         var componentBits = GetComponentBits(types);
-        return entitiesByAspect.GetOrCreate(new Aspect(AspectType.All, componentBits), () => new List<Entity>());
+        return entitiesByAspect.GetOrCreate(new Aspect(AllBits: componentBits), () => new HashSet<Entity>());
     }
 
     private long GetComponentBits(Type[] types) =>

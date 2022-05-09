@@ -7,8 +7,8 @@ using Genjin.Example;
 namespace Genjin.Breakout;
 
 internal class GameScene : IScene {
-    private const int rowCount = 10;
-    private const int colCount = 10;
+    private const int RowCount = 10;
+    private const int ColCount = 10;
     private readonly World world;
     private readonly ShapeRenderer shapeRenderer;
 
@@ -17,8 +17,8 @@ internal class GameScene : IScene {
     public GameScene(World world, ShapeRenderer shapeRenderer) {
         this.world = world;
         this.shapeRenderer = shapeRenderer;
-        for (var row = 0; row < rowCount; row++) {
-            for (var col = 0; col < colCount; col++) {
+        for (var row = 0; row < RowCount; row++) {
+            for (var col = 0; col < ColCount; col++) {
                 CreateBlock(row, col);
             }
         }
@@ -28,7 +28,7 @@ internal class GameScene : IScene {
         var block = world.CreateEntity();
         var size = new Size(40, 20);
         const int padding = 2;
-        var offset = new Vector2((gameSize.Width - (rowCount * size.Width) - (padding * colCount)) / 2, 50);
+        var offset = new Vector2((gameSize.Width - (RowCount * size.Width) - (padding * ColCount)) / 2, 50);
 
         block.Add(new Transform(new Vector2(col * (size.Width + padding), row * (size.Height + padding)) + offset, 0,
             size));

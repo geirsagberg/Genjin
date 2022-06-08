@@ -56,8 +56,15 @@ public class World : IDrawable {
 
     public IEnumerable<Entity> GetEntitiesMatchingAll(params Type[] types) {
         var componentBits = GetComponentBits(types);
-        return entitiesByAspect.GetOrCreate(new Aspect(AllBits: componentBits), () => new HashSet<Entity>());
+        var aspect = new Aspect(componentBits);
+        return entitiesByAspect.GetOrCreate(aspect, () => GetEntitiesMatching(aspect));
     }
+
+    private HashSet<Entity> GetEntitiesMatching(Aspect aspect) =>
+        componentBitsByEntity
+            .Where(pair => aspect.MatchesAll(pair.Value))
+            .Select(pair => entitiesById[pair.Key])
+            .ToHashSet();
 
     private long GetComponentBits(Type[] types) =>
         types.Select(type => componentIdsByType.GetValueOrDefault(type))

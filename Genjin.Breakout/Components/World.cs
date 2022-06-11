@@ -1,10 +1,13 @@
+using Genjin.Core.Extensions;
+
 namespace Genjin.Breakout.Components;
 
 public class World : IDrawable {
     private readonly Dictionary<long, long> componentBitsByEntity = new();
-    private readonly Dictionary<Type, int> componentIdByType = new();
-    private readonly Dictionary<Type, Dictionary<long, Object>> componentPoolsByType = new();
-    private readonly Dictionary<long, Entity> entities = new();
+    private readonly Dictionary<Type, int> componentIdsByType = new();
+    private readonly Dictionary<Type, Dictionary<long, Object>> componentsByEntityByType = new();
+    private readonly Dictionary<long, Entity> entitiesById = new();
+    private readonly Dictionary<Aspect, HashSet<Entity>> entitiesByAspect = new();
 
     private readonly List<ISystem> systems = new();
 
@@ -19,42 +22,57 @@ public class World : IDrawable {
 
     public Entity CreateEntity() {
         var entity = new Entity(++entityCount, this);
-        entities[entity.Id] = entity;
+        entitiesById[entity.Id] = entity;
         return entity;
     }
 
-    private Dictionary<long, Object> GetOrCreateComponentPool(Type componentType) {
-        if (!componentPoolsByType.TryGetValue(componentType, out var componentPool)) {
+    private Dictionary<long, Object> GetOrCreateComponentPool(Type componentType) =>
+        componentsByEntityByType.GetOrCreate(componentType, () => {
             var componentId = ++componentCount;
             if (componentId > 64) {
                 throw new Exception("Too many components");
             }
 
-            componentPool = new Dictionary<long, Object>();
-            componentPoolsByType[componentType] = componentPool;
-            componentIdByType[componentType] = componentId;
-        }
-
-        return componentPool;
-    }
+            var componentPool = new Dictionary<long, Object>();
+            componentsByEntityByType[componentType] = componentPool;
+            componentIdsByType[componentType] = componentId;
+            return componentPool;
+        });
 
     public void AddComponent<T>(long entity, T component) where T : notnull {
         var componentPool = GetOrCreateComponentPool(typeof(T));
         componentPool[entity] = component;
-        componentBitsByEntity[entity] = componentBitsByEntity.GetValueOrDefault(entity, 0) |
-            (1L << (componentIdByType[typeof(T)] - 1));
+        var componentBits = componentBitsByEntity.GetOrCreate(entity, 0) |
+            (1L << (componentIdsByType[typeof(T)] - 1));
+        componentBitsByEntity[entity] = componentBits;
+        foreach (var (aspect, entities) in entitiesByAspect) {
+            if (aspect.MatchesExclude(componentBits)) {
+                entities.Remove(entitiesById[entity]);
+            } else if (aspect.MatchesAll(componentBits) || aspect.MatchesAny(componentBits)) {
+                entities.Add(entitiesById[entity]);
+            }
+        }
     }
 
     public IEnumerable<Entity> GetEntitiesMatchingAll(params Type[] types) {
-        var bits = types.Select(type => componentIdByType.GetValueOrDefault(type))
-            .Aggregate(0L, (bits, id) => id == 0 ? bits : bits | (1L << (id - 1)));
-        return componentBitsByEntity.Where(kvp => (kvp.Value & bits) == bits)
-            .Select(kvp => entities[kvp.Key]);
+        var componentBits = GetComponentBits(types);
+        var aspect = new Aspect(componentBits);
+        return entitiesByAspect.GetOrCreate(aspect, () => GetEntitiesMatching(aspect));
     }
 
+    private HashSet<Entity> GetEntitiesMatching(Aspect aspect) =>
+        componentBitsByEntity
+            .Where(pair => aspect.MatchesAll(pair.Value))
+            .Select(pair => entitiesById[pair.Key])
+            .ToHashSet();
+
+    private long GetComponentBits(Type[] types) =>
+        types.Select(type => componentIdsByType.GetValueOrDefault(type))
+            .Aggregate(0L, (bits, id) => id == 0 ? bits : bits | (1L << (id - 1)));
+
     public T GetComponent<T>(long entity) =>
-        componentPoolsByType[typeof(T)][entity] is T
-            ? (T) componentPoolsByType[typeof(T)][entity]
+        componentsByEntityByType[typeof(T)][entity] is T
+            ? (T) componentsByEntityByType[typeof(T)][entity]
             : throw new Exception($"Entity {entity} does not have component of type {typeof(T).Name}");
 
     public void AddSystem(ISystem system) => systems.Add(system);

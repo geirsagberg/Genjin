@@ -30,7 +30,7 @@ internal class GameScene : IScene {
     private void CreatePaddle() {
         var paddleSize = new Size(100, 20);
         var paddle = world.CreateEntity();
-        // paddle.Add(new Collidable());
+        paddle.Add(new Collidable());
         paddle.Add(new Transform(new Vector2((gameSize.Width - paddleSize.Width) / 2, gameSize.Height - 40), 0,
             paddleSize));
         paddle.Add(Color.Red);

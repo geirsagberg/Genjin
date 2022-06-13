@@ -8,7 +8,7 @@ public readonly record struct Aspect(long AllBits = 0, long AnyBits = 0, long Ex
         return matchesAll && matchesAny && !matchesExclude;
     }
 
-    public bool MatchesAll(long componentBits) => AllBits == 0 || (AllBits & componentBits) == componentBits;
+    public bool MatchesAll(long componentBits) => AllBits == 0 || (AllBits & componentBits) == AllBits;
 
     public bool MatchesAny(long componentBits) => AnyBits == 0 || (AnyBits & componentBits) != 0;
 

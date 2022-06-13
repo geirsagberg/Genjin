@@ -24,7 +24,8 @@ internal class BreakoutGame : Game {
         world.AddSystem(new RenderSystem(ShapeRenderer, world));
 
         MessageHub.Subscribe<StartGameMessage>(_ => SceneManager.SetScene(new GameScene(world, ShapeRenderer)));
-        await SceneManager.SetScene(menuScene);
+        // await SceneManager.SetScene(menuScene);
+        await SceneManager.SetScene(new GameScene(world, ShapeRenderer));
     }
 
     protected override Task UpdateBasedOnInput(InputSnapshot input) => Task.CompletedTask;

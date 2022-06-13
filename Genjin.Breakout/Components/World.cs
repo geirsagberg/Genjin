@@ -7,6 +7,8 @@ public class World : IDrawable {
     private readonly Dictionary<Type, int> componentIdsByType = new();
     private readonly Dictionary<Type, Dictionary<long, Object>> componentsByEntityByType = new();
     private readonly Dictionary<long, Entity> entitiesById = new();
+
+    // Entities cached by aspect. Kept updated when components are added or removed.
     private readonly Dictionary<Aspect, HashSet<Entity>> entitiesByAspect = new();
 
     private readonly List<ISystem> systems = new();

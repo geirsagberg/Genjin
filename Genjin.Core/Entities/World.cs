@@ -1,11 +1,18 @@
 using Genjin.Core.Extensions;
 
-namespace Genjin.Breakout.Components;
+namespace Genjin.Core.Entities;
 
 public class World : IDrawable {
+    // Bitmask of active components per entity ID
     private readonly Dictionary<long, long> componentBitsByEntity = new();
+
+    // Mapping from component type to component ID
     private readonly Dictionary<Type, int> componentIdsByType = new();
+
+    // Actual storage of components per entity
     private readonly Dictionary<Type, Dictionary<long, Object>> componentsByEntityByType = new();
+
+    // Mapping from entity ID to entity object
     private readonly Dictionary<long, Entity> entitiesById = new();
 
     // Entities cached by aspect. Kept updated when components are added or removed.

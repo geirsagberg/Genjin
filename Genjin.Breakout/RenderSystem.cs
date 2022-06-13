@@ -1,6 +1,7 @@
 using System.Drawing;
 using Genjin.Breakout.Components;
 using Genjin.Core;
+using Genjin.Core.Entities;
 using Genjin.Example;
 
 namespace Genjin.Breakout;

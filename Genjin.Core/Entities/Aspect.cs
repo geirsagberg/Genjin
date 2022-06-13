@@ -1,4 +1,4 @@
-﻿namespace Genjin.Breakout.Components;
+namespace Genjin.Core.Entities;
 
 public readonly record struct Aspect(long AllBits = 0, long AnyBits = 0, long ExcludeBits = 0) {
     public bool IsInterested(long componentBits) {

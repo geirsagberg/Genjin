@@ -1,3 +1,5 @@
+using Genjin.Core;
+
 namespace Genjin.Breakout;
 
 public interface IScene : IDrawable {

@@ -1,5 +1,6 @@
 using Genjin.Breakout.Components;
 using Genjin.Core;
+using Genjin.Core.Entities;
 using Microsoft.Extensions.DependencyInjection;
 using Veldrid;
 

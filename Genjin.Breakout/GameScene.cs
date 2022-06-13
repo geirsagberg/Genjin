@@ -2,6 +2,7 @@ using System.Drawing;
 using System.Numerics;
 using Genjin.Breakout.Components;
 using Genjin.Core;
+using Genjin.Core.Entities;
 using Genjin.Example;
 
 namespace Genjin.Breakout;
@@ -22,6 +23,17 @@ internal class GameScene : IScene {
                 CreateBlock(row, col);
             }
         }
+
+        CreatePaddle();
+    }
+
+    private void CreatePaddle() {
+        var paddleSize = new Size(100, 20);
+        var paddle = world.CreateEntity();
+        // paddle.Add(new Collidable());
+        paddle.Add(new Transform(new Vector2((gameSize.Width - paddleSize.Width) / 2, gameSize.Height - 40), 0,
+            paddleSize));
+        paddle.Add(Color.Red);
     }
 
     private void CreateBlock(int row, int col) {

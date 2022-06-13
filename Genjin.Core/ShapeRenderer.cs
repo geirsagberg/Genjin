@@ -30,8 +30,10 @@ public class ShapeRenderer {
     public void FillRectangle(RectangleF rectangle, Color color) => FillRectangle(
         new Rectangle((int) rectangle.X, (int) rectangle.Y, (int) rectangle.Width, (int) rectangle.Height), color);
 
-    public void FillRectangle(Rectangle rectangle, Color color) =>
-        spriteBatch.Draw(WhitePixelTexture, rectangle, SinglePixelRectangle, color, 0, Vector2.Zero, 0);
+    public void FillRectangle(Rectangle rectangle, Color color) {
+        var whitePixelTexture = WhitePixelTexture;
+        spriteBatch.Draw(whitePixelTexture, rectangle, SinglePixelRectangle, color, 0, Vector2.Zero, 0);
+    }
 
     public void DrawPolygon(Vector2 offset, IReadOnlyList<Vector2> points, Color color, float thickness = 1f,
         float layerDepth = 0f) {

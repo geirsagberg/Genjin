@@ -84,5 +84,8 @@ public class World : IDrawable {
             ? (T) componentsByEntityByType[typeof(T)][entity]
             : throw new Exception($"Entity {entity} does not have component of type {typeof(T).Name}");
 
-    public void AddSystem(ISystem system) => systems.Add(system);
+    public World AddSystem(ISystem system) {
+        systems.Add(system);
+        return this;
+    }
 }

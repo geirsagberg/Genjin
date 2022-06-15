@@ -2,14 +2,17 @@ namespace Genjin.Core;
 
 public class Simulation {
     private readonly ushort maxSkippedUpdates;
-    private readonly Func<TimeSpan, ValueTask> onUpdate;
 
     private TimeSpan simulatedTime;
 
-    public Simulation(Func<TimeSpan, ValueTask> onUpdate, TimeSpan startTime = default, ushort updatesPerSecond = 60,
+    public event Func<TimeSpan, ValueTask> OnUpdate = delegate { return default; };
+
+    internal Simulation(TimeSpan startTime = default, ushort updatesPerSecond = 60,
         ushort maxSkippedUpdates = 5) {
-        if (updatesPerSecond == 0) throw new ArgumentOutOfRangeException(nameof(updatesPerSecond), "Must be non-zero");
-        this.onUpdate = onUpdate;
+        if (updatesPerSecond == 0) {
+            throw new ArgumentOutOfRangeException(nameof(updatesPerSecond), "Must be non-zero");
+        }
+
         this.maxSkippedUpdates = maxSkippedUpdates;
         simulatedTime = startTime;
         UpdateInterval = TimeSpan.FromSeconds(1.0 / updatesPerSecond);
@@ -22,11 +25,11 @@ public class Simulation {
     public async ValueTask Update(TimeSpan realTime) {
         var updatesSkipped = 0;
         while (simulatedTime < realTime && (maxSkippedUpdates == 0 || updatesSkipped < maxSkippedUpdates)) {
-            await onUpdate(UpdateInterval);
+            await OnUpdate(simulatedTime);
             simulatedTime += UpdateInterval;
             updatesSkipped++;
         }
 
-        CurrentInterpolation = Math.Clamp((float)((realTime + UpdateInterval - simulatedTime) / UpdateInterval), 0, 1);
+        CurrentInterpolation = Math.Clamp((float) ((realTime + UpdateInterval - simulatedTime) / UpdateInterval), 0, 1);
     }
 }

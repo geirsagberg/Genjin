@@ -21,7 +21,7 @@ public abstract class Game {
     private bool running = true;
 
     protected readonly MessageHub MessageHub = new();
-    
+
     protected Game() {
         var gameSettings = LoadGenjinSettings();
         Window = CreateWindow("Game", gameSettings);
@@ -38,7 +38,7 @@ public abstract class Game {
         GuiRenderer = new ImGuiRenderer(GraphicsDevice, GraphicsDevice.SwapchainFramebuffer.OutputDescription,
             gameSettings.Width, gameSettings.Height);
         DefaultFont = LoadFont("Assets/Fonts/arial.ttf");
-        
+
         MessageHub.Subscribe<StopMessage>(delegate { Stop(); });
     }
 
@@ -86,7 +86,7 @@ public abstract class Game {
 
     private void OnWindowOnResized() {
         lock (Window) {
-            GraphicsDevice.ResizeMainWindow((uint)Window.Width, (uint)Window.Height);
+            GraphicsDevice.ResizeMainWindow((uint) Window.Width, (uint) Window.Height);
             GuiRenderer.WindowResized(Window.Width, Window.Height);
         }
     }
@@ -96,7 +96,7 @@ public abstract class Game {
         var image = ImageResult.FromMemory(bytes);
         Debug.Assert(image != null);
         var textureDescription = new TextureDescription(
-            (uint)image.Width, (uint)image.Height,
+            (uint) image.Width, (uint) image.Height,
             1, 1, 1,
             PixelFormat.R8_G8_B8_A8_UNorm,
             TextureUsage.Sampled,
@@ -139,9 +139,7 @@ public abstract class Game {
         var input = Window.PumpEvents();
         var deltaTime = thisFrame - lastFrame;
 
-        GuiRenderer.Update((float)deltaTime.TotalSeconds, input);
-
-        await UpdateBasedOnInput(input);
+        GuiRenderer.Update((float) deltaTime.TotalSeconds, input);
 
         foreach (var simulation in simulations) {
             await simulation.Update(thisFrame);
@@ -151,8 +149,6 @@ public abstract class Game {
 
         lastFrame = thisFrame;
     }
-
-    protected abstract Task UpdateBasedOnInput(InputSnapshot input);
 
     protected void Stop() => running = false;
 
@@ -184,9 +180,9 @@ public abstract class Game {
         }
     }
 
-    protected Simulation StartSimulation(Func<TimeSpan, ValueTask> onUpdate, ushort updatesPerSecond = 60,
+    protected Simulation StartSimulation(ushort updatesPerSecond = 60,
         ushort maxSkippedUpdates = 5) {
-        var simulation = new Simulation(onUpdate, TimeSpan.Zero, updatesPerSecond, maxSkippedUpdates);
+        var simulation = new Simulation(TimeSpan.Zero, updatesPerSecond, maxSkippedUpdates);
         simulations.Add(simulation);
         return simulation;
     }

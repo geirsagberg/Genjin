@@ -12,12 +12,14 @@ internal class GameScene : IScene {
     private const int ColCount = 10;
     private readonly World world;
     private readonly ShapeRenderer shapeRenderer;
+    private readonly Simulation simulation;
 
     private readonly SizeF gameSize = new(800, 480);
 
-    public GameScene(World world, ShapeRenderer shapeRenderer) {
+    public GameScene(World world, ShapeRenderer shapeRenderer, Simulation simulation) {
         this.world = world;
         this.shapeRenderer = shapeRenderer;
+        this.simulation = simulation;
         for (var row = 0; row < RowCount; row++) {
             for (var col = 0; col < ColCount; col++) {
                 CreateBlock(row, col);

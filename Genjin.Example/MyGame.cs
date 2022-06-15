@@ -51,27 +51,7 @@ internal class MyGame : Game {
 
         transform = new Transform(new Vector2(100, 100), default, spriteSheet.SpriteSize);
 
-        simulation = StartSimulation(UpdatePhysics);
-
-        return Task.CompletedTask;
-    }
-
-    protected override Task UpdateBasedOnInput(InputSnapshot input) {
-        UpdatePressedKeys(input);
-
-        var newVelocity =
-            new Vector2((pressedKeys.Contains(GameKey.Left) ? -1f : 0) + (pressedKeys.Contains(GameKey.Right) ? 1f : 0),
-                (pressedKeys.Contains(GameKey.Up) ? -1f : 0) + (pressedKeys.Contains(GameKey.Down) ? 1f : 0));
-
-        velocity = newVelocity.NormalizeOrZero();
-
-        facing = velocity.X switch {
-            > 0 => Facing.Right,
-            < 0 => Facing.Left,
-            _ => facing
-        };
-
-        mousePosition = input.MousePosition;
+        simulation = StartSimulation();
 
         return Task.CompletedTask;
     }

@@ -2,7 +2,6 @@ using Genjin.Breakout.Components;
 using Genjin.Core;
 using Genjin.Core.Entities;
 using Microsoft.Extensions.DependencyInjection;
-using Veldrid;
 
 namespace Genjin.Breakout;
 
@@ -22,14 +21,15 @@ internal class BreakoutGame : Game {
     protected override async Task Init() {
         Window.Title = "Breakout";
 
+
         world.AddSystem(new RenderSystem(ShapeRenderer, world));
 
-        MessageHub.Subscribe<StartGameMessage>(_ => SceneManager.SetScene(new GameScene(world, ShapeRenderer)));
+        MessageHub.Subscribe<StartGameMessage>(_ => SceneManager.SetScene(CreateGameScene()));
         // await SceneManager.SetScene(menuScene);
-        await SceneManager.SetScene(new GameScene(world, ShapeRenderer));
+        await SceneManager.SetScene(CreateGameScene());
     }
 
-    protected override Task UpdateBasedOnInput(InputSnapshot input) => Task.CompletedTask;
+    private GameScene CreateGameScene() => new(world, ShapeRenderer, StartSimulation());
 
     protected override void Draw(TimeSpan sincePreviousFrame) {
         SceneManager.Draw();

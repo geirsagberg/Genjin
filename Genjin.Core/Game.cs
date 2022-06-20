@@ -13,6 +13,10 @@ using Veldrid.StartupUtilities;
 
 namespace Genjin.Core;
 
+public class Resource<T> {
+    public T Value { get; }
+}
+
 public abstract class Game {
     private readonly List<Simulation> simulations = new();
 

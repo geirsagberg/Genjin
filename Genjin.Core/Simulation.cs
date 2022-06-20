@@ -1,16 +1,20 @@
 namespace Genjin.Core;
 
+public readonly record struct SimulatedTimeStep(TimeSpan DeltaTime);
+
 public class Simulation {
     private readonly ushort maxSkippedUpdates;
 
     private TimeSpan simulatedTime;
 
-    public event Func<TimeSpan, ValueTask> OnUpdate = delegate { return default; };
+    public bool IsRunning { get; set; } = true;
+
+    public event Func<SimulatedTimeStep, ValueTask> OnUpdate = delegate { return default; };
 
     internal Simulation(TimeSpan startTime = default, ushort updatesPerSecond = 60,
         ushort maxSkippedUpdates = 5) {
         if (updatesPerSecond == 0) {
-            throw new ArgumentOutOfRangeException(nameof(updatesPerSecond), "Must be non-zero");
+            throw new ArgumentOutOfRangeException(nameof(updatesPerSecond), @"Must be non-zero");
         }
 
         this.maxSkippedUpdates = maxSkippedUpdates;
@@ -25,7 +29,10 @@ public class Simulation {
     public async ValueTask Update(TimeSpan realTime) {
         var updatesSkipped = 0;
         while (simulatedTime < realTime && (maxSkippedUpdates == 0 || updatesSkipped < maxSkippedUpdates)) {
-            await OnUpdate(simulatedTime);
+            if (IsRunning) {
+                await OnUpdate(new SimulatedTimeStep(UpdateInterval));
+            }
+
             simulatedTime += UpdateInterval;
             updatesSkipped++;
         }

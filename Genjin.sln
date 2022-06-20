@@ -11,6 +11,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Genjin.Breakout", "Genjin.B
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Genjin.Core.Tests", "Genjin.Core.Tests\Genjin.Core.Tests.csproj", "{34CD195E-7CDA-4D5C-9BEA-6EF2ED97F890}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Peridot", "peridot\src\Peridot\Peridot.csproj", "{E8E86E81-E690-4E73-B7C2-EB9292F43AB4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Peridot.Veldrid", "peridot\src\Peridot.Veldrid\Peridot.Veldrid.csproj", "{ACCE3AB9-E6E1-4639-9A0C-5C3C927F3CDD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Solution Items_", "_Solution Items_", "{97978248-D3AD-456B-9F9D-502BF139250E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +42,13 @@ Global
 		{34CD195E-7CDA-4D5C-9BEA-6EF2ED97F890}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{34CD195E-7CDA-4D5C-9BEA-6EF2ED97F890}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{34CD195E-7CDA-4D5C-9BEA-6EF2ED97F890}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E8E86E81-E690-4E73-B7C2-EB9292F43AB4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8E86E81-E690-4E73-B7C2-EB9292F43AB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E8E86E81-E690-4E73-B7C2-EB9292F43AB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E8E86E81-E690-4E73-B7C2-EB9292F43AB4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ACCE3AB9-E6E1-4639-9A0C-5C3C927F3CDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ACCE3AB9-E6E1-4639-9A0C-5C3C927F3CDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACCE3AB9-E6E1-4639-9A0C-5C3C927F3CDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACCE3AB9-E6E1-4639-9A0C-5C3C927F3CDD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

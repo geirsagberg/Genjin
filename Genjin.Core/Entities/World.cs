@@ -2,7 +2,7 @@ using Genjin.Core.Extensions;
 
 namespace Genjin.Core.Entities;
 
-public class World : IDrawable {
+public class World : IDrawable, IEntityManager {
     // Bitmask of active components per entity ID
     private readonly Dictionary<long, long> componentBitsByEntity = new();
 
@@ -22,6 +22,7 @@ public class World : IDrawable {
 
     private int componentCount;
     private long entityCount;
+    private readonly List<Simulation> simulations = new();
 
     public void Draw() {
         foreach (var drawSystem in systems.OfType<IDrawSystem>()) {
@@ -86,6 +87,12 @@ public class World : IDrawable {
 
     public World AddSystem(ISystem system) {
         systems.Add(system);
+        return this;
+    }
+
+    public World AddSimulationSystems(params ISimulationSystem[] systems) {
+        var simulation = new Simulation();
+
         return this;
     }
 }

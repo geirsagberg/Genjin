@@ -1,0 +1,3 @@
+[submodule "peridot"]
+	path = peridot
+	url = gh:ezequias2d/peridot

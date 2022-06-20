@@ -21,7 +21,6 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="6.0.4" />
     <PackageReference Include="Nito.AsyncEx.Context" Version="5.1.2" />
-    <PackageReference Include="Peridot.Veldrid" Version="0.3.0-alpha" />
     <PackageReference Include="Veldrid" Version="4.8.0" />
     <PackageReference Include="Veldrid.ImGui" Version="5.72.0" />
     <PackageReference Include="Veldrid.StartupUtilities" Version="4.8.0" />
@@ -37,6 +36,10 @@
 
   <ItemGroup>
     <Folder Include="Assets" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\peridot\src\Peridot.Veldrid\Peridot.Veldrid.csproj" />
   </ItemGroup>
 
 </Project>

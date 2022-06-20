@@ -5,6 +5,17 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Genjin.Breakout;
 
+internal class PhysicsSystem : ISimulationSystem {
+    public PhysicsSystem() {
+    }
+
+    public ValueTask Update(TimeSpan simulatedTime) => throw new NotImplementedException();
+}
+
+internal interface IEntitySystem {
+    Aspect Aspect { get; }
+}
+
 internal class BreakoutGame : Game {
     private readonly MenuScene menuScene;
 
@@ -21,8 +32,10 @@ internal class BreakoutGame : Game {
     protected override async Task Init() {
         Window.Title = "Breakout";
 
+        world
+            .AddSimulationSystems()
+            .AddSystem(new RenderSystem(ShapeRenderer, world));
 
-        world.AddSystem(new RenderSystem(ShapeRenderer, world));
 
         MessageHub.Subscribe<StartGameMessage>(_ => SceneManager.SetScene(CreateGameScene()));
         // await SceneManager.SetScene(menuScene);

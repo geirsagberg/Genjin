@@ -97,6 +97,11 @@ public class World : IDrawable, IEntityManager {
             ? (T) componentsByEntityByType[typeof(T)][entity]
             : throw new Exception($"Entity {entity} does not have component of type {typeof(T).Name}");
 
+    public T? TryGetComponent<T>(long entity) where T : class =>
+        componentsByEntityByType[typeof(T)].TryGetValue(entity, out var component)
+            ? component as T
+            : null;
+
     public World AddSystem(ISystem system) {
         systems.Add(system);
         return this;

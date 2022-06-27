@@ -24,13 +24,13 @@ internal class GameScene : IScene {
 
         var paddle = CreatePaddle();
         CreateBall(paddle);
-        sharedState.GameState = GameState.Playing;
+        sharedState.GameState = GameState.Initial;
         sharedState.GameSize = gameSize;
     }
 
     private void CreateBall(Entity paddle) {
         var ball = world.CreateEntity();
-        ball.Add(new Collidable());
+        ball.Add(new Collidable(CollisionResponse.Bounce));
         ball.Add(new Transform(paddle.Get<Transform>().Position + new Vector2(40, -20), 0, new SizeF(20f, 20f)));
         ball.Add(Color.White);
         ball.Add(new Movable());
@@ -40,7 +40,7 @@ internal class GameScene : IScene {
     private Entity CreatePaddle() {
         var paddleSize = new Size(100, 20);
         var paddle = world.CreateEntity();
-        paddle.Add(new Collidable());
+        paddle.Add(new Collidable(CollisionResponse.Stop));
         paddle.Add(new Transform(new Vector2((gameSize.Width - paddleSize.Width) / 2, gameSize.Height - 40), 0,
             paddleSize));
         paddle.Add(Color.Red);

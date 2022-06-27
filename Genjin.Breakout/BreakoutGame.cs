@@ -1,14 +1,9 @@
 using Genjin.Breakout.Systems;
 using Genjin.Core;
-using Genjin.Core.Entities;
 using Microsoft.Extensions.DependencyInjection;
 using Veldrid;
 
 namespace Genjin.Breakout;
-
-internal interface IEntitySystem {
-    Aspect Aspect { get; }
-}
 
 internal class BreakoutGame : Game {
     private readonly MenuScene menuScene;

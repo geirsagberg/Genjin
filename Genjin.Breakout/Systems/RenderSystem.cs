@@ -1,4 +1,5 @@
 using System.Drawing;
+using Genjin.Breakout.Components;
 using Genjin.Core;
 using Genjin.Core.Entities;
 using Genjin.Example;
@@ -22,6 +23,13 @@ internal class RenderSystem : IDrawSystem {
             shapeRenderer.FillRectangle(
                 new RectangleF(transform.Position.X, transform.Position.Y, transform.Size.Width, transform.Size.Height),
                 color);
+        }
+
+        foreach (var entity in world.GetEntitiesMatchingAll(typeof(GameBounds))) {
+            var gameBounds = entity.Get<GameBounds>();
+
+            shapeRenderer.DrawRectangle(new RectangleF(PointF.Empty, gameBounds.Size),
+                Color.Blue);
         }
     }
 }

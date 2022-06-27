@@ -13,7 +13,7 @@ public class EntitiesTest {
 
     [Fact]
     public void GetEntitiesMatchingAll_will_match_entities_that_also_have_other_components() {
-        var world = new World();
+        var world = new World(_ => { });
 
         var entity = world.CreateEntity();
         entity.Add(new Foo());

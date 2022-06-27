@@ -13,7 +13,7 @@ namespace Genjin.Core;
  * Size = Original size
  */
 public record Transform {
-    private Transform(Vector2 position, float rotation, Vector2 scale, Vector2 origin, Size size) {
+    private Transform(Vector2 position, float rotation, Vector2 scale, Vector2 origin, SizeF size) {
         Position = position;
         Rotation = rotation;
         Scale = scale;
@@ -21,7 +21,7 @@ public record Transform {
         Size = size;
     }
 
-    public Size Size { get; set; }
+    public SizeF Size { get; set; }
 
     public Vector2 Origin { get; set; }
 
@@ -31,7 +31,7 @@ public record Transform {
 
     public Vector2 Position { get; set; }
 
-    public Transform(Vector2 position, float rotation, Size size) : this(position, rotation, Vector2.One,
+    public Transform(Vector2 position, float rotation, SizeF size) : this(position, rotation, Vector2.One,
         new Vector2(size.Width / 2f, size.Height / 2f),
         size) {
     }

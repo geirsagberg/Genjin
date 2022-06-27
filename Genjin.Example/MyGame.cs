@@ -9,14 +9,6 @@ namespace Genjin.Example;
 internal class MyGame : Game {
     private const double FpsSmoothing = 0.9;
 
-    private readonly Dictionary<Key, GameKey> keyMap = new() {
-        { Key.A, GameKey.Left },
-        { Key.W, GameKey.Up },
-        { Key.S, GameKey.Down },
-        { Key.D, GameKey.Right }
-    };
-
-    private readonly HashSet<GameKey> pressedKeys = new();
     private AnimatedSprite<PlayerState> animatedSprite = null!;
 
     private TimeSpan animationTime;
@@ -30,19 +22,16 @@ internal class MyGame : Game {
     private Facing facing = Facing.Right;
 
     private double fps;
-    private Vector2 mousePosition;
-    private TextureWrapper playerSprite;
+    private TextureWrapper playerSprite = null!;
     private Simulation simulation = null!;
 
     private SpriteSheet spriteSheet = null!;
-    private Transform transform;
     private int updates;
 
-    private Vector2 velocity = Vector2.Zero;
-
     protected override Task Init() {
-        playerSprite = LoadTexture("Assets/Sprites/player.png");
+        World.AddSimulationSystems()
 
+        playerSprite = LoadTexture("Assets/Sprites/player.png");
         spriteSheet = new SpriteSheet(playerSprite, 21, 1);
         animatedSprite = new AnimatedSprite<PlayerState>(spriteSheet, new Dictionary<PlayerState, Animation> {
             { PlayerState.Idle, new(..0) },
@@ -54,18 +43,6 @@ internal class MyGame : Game {
         simulation = StartSimulation();
 
         return Task.CompletedTask;
-    }
-
-    private void UpdatePressedKeys(InputSnapshot input) {
-        foreach (var keyEvent in input.KeyEvents) {
-            if (keyMap.TryGetValue(keyEvent.Key, out var key)) {
-                if (keyEvent.Down) {
-                    pressedKeys.Add(key);
-                } else {
-                    pressedKeys.Remove(key);
-                }
-            }
-        }
     }
 
     protected override void Draw(TimeSpan deltaTime) {
@@ -121,11 +98,11 @@ internal class MyGame : Game {
     }
 
     private static float GetFactor(TimeSpan interval) => (float) interval.TotalSeconds * 200;
+}
 
-    private enum GameKey : byte {
-        Up,
-        Down,
-        Left,
-        Right
-    }
+internal enum GameKey : byte {
+    Up,
+    Down,
+    Left,
+    Right
 }

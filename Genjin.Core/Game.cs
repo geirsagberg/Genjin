@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using Genjin.Core.Entities;
 using Genjin.Example;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,6 +24,7 @@ public abstract class Game {
     private bool running = true;
 
     protected readonly MessageHub MessageHub = new();
+    protected readonly World World;
 
     protected InputSnapshot CurrentInput { get; private set; }
 
@@ -45,6 +47,7 @@ public abstract class Game {
             gameSettings.Width, gameSettings.Height);
         DefaultFont = LoadFont("Assets/Fonts/arial.ttf");
         CurrentInput = Window.PumpEvents();
+        World = new World(AddUpdatable);
 
         updaters.Add(deltaTime => GuiRenderer.Update((float) deltaTime.TotalSeconds, CurrentInput));
 
@@ -134,6 +137,8 @@ public abstract class Game {
     public async Task Start() {
         var services = new ServiceCollection();
         services.AddSingleton<Provide<InputSnapshot>>(() => CurrentInput);
+        services.AddSingleton(World);
+        services.AddSingleton<IEntityManager>(provider => provider.GetRequiredService<World>());
         ConfigureServices(services);
         Services = services.BuildServiceProvider();
 

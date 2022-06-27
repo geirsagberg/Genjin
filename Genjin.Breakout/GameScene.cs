@@ -1,9 +1,9 @@
 using System.Drawing;
 using System.Numerics;
 using Genjin.Breakout.Components;
+using Genjin.Breakout.Systems;
 using Genjin.Core;
 using Genjin.Core.Entities;
-using Genjin.Example;
 
 namespace Genjin.Breakout;
 
@@ -11,23 +11,33 @@ internal class GameScene : IScene {
     private const int RowCount = 10;
     private const int ColCount = 10;
     private readonly World world;
-    private readonly ShapeRenderer shapeRenderer;
 
     private readonly SizeF gameSize = new(800, 480);
 
-    public GameScene(World world, ShapeRenderer shapeRenderer) {
+    public GameScene(World world, SharedState sharedState) {
         this.world = world;
-        this.shapeRenderer = shapeRenderer;
         for (var row = 0; row < RowCount; row++) {
             for (var col = 0; col < ColCount; col++) {
                 CreateBlock(row, col);
             }
         }
 
-        CreatePaddle();
+        var paddle = CreatePaddle();
+        CreateBall(paddle);
+        sharedState.GameState = GameState.Playing;
+        sharedState.GameSize = gameSize;
     }
 
-    private void CreatePaddle() {
+    private void CreateBall(Entity paddle) {
+        var ball = world.CreateEntity();
+        ball.Add(new Collidable());
+        ball.Add(new Transform(paddle.Get<Transform>().Position + new Vector2(40, -20), 0, new SizeF(20f, 20f)));
+        ball.Add(Color.White);
+        ball.Add(new Movable());
+        ball.Add(new Ball());
+    }
+
+    private Entity CreatePaddle() {
         var paddleSize = new Size(100, 20);
         var paddle = world.CreateEntity();
         paddle.Add(new Collidable());
@@ -36,6 +46,7 @@ internal class GameScene : IScene {
         paddle.Add(Color.Red);
         paddle.Add(new Controllable());
         paddle.Add(new Movable());
+        return paddle;
     }
 
     private void CreateBlock(int row, int col) {
@@ -48,7 +59,6 @@ internal class GameScene : IScene {
             size));
         block.Add(Color.Gold);
     }
-
-    public void Draw() =>
-        shapeRenderer.DrawRectangle(new RectangleF(0, 0, gameSize.Width, gameSize.Height), Color.Blue);
 }
+
+internal record Ball;

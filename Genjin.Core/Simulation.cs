@@ -2,14 +2,14 @@ namespace Genjin.Core;
 
 public readonly record struct SimulatedTimeStep(TimeSpan DeltaTime);
 
-public class Simulation {
+public class Simulation : IUpdatable {
     private readonly ushort maxSkippedUpdates;
 
     private TimeSpan simulatedTime;
 
     public bool IsRunning { get; set; } = true;
 
-    public event Func<SimulatedTimeStep, ValueTask> OnUpdate = delegate { return default; };
+    public event Action<TimeSpan> OnUpdate = delegate { };
 
     internal Simulation(TimeSpan startTime = default, ushort updatesPerSecond = 60,
         ushort maxSkippedUpdates = 5) {
@@ -26,17 +26,20 @@ public class Simulation {
 
     public TimeSpan UpdateInterval { get; }
 
-    public async ValueTask Update(TimeSpan realTime) {
-        var updatesSkipped = 0;
-        while (simulatedTime < realTime && (maxSkippedUpdates == 0 || updatesSkipped < maxSkippedUpdates)) {
-            if (IsRunning) {
-                await OnUpdate(new SimulatedTimeStep(UpdateInterval));
-            }
+    public void Update(TimeSpan deltaTime) {
+        if (!IsRunning) {
+            return;
+        }
 
+        var updatesSkipped = 0;
+        var targetTime = simulatedTime + deltaTime;
+        while (simulatedTime < targetTime && (maxSkippedUpdates == 0 || updatesSkipped < maxSkippedUpdates)) {
+            OnUpdate(UpdateInterval);
             simulatedTime += UpdateInterval;
             updatesSkipped++;
         }
 
-        CurrentInterpolation = Math.Clamp((float) ((realTime + UpdateInterval - simulatedTime) / UpdateInterval), 0, 1);
+        CurrentInterpolation =
+            Math.Clamp((float) ((targetTime + UpdateInterval - simulatedTime) / UpdateInterval), 0, 1);
     }
 }

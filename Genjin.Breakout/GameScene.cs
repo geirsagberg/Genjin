@@ -12,14 +12,12 @@ internal class GameScene : IScene {
     private const int ColCount = 10;
     private readonly World world;
     private readonly ShapeRenderer shapeRenderer;
-    private readonly Simulation simulation;
 
     private readonly SizeF gameSize = new(800, 480);
 
-    public GameScene(World world, ShapeRenderer shapeRenderer, Simulation simulation) {
+    public GameScene(World world, ShapeRenderer shapeRenderer) {
         this.world = world;
         this.shapeRenderer = shapeRenderer;
-        this.simulation = simulation;
         for (var row = 0; row < RowCount; row++) {
             for (var col = 0; col < ColCount; col++) {
                 CreateBlock(row, col);
@@ -36,6 +34,8 @@ internal class GameScene : IScene {
         paddle.Add(new Transform(new Vector2((gameSize.Width - paddleSize.Width) / 2, gameSize.Height - 40), 0,
             paddleSize));
         paddle.Add(Color.Red);
+        paddle.Add(new Controllable());
+        paddle.Add(new Movable());
     }
 
     private void CreateBlock(int row, int col) {

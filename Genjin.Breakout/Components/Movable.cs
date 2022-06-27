@@ -2,4 +2,8 @@ using System.Numerics;
 
 namespace Genjin.Breakout.Components;
 
-record Movable(Vector2 Velocity);
+public record Movable {
+    public Vector2 Velocity { get; set; }
+}
+
+internal record Controllable;

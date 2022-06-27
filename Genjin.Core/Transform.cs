@@ -1,7 +1,7 @@
 ﻿using System.Drawing;
 using System.Numerics;
 
-namespace Genjin.Example;
+namespace Genjin.Core;
 
 /**
  * M11 = x scale, rotation
@@ -12,13 +12,25 @@ namespace Genjin.Example;
  * M32 = y translation
  * Size = Original size
  */
-public readonly record struct Transform(
-    Vector2 Position,
-    float Rotation,
-    Vector2 Scale,
-    Vector2 Origin,
-    Size Size
-) {
+public record Transform {
+    private Transform(Vector2 position, float rotation, Vector2 scale, Vector2 origin, Size size) {
+        Position = position;
+        Rotation = rotation;
+        Scale = scale;
+        Origin = origin;
+        Size = size;
+    }
+
+    public Size Size { get; set; }
+
+    public Vector2 Origin { get; set; }
+
+    public Vector2 Scale { get; set; }
+
+    public float Rotation { get; set; }
+
+    public Vector2 Position { get; set; }
+
     public Transform(Vector2 position, float rotation, Size size) : this(position, rotation, Vector2.One,
         new Vector2(size.Width / 2f, size.Height / 2f),
         size) {

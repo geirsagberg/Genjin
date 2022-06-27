@@ -13,18 +13,20 @@ using Veldrid.StartupUtilities;
 
 namespace Genjin.Core;
 
-public class Resource<T> {
-    public T Value { get; }
-}
+public delegate void Update(TimeSpan deltaTime);
 
 public abstract class Game {
-    private readonly List<Simulation> simulations = new();
+    private readonly List<Update> updaters = new();
 
     private TimeSpan lastFrame = TimeSpan.Zero;
     private Stopwatch realTime = null!;
     private bool running = true;
 
     protected readonly MessageHub MessageHub = new();
+
+    protected InputSnapshot CurrentInput { get; private set; }
+
+    protected void AddUpdatable(IUpdatable updatable) => updaters.Add(updatable.Update);
 
     protected Game() {
         var gameSettings = LoadGenjinSettings();
@@ -42,6 +44,9 @@ public abstract class Game {
         GuiRenderer = new ImGuiRenderer(GraphicsDevice, GraphicsDevice.SwapchainFramebuffer.OutputDescription,
             gameSettings.Width, gameSettings.Height);
         DefaultFont = LoadFont("Assets/Fonts/arial.ttf");
+        CurrentInput = Window.PumpEvents();
+
+        updaters.Add(deltaTime => GuiRenderer.Update((float) deltaTime.TotalSeconds, CurrentInput));
 
         MessageHub.Subscribe<StopMessage>(delegate { Stop(); });
     }
@@ -59,7 +64,9 @@ public abstract class Game {
     protected ImGuiRenderer GuiRenderer { get; }
     protected ResourceFactory ResourceFactory => GraphicsDevice.ResourceFactory;
 
-    protected IServiceProvider Services { get; private set; } = null!;
+    private IServiceProvider Services { get; set; } = null!;
+
+    protected T Get<T>() => ActivatorUtilities.GetServiceOrCreateInstance<T>(Services);
 
     private static Sdl2Window CreateWindow(string title, GenjinSettings gameSettings) =>
         new(title, 100, 100, gameSettings.Width, gameSettings.Height, GetWindowFlags(gameSettings),
@@ -126,6 +133,7 @@ public abstract class Game {
 
     public async Task Start() {
         var services = new ServiceCollection();
+        services.AddSingleton<Provide<InputSnapshot>>(() => CurrentInput);
         ConfigureServices(services);
         Services = services.BuildServiceProvider();
 
@@ -134,19 +142,18 @@ public abstract class Game {
         realTime = Stopwatch.StartNew();
 
         while (running && Window.Exists) {
-            await GameLoop();
+            GameLoop();
         }
     }
 
-    private async ValueTask GameLoop() {
+    private void GameLoop() {
         var thisFrame = realTime.Elapsed;
-        var input = Window.PumpEvents();
+        // Time since previous frame
         var deltaTime = thisFrame - lastFrame;
+        CurrentInput = Window.PumpEvents();
 
-        GuiRenderer.Update((float) deltaTime.TotalSeconds, input);
-
-        foreach (var simulation in simulations) {
-            await simulation.Update(thisFrame);
+        foreach (var updater in updaters) {
+            updater(deltaTime);
         }
 
         DrawInternal(deltaTime);
@@ -156,9 +163,9 @@ public abstract class Game {
 
     protected void Stop() => running = false;
 
-    protected abstract void Draw(TimeSpan sincePreviousFrame);
+    protected abstract void Draw(TimeSpan deltaTime);
 
-    private void DrawInternal(TimeSpan sincePreviousFrame) {
+    private void DrawInternal(TimeSpan deltaTime) {
         lock (Window) {
             CommandList.Begin();
             CommandList.SetFramebuffer(GraphicsDevice.SwapchainFramebuffer);
@@ -167,7 +174,7 @@ public abstract class Game {
             SpriteBatch.Begin();
             SpriteBatch.ViewMatrix =
                 Matrix4x4.CreateOrthographicOffCenter(0, Window.Width, 0, Window.Height, -10, 10);
-            Draw(sincePreviousFrame);
+            Draw(deltaTime);
             SpriteBatch.DrawBatch(CommandList);
             SpriteBatch.End();
 
@@ -182,13 +189,6 @@ public abstract class Game {
                 GraphicsDevice.SwapBuffers();
             }
         }
-    }
-
-    protected Simulation StartSimulation(ushort updatesPerSecond = 60,
-        ushort maxSkippedUpdates = 5) {
-        var simulation = new Simulation(TimeSpan.Zero, updatesPerSecond, maxSkippedUpdates);
-        simulations.Add(simulation);
-        return simulation;
     }
 
     protected void DrawString(string text, Vector2 position) =>

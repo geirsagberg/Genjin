@@ -68,11 +68,11 @@ internal class MyGame : Game {
         }
     }
 
-    protected override void Draw(TimeSpan sincePreviousFrame) {
-        var currentFps = 1.0 / sincePreviousFrame.TotalSeconds;
+    protected override void Draw(TimeSpan deltaTime) {
+        var currentFps = 1.0 / deltaTime.TotalSeconds;
         fps = (fps * FpsSmoothing) + (currentFps * (1.0 - FpsSmoothing));
 
-        animationTime += sincePreviousFrame;
+        animationTime += deltaTime;
 
         var newPlayerState = pressedKeys.Any() ? PlayerState.Running : PlayerState.Idle;
 

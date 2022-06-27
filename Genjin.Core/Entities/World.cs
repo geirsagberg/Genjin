@@ -3,6 +3,12 @@ using Genjin.Core.Extensions;
 namespace Genjin.Core.Entities;
 
 public class World : IDrawable, IEntityManager {
+    private readonly Action<IUpdatable> addUpdatable;
+
+    public World(Action<IUpdatable> addUpdatable) {
+        this.addUpdatable = addUpdatable;
+    }
+
     // Bitmask of active components per entity ID
     private readonly Dictionary<long, long> componentBitsByEntity = new();
 
@@ -38,22 +44,28 @@ public class World : IDrawable, IEntityManager {
 
     private Dictionary<long, Object> GetOrCreateComponentPool(Type componentType) =>
         componentsByEntityByType.GetOrCreate(componentType, () => {
+            var componentPool = new Dictionary<long, Object>();
+            componentsByEntityByType[componentType] = componentPool;
+            return componentPool;
+        });
+
+    private int GetOrCreateComponentId(Type componentType) =>
+        componentIdsByType.GetOrCreate(componentType, () => {
             var componentId = ++componentCount;
             if (componentId > 64) {
                 throw new Exception("Too many components");
             }
 
-            var componentPool = new Dictionary<long, Object>();
-            componentsByEntityByType[componentType] = componentPool;
             componentIdsByType[componentType] = componentId;
-            return componentPool;
+            return componentId;
         });
 
     public void AddComponent<T>(long entity, T component) where T : notnull {
+        var componentId = GetOrCreateComponentId(typeof(T));
         var componentPool = GetOrCreateComponentPool(typeof(T));
         componentPool[entity] = component;
         var componentBits = componentBitsByEntity.GetOrCreate(entity, 0) |
-            (1L << (componentIdsByType[typeof(T)] - 1));
+            (1L << (componentId - 1));
         componentBitsByEntity[entity] = componentBits;
         foreach (var (aspect, entities) in entitiesByAspect) {
             if (aspect.MatchesExclude(componentBits)) {
@@ -76,8 +88,8 @@ public class World : IDrawable, IEntityManager {
             .Select(pair => entitiesById[pair.Key])
             .ToHashSet();
 
-    private long GetComponentBits(Type[] types) =>
-        types.Select(type => componentIdsByType.GetValueOrDefault(type))
+    private long GetComponentBits(IEnumerable<Type> types) =>
+        types.Select(GetOrCreateComponentId)
             .Aggregate(0L, (bits, id) => id == 0 ? bits : bits | (1L << (id - 1)));
 
     public T GetComponent<T>(long entity) =>
@@ -90,9 +102,13 @@ public class World : IDrawable, IEntityManager {
         return this;
     }
 
-    public World AddSimulationSystems(params ISimulationSystem[] systems) {
+    public World AddSimulationSystems(params ISimulationSystem[] simulationSystems) {
         var simulation = new Simulation();
+        foreach (var system in simulationSystems) {
+            simulation.OnUpdate += system.Update;
+        }
 
+        addUpdatable(simulation);
         return this;
     }
 }

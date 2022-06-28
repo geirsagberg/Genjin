@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Drawing;
 using System.Numerics;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using Genjin.Core.Entities;
 using Genjin.Example;
@@ -124,7 +125,10 @@ public abstract class Game {
     }
 
     protected static Font LoadFont(string path) {
-        var bytes = File.ReadAllBytes(path);
+        var fullPath = Path.IsPathFullyQualified(path)
+            ? path
+            : Path.GetFullPath(path, Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty);
+        var bytes = File.ReadAllBytes(fullPath);
         var font = new Font();
         font.AddFont(bytes);
         return font;

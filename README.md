@@ -7,4 +7,4 @@ git submodule update --init
 dotnet run --project Genjin.Breakout
 ```
 
-- very much a work in progress -
+_very much a work in progress_

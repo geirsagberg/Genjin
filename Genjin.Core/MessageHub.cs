@@ -40,7 +40,7 @@ public class MessageHub {
         }
     }
 
-    public async Task Send<T>(T request) where T : IRequest {
+    public async Task Send<T>(T request) where T : class, IRequest {
         if (RequestHandlers.TryGetValue(request.GetType(), out var handler)) {
             switch (handler) {
                 case Action<T> action:

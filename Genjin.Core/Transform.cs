@@ -21,6 +21,11 @@ public record Transform {
         Size = size;
     }
 
+    public Transform(Vector2 position, float rotation, SizeF size) : this(position, rotation, Vector2.One,
+        new Vector2(size.Width / 2f, size.Height / 2f),
+        size) {
+    }
+
     public SizeF Size { get; set; }
 
     public Vector2 Origin { get; set; }
@@ -31,11 +36,7 @@ public record Transform {
 
     public Vector2 Position { get; set; }
 
-    public Transform(Vector2 position, float rotation, SizeF size) : this(position, rotation, Vector2.One,
-        new Vector2(size.Width / 2f, size.Height / 2f),
-        size) {
-    }
+    public RectangleF RectangleF => new(Position.X, Position.Y, Size.Width, Size.Height);
 
-    // public Rectangle Rectangle => new((int)Position.X, (int)Position.Y, (int)(Size.Width * Scale.X),
-    //     (int)(Size.Height * Scale.Y));
+    public bool IntersectsWith(Transform transform) => RectangleF.IntersectsWith(transform.RectangleF);
 }

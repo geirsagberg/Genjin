@@ -34,7 +34,7 @@ internal class BreakoutGame : Game {
         Window.Title = "Breakout";
 
         World
-            .AddSimulationSystems(Get<GameSystem>(), Get<PaddleSystem>(), Get<MovableSystem>())
+            .AddSimulationSystems(Get<GameSystem>(), Get<PaddleSystem>(), Get<MovableSystem>(), Get<CollisionSystem>())
             .AddSystem(new RenderSystem(ShapeRenderer, World));
 
         MessageHub.Subscribe<StartGameMessage>(_ => SceneManager.SetScene(Get<GameScene>()));

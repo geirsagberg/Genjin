@@ -2,7 +2,6 @@ using System.Drawing;
 using Genjin.Breakout.Components;
 using Genjin.Core;
 using Genjin.Core.Entities;
-using Genjin.Example;
 
 namespace Genjin.Breakout;
 
@@ -16,13 +15,13 @@ internal class RenderSystem : IDrawSystem {
     }
 
     public void Draw() {
-        foreach (var entity in world.GetEntitiesMatchingAll(typeof(Transform), typeof(Color))) {
+        foreach (var entity in world.GetEntitiesMatchingAll(typeof(Transform), typeof(Colored))) {
             var transform = entity.Get<Transform>();
-            var color = entity.Get<Color>();
+            var colored = entity.Get<Colored>();
 
             shapeRenderer.FillRectangle(
                 new RectangleF(transform.Position.X, transform.Position.Y, transform.Size.Width, transform.Size.Height),
-                color);
+                colored.Color);
         }
 
         foreach (var entity in world.GetEntitiesMatchingAll(typeof(GameBounds))) {

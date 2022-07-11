@@ -2,7 +2,6 @@
 using Genjin.Core;
 using Peridot;
 using Peridot.Veldrid;
-using Veldrid;
 
 namespace Genjin.Example;
 
@@ -29,7 +28,7 @@ internal class MyGame : Game {
     private int updates;
 
     protected override Task Init() {
-        World.AddSimulationSystems()
+        World.AddSimulationSystems();
 
         playerSprite = LoadTexture("Assets/Sprites/player.png");
         spriteSheet = new SpriteSheet(playerSprite, 21, 1);

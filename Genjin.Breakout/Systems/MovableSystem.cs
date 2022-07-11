@@ -22,31 +22,31 @@ internal class MovableSystem : ISimulationSystem {
 
             if (entity.TryGet<Collidable>() is { } collidable) {
                 if (transform.Position.X < 0) {
-                    if (collidable.CollisionResponse == CollisionResponse.Stop) {
+                    if (collidable.CollisionType == CollisionType.Wall) {
                         transform.Position = transform.Position with { X = 0 };
-                    } else if (collidable.CollisionResponse == CollisionResponse.Bounce) {
+                    } else if (collidable.CollisionType == CollisionType.Ball) {
                         movable.Velocity = movable.Velocity with { X = -movable.Velocity.X };
                     }
                 } else if (transform.Position.X + transform.Size.Width > sharedState.GameSize.Width) {
-                    if (collidable.CollisionResponse == CollisionResponse.Stop) {
+                    if (collidable.CollisionType == CollisionType.Wall) {
                         transform.Position = transform.Position with {
                             X = sharedState.GameSize.Width - transform.Size.Width
                         };
-                    } else if (collidable.CollisionResponse == CollisionResponse.Bounce) {
+                    } else if (collidable.CollisionType == CollisionType.Ball) {
                         movable.Velocity = movable.Velocity with { X = -movable.Velocity.X };
                     }
                 } else if (transform.Position.Y < 0) {
-                    if (collidable.CollisionResponse == CollisionResponse.Stop) {
+                    if (collidable.CollisionType == CollisionType.Wall) {
                         transform.Position = transform.Position with { Y = 0 };
-                    } else if (collidable.CollisionResponse == CollisionResponse.Bounce) {
+                    } else if (collidable.CollisionType == CollisionType.Ball) {
                         movable.Velocity = movable.Velocity with { Y = -movable.Velocity.Y };
                     }
                 } else if (transform.Position.Y + transform.Size.Height > sharedState.GameSize.Height) {
-                    if (collidable.CollisionResponse == CollisionResponse.Stop) {
+                    if (collidable.CollisionType == CollisionType.Wall) {
                         transform.Position = transform.Position with {
                             Y = sharedState.GameSize.Height - transform.Size.Height
                         };
-                    } else if (collidable.CollisionResponse == CollisionResponse.Bounce) {
+                    } else if (collidable.CollisionType == CollisionType.Ball) {
                         movable.Velocity = movable.Velocity with { Y = -movable.Velocity.Y };
                     }
                 }

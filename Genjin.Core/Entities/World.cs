@@ -42,9 +42,9 @@ public class World : IDrawable, IEntityManager {
         return entity;
     }
 
-    private Dictionary<long, Object> GetOrCreateComponentPool(Type componentType) =>
+    private Dictionary<long, object> GetOrCreateComponentPool(Type componentType) =>
         componentsByEntityByType.GetOrCreate(componentType, () => {
-            var componentPool = new Dictionary<long, Object>();
+            var componentPool = new Dictionary<long, object>();
             componentsByEntityByType[componentType] = componentPool;
             return componentPool;
         });
@@ -60,7 +60,7 @@ public class World : IDrawable, IEntityManager {
             return componentId;
         });
 
-    public void AddComponent<T>(long entity, T component) where T : notnull {
+    public void AddComponent<T>(long entity, T component) where T : class {
         var componentId = GetOrCreateComponentId(typeof(T));
         var componentPool = GetOrCreateComponentPool(typeof(T));
         componentPool[entity] = component;
@@ -75,11 +75,13 @@ public class World : IDrawable, IEntityManager {
             }
         }
     }
+    
+    private Func<HashSet<Entity>> CreateQueryMatchingAll(Aspect aspect) => () => GetEntitiesMatching(aspect);
 
     public IEnumerable<Entity> GetEntitiesMatchingAll(params Type[] types) {
         var componentBits = GetComponentBits(types);
         var aspect = new Aspect(componentBits);
-        return entitiesByAspect.GetOrCreate(aspect, () => GetEntitiesMatching(aspect));
+        return entitiesByAspect.GetOrCreate(aspect, CreateQueryMatchingAll(aspect));
     }
 
     private HashSet<Entity> GetEntitiesMatching(Aspect aspect) =>

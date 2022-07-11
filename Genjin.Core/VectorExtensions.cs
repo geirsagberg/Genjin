@@ -5,7 +5,7 @@ namespace Genjin.Core;
 
 public static class VectorExtensions {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector2 NormalizeOrZero(this Vector2 vector2) =>
+    public static Vector2 NormalizedOrZero(this Vector2 vector2) =>
         vector2 == Vector2.Zero ? vector2 : Vector2.Normalize(vector2);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

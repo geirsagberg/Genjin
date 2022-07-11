@@ -1,8 +1,9 @@
 namespace Genjin.Breakout.Components;
 
-internal enum CollisionResponse {
-    Stop,
-    Bounce
+internal enum CollisionType {
+    Wall,
+    Ball,
+    Brick
 }
 
-internal record Collidable(CollisionResponse CollisionResponse);
+internal record Collidable(CollisionType CollisionType);

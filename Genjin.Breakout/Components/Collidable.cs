@@ -3,7 +3,8 @@ namespace Genjin.Breakout.Components;
 internal enum CollisionType {
     Wall,
     Ball,
-    Brick
+    Brick,
+    Paddle
 }
 
 internal record Collidable(CollisionType CollisionType);

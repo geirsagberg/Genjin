@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Numerics;
 using System.Runtime.Serialization;
 
-namespace Genjin.Core.Math; 
+namespace Genjin.Core.Primitives; 
 // Real-Time Collision Detection, Christer Ericson, 2005. Chapter 4.2; Bounding Volumes - Axis-aligned Bounding Boxes (AABBs). pg 77 
 // MIT-licensed (https://github.com/craftworkgames/MonoGame.Extended)
 
@@ -83,11 +83,11 @@ public struct RectangleF : IEquatable<RectangleF>, IShapeF
     public bool IsEmpty => Width.Equals(0) && Height.Equals(0) && X.Equals(0) && Y.Equals(0);
 
     /// <summary>
-    ///     Gets the <see cref="Point2" /> representing the the top-left of this <see cref="RectangleF" />.
+    ///     Gets the <see cref="Point2F" /> representing the the top-left of this <see cref="RectangleF" />.
     /// </summary>
-    public Point2 Position
+    public Point2F Position
     {
-        get { return new Point2(X, Y); }
+        get { return new Point2F(X, Y); }
         set
         {
             X = value.X;
@@ -96,11 +96,11 @@ public struct RectangleF : IEquatable<RectangleF>, IShapeF
     }
 
     /// <summary>
-    ///     Gets the <see cref="Size2" /> representing the extents of this <see cref="RectangleF" />.
+    ///     Gets the <see cref="Size2F" /> representing the extents of this <see cref="RectangleF" />.
     /// </summary>
-    public Size2 Size
+    public Size2F Size
     {
-        get { return new Size2(Width, Height); }
+        get { return new Size2F(Width, Height); }
         set
         {
             Width = value.Width;
@@ -109,29 +109,29 @@ public struct RectangleF : IEquatable<RectangleF>, IShapeF
     }
 
     /// <summary>
-    ///     Gets the <see cref="Point2" /> representing the center of this <see cref="RectangleF" />.
+    ///     Gets the <see cref="Point2F" /> representing the center of this <see cref="RectangleF" />.
     /// </summary>
-    public Point2 Center => new(X + Width * 0.5f, Y + Height * 0.5f);
+    public Point2F Center => new(X + Width * 0.5f, Y + Height * 0.5f);
 
     /// <summary>
-    ///     Gets the <see cref="Point2" /> representing the top-left of this <see cref="RectangleF" />.
+    ///     Gets the <see cref="Point2F" /> representing the top-left of this <see cref="RectangleF" />.
     /// </summary>
-    public Point2 TopLeft => new(X, Y);
+    public Point2F TopLeft => new(X, Y);
 
     /// <summary>
-    ///     Gets the <see cref="Point2" /> representing the top-right of this <see cref="RectangleF" />.
+    ///     Gets the <see cref="Point2F" /> representing the top-right of this <see cref="RectangleF" />.
     /// </summary>
-    public Point2 TopRight => new(X + Width, Y);
+    public Point2F TopRight => new(X + Width, Y);
 
     /// <summary>
-    ///     Gets the <see cref="Point2" /> representing the bottom-left of this <see cref="RectangleF" />.
+    ///     Gets the <see cref="Point2F" /> representing the bottom-left of this <see cref="RectangleF" />.
     /// </summary>
-    public Point2 BottomLeft => new(X, Y + Height);
+    public Point2F BottomLeft => new(X, Y + Height);
 
     /// <summary>
-    ///     Gets the <see cref="Point2" /> representing the bottom-right of this <see cref="RectangleF" />.
+    ///     Gets the <see cref="Point2F" /> representing the bottom-right of this <see cref="RectangleF" />.
     /// </summary>
-    public Point2 BottomRight => new(X + Width, Y + Height);
+    public Point2F BottomRight => new(X + Width, Y + Height);
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="RectangleF" /> structure from the specified top-left xy-coordinate
@@ -151,11 +151,11 @@ public struct RectangleF : IEquatable<RectangleF>, IShapeF
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="RectangleF" /> structure from the specified top-left
-    ///     <see cref="Point2" /> and the extents <see cref="Size2" />.
+    ///     <see cref="Point2F" /> and the extents <see cref="Size2F" />.
     /// </summary>
     /// <param name="position">The top-left point.</param>
     /// <param name="size">The extents.</param>
-    public RectangleF(Point2 position, Size2 size)
+    public RectangleF(Point2F position, Size2F size)
     {
         X = position.X;
         Y = position.Y;
@@ -164,13 +164,13 @@ public struct RectangleF : IEquatable<RectangleF>, IShapeF
     }
 
     /// <summary>
-    ///     Computes the <see cref="RectangleF" /> from a minimum <see cref="Point2" /> and maximum
-    ///     <see cref="Point2" />.
+    ///     Computes the <see cref="RectangleF" /> from a minimum <see cref="Point2F" /> and maximum
+    ///     <see cref="Point2F" />.
     /// </summary>
     /// <param name="minimum">The minimum point.</param>
     /// <param name="maximum">The maximum point.</param>
     /// <param name="result">The resulting rectangle.</param>
-    public static void CreateFrom(Point2 minimum, Point2 maximum, out RectangleF result)
+    public static void CreateFrom(Point2F minimum, Point2F maximum, out RectangleF result)
     {
         result.X = minimum.X;
         result.Y = minimum.Y;
@@ -179,41 +179,37 @@ public struct RectangleF : IEquatable<RectangleF>, IShapeF
     }
 
     /// <summary>
-    ///     Computes the <see cref="RectangleF" /> from a minimum <see cref="Point2" /> and maximum
-    ///     <see cref="Point2" />.
+    ///     Computes the <see cref="RectangleF" /> from a minimum <see cref="Point2F" /> and maximum
+    ///     <see cref="Point2F" />.
     /// </summary>
     /// <param name="minimum">The minimum point.</param>
     /// <param name="maximum">The maximum point.</param>
     /// <returns>The resulting <see cref="RectangleF" />.</returns>
-    public static RectangleF CreateFrom(Point2 minimum, Point2 maximum)
+    public static RectangleF CreateFrom(Point2F minimum, Point2F maximum)
     {
-        RectangleF result;
-        CreateFrom(minimum, maximum, out result);
+        CreateFrom(minimum, maximum, out var result);
         return result;
     }
 
     /// <summary>
-    ///     Computes the <see cref="RectangleF" /> from a list of <see cref="Point2" /> structures.
+    ///     Computes the <see cref="RectangleF" /> from a list of <see cref="Point2F" /> structures.
     /// </summary>
     /// <param name="points">The points.</param>
     /// <param name="result">The resulting rectangle.</param>
-    public static void CreateFrom(IReadOnlyList<Point2> points, out RectangleF result)
+    public static void CreateFrom(IReadOnlyList<Point2F> points, out RectangleF result)
     {
-        Point2 minimum;
-        Point2 maximum;
-        PrimitivesHelper.CreateRectangleFromPoints(points, out minimum, out maximum);
+        PrimitivesHelper.CreateRectangleFromPoints(points, out var minimum, out var maximum);
         CreateFrom(minimum, maximum, out result);
     }
 
     /// <summary>
-    ///     Computes the <see cref="RectangleF" /> from a list of <see cref="Point2" /> structures.
+    ///     Computes the <see cref="RectangleF" /> from a list of <see cref="Point2F" /> structures.
     /// </summary>
     /// <param name="points">The points.</param>
     /// <returns>The resulting <see cref="RectangleF" />.</returns>
-    public static RectangleF CreateFrom(IReadOnlyList<Point2> points)
+    public static RectangleF CreateFrom(IReadOnlyList<Point2F> points)
     {
-        RectangleF result;
-        CreateFrom(points, out result);
+        CreateFrom(points, out var result);
         return result;
     }
 
@@ -269,8 +265,7 @@ public struct RectangleF : IEquatable<RectangleF>, IShapeF
     /// </remarks>
     public static RectangleF Transform(RectangleF rectangle, ref Matrix3x2 transformMatrix)
     {
-        RectangleF result;
-        Transform(ref rectangle, ref transformMatrix, out result);
+        Transform(ref rectangle, ref transformMatrix, out var result);
         return result;
     }
 
@@ -284,10 +279,10 @@ public struct RectangleF : IEquatable<RectangleF>, IShapeF
     ///     <paramref name="second" />.</param>
     public static void Union(ref RectangleF first, ref RectangleF second, out RectangleF result)
     {
-        result.X = System.Math.Min(first.X, second.X);
-        result.Y = System.Math.Min(first.Y, second.Y);
-        result.Width = System.Math.Max(first.Right, second.Right) - result.X;
-        result.Height = System.Math.Max(first.Bottom, second.Bottom) - result.Y;
+        result.X = Math.Min(first.X, second.X);
+        result.Y = Math.Min(first.Y, second.Y);
+        result.Width = Math.Max(first.Right, second.Right) - result.X;
+        result.Height = Math.Max(first.Bottom, second.Bottom) - result.Y;
     }
 
     /// <summary>
@@ -302,8 +297,7 @@ public struct RectangleF : IEquatable<RectangleF>, IShapeF
     /// </returns>
     public static RectangleF Union(RectangleF first, RectangleF second)
     {
-        RectangleF result;
-        Union(ref first, ref second, out result);
+        Union(ref first, ref second, out var result);
         return result;
     }
 
@@ -317,8 +311,7 @@ public struct RectangleF : IEquatable<RectangleF>, IShapeF
     /// </returns>
     public RectangleF Union(RectangleF rectangle)
     {
-        RectangleF result;
-        Union(ref this, ref rectangle, out result);
+        Union(ref this, ref rectangle, out var result);
         return result;
     }
 
@@ -338,8 +331,8 @@ public struct RectangleF : IEquatable<RectangleF>, IShapeF
         var secondMinimum = second.TopLeft;
         var secondMaximum = second.BottomRight;
 
-        var minimum = Point2.Maximum(firstMinimum, secondMinimum);
-        var maximum = Point2.Minimum(firstMaximum, secondMaximum);
+        var minimum = Point2F.Maximum(firstMinimum, secondMinimum);
+        var maximum = Point2F.Minimum(firstMaximum, secondMaximum);
 
         if ((maximum.X < minimum.X) || (maximum.Y < minimum.Y))
             result = new RectangleF();
@@ -360,8 +353,7 @@ public struct RectangleF : IEquatable<RectangleF>, IShapeF
     public static RectangleF Intersection(RectangleF first,
         RectangleF second)
     {
-        RectangleF result;
-        Intersection(ref first, ref second, out result);
+        Intersection(ref first, ref second, out var result);
         return result;
     }
 
@@ -376,16 +368,14 @@ public struct RectangleF : IEquatable<RectangleF>, IShapeF
     /// </returns>
     public RectangleF Intersection(RectangleF rectangle)
     {
-        RectangleF result;
-        Intersection(ref this, ref rectangle, out result);
+        Intersection(ref this, ref rectangle, out var result);
         return result;
     }
 
     [Obsolete("RectangleF.Intersect() may be removed in the future. Use Intersection() instead.")]
     public static RectangleF Intersect(RectangleF value1, RectangleF value2)
     {
-        RectangleF rectangle;
-        Intersection(ref value1, ref value2, out rectangle);
+        Intersection(ref value1, ref value2, out var rectangle);
         return rectangle;
     }
 
@@ -439,7 +429,7 @@ public struct RectangleF : IEquatable<RectangleF>, IShapeF
 
     /// <summary>
     ///     Determines whether the specified <see cref="RectangleF" /> contains the specified
-    ///     <see cref="Point2" />.
+    ///     <see cref="Point2F" />.
     /// </summary>
     /// <param name="rectangle">The rectangle.</param>
     /// <param name="point">The point.</param>
@@ -447,14 +437,14 @@ public struct RectangleF : IEquatable<RectangleF>, IShapeF
     ///     <c>true</c> if the <paramref name="rectangle" /> contains the <paramref name="point" />; otherwise,
     ///     <c>false</c>.
     /// </returns>
-    public static bool Contains(ref RectangleF rectangle, ref Point2 point)
+    public static bool Contains(ref RectangleF rectangle, ref Point2F point)
     {
         return rectangle.X <= point.X && point.X < rectangle.X + rectangle.Width && rectangle.Y <= point.Y && point.Y < rectangle.Y + rectangle.Height;
     }
 
     /// <summary>
     ///     Determines whether the specified <see cref="RectangleF" /> contains the specified
-    ///     <see cref="Point2" />.
+    ///     <see cref="Point2F" />.
     /// </summary>
     /// <param name="rectangle">The rectangle.</param>
     /// <param name="point">The point.</param>
@@ -462,30 +452,30 @@ public struct RectangleF : IEquatable<RectangleF>, IShapeF
     ///     <c>true</c> if the <paramref name="rectangle" /> contains the <paramref name="point" />; otherwise,
     ///     <c>false</c>.
     /// </returns>
-    public static bool Contains(RectangleF rectangle, Point2 point)
+    public static bool Contains(RectangleF rectangle, Point2F point)
     {
         return Contains(ref rectangle, ref point);
     }
 
     /// <summary>
     ///     Determines whether this <see cref="RectangleF" /> contains the specified
-    ///     <see cref="Point2" />.
+    ///     <see cref="Point2F" />.
     /// </summary>
     /// <param name="point">The point.</param>
     /// <returns>
     ///     <c>true</c> if the this <see cref="RectangleF"/> contains the <paramref name="point" />; otherwise,
     ///     <c>false</c>.
     /// </returns>
-    public bool Contains(Point2 point)
+    public bool Contains(Point2F point)
     {
         return Contains(ref this, ref point);
     }
 
     /// <summary>
-    ///     Updates this <see cref="RectangleF" /> from a list of <see cref="Point2" /> structures.
+    ///     Updates this <see cref="RectangleF" /> from a list of <see cref="Point2F" /> structures.
     /// </summary>
     /// <param name="points">The points.</param>
-    public void UpdateFromPoints(IReadOnlyList<Point2> points)
+    public void UpdateFromPoints(IReadOnlyList<Point2F> points)
     {
         var rectangle = CreateFrom(points);
         X = rectangle.X;
@@ -495,35 +485,34 @@ public struct RectangleF : IEquatable<RectangleF>, IShapeF
     }
 
     /// <summary>
-    ///     Computes the squared distance from this <see cref="RectangleF"/> to a <see cref="Point2"/>.
+    ///     Computes the squared distance from this <see cref="RectangleF"/> to a <see cref="Point2F"/>.
     /// </summary>
     /// <param name="point">The point.</param>
     /// <returns>The squared distance from this <see cref="RectangleF"/> to the <paramref name="point"/>.</returns>
-    public float SquaredDistanceTo(Point2 point)
+    public float SquaredDistanceTo(Point2F point)
     {
         return PrimitivesHelper.SquaredDistanceToPointFromRectangle(TopLeft, BottomRight, point);
     }
 
     /// <summary>
-    ///     Computes the distance from this <see cref="RectangleF"/> to a <see cref="Point2"/>.
+    ///     Computes the distance from this <see cref="RectangleF"/> to a <see cref="Point2F"/>.
     /// </summary>
     /// <param name="point">The point.</param>
     /// <returns>The distance from this <see cref="RectangleF"/> to the <paramref name="point"/>.</returns>
-    public float DistanceTo(Point2 point)
+    public float DistanceTo(Point2F point)
     {
-        return (float)System.Math.Sqrt(SquaredDistanceTo(point));
+        return (float)Math.Sqrt(SquaredDistanceTo(point));
     }
 
     /// <summary>
-    ///     Computes the closest <see cref="Point2" /> on this <see cref="RectangleF" /> to a specified
-    ///     <see cref="Point2" />.
+    ///     Computes the closest <see cref="Point2F" /> on this <see cref="RectangleF" /> to a specified
+    ///     <see cref="Point2F" />.
     /// </summary>
     /// <param name="point">The point.</param>
-    /// <returns>The closest <see cref="Point2" /> on this <see cref="RectangleF" /> to the <paramref name="point" />.</returns>
-    public Point2 ClosestPointTo(Point2 point)
+    /// <returns>The closest <see cref="Point2F" /> on this <see cref="RectangleF" /> to the <paramref name="point" />.</returns>
+    public Point2F ClosestPointTo(Point2F point)
     {
-        Point2 result;
-        PrimitivesHelper.ClosestPointToPointFromRectangle(TopLeft, BottomRight, point, out result);
+        PrimitivesHelper.ClosestPointToPointFromRectangle(TopLeft, BottomRight, point, out var result);
         return result;
     }
 
@@ -617,7 +606,7 @@ public struct RectangleF : IEquatable<RectangleF>, IShapeF
     /// <returns>
     ///     <c>true</c> if this <see cref="RectangleF" /> is equal to <paramref name="obj" />; otherwise, <c>false</c>.
     /// </returns>
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         return obj is RectangleF f && Equals(f);
     }

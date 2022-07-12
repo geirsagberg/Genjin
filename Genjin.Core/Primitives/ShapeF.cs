@@ -1,5 +1,5 @@
 ﻿// MIT-licensed (https://github.com/craftworkgames/MonoGame.Extended)
-namespace Genjin.Core.Math; 
+namespace Genjin.Core.Primitives; 
 
 /// <summary>
 ///     Base class for shapes.
@@ -12,7 +12,7 @@ public interface IShapeF
     /// <summary>
     /// Gets or sets the position of the shape.
     /// </summary>
-    Point2 Position { get; set; }
+    Point2F Position { get; set; }
 }
 
 /// <summary>
@@ -26,29 +26,14 @@ public static class Shape
     /// <param name="shapeA">The first shape.</param>
     /// <param name="shapeB">The second shape.</param>
     /// <returns>True if the two shapes intersect.</returns>
-    public static bool Intersects(this IShapeF shapeA, IShapeF shapeB)
-    {
-        var intersects = false;
-
-        if (shapeA is RectangleF rectangleA && shapeB is RectangleF rectangleB)
-        {
-            intersects = rectangleA.Intersects(rectangleB);
-        }
-        else if (shapeA is CircleF circleA && shapeB is CircleF circleB)
-        {
-            intersects = circleA.Intersects(circleB);
-        }
-        else if (shapeA is RectangleF rect1 && shapeB is CircleF circ1)
-        {
-            return Intersects(circ1, rect1);
-        }
-        else if (shapeA is CircleF circ2 && shapeB is RectangleF rect2)
-        {
-            return Intersects(circ2, rect2);
-        }
-
-        return intersects;
-    }
+    public static bool Intersects<T1, T2>(this T1 shapeA, T2 shapeB) where T1: IShapeF where T2: IShapeF =>
+        shapeA switch {
+            RectangleF rectangleA when shapeB is RectangleF rectangleB => rectangleA.Intersects(rectangleB),
+            CircleF circleA when shapeB is CircleF circleB => circleA.Intersects(circleB),
+            RectangleF rect1 when shapeB is CircleF circ1 => Intersects(circ1, rect1),
+            CircleF circ2 when shapeB is RectangleF rect2 => Intersects(circ2, rect2),
+            _ => false
+        };
 
     /// <summary>
     ///     Checks if a circle and rectangle intersect.

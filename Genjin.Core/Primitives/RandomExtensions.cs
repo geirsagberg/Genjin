@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace Genjin.Core.Math; 
+namespace Genjin.Core.Primitives; 
 
 public static class RandomExtensions
 {
@@ -37,6 +37,6 @@ public static class RandomExtensions
     public static void NextUnitVector(this Random random, out Vector2 vector)
     {
         var angle = NextAngle(random);
-        vector = new Vector2((float) System.Math.Cos(angle), (float) System.Math.Sin(angle));
+        vector = new Vector2((float) Math.Cos(angle), (float) Math.Sin(angle));
     }
 }

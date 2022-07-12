@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 using System.Runtime.Serialization;
 
-namespace Genjin.Core.Math; 
+namespace Genjin.Core.Primitives; 
 
 [DataContract]
 public struct EllipseF : IEquatable<EllipseF>, IShapeF
@@ -10,7 +10,7 @@ public struct EllipseF : IEquatable<EllipseF>, IShapeF
     [DataMember] public float RadiusX { get; set; }
     [DataMember] public float RadiusY { get; set; }
 
-    public Point2 Position
+    public Point2F Position
     {
         get => Center;
         set => Center = value;
@@ -42,8 +42,8 @@ public struct EllipseF : IEquatable<EllipseF>, IShapeF
 
     public bool Contains(float x, float y)
     {
-        float xCalc = (float) (System.Math.Pow(x - Center.X, 2) / System.Math.Pow(RadiusX, 2));
-        float yCalc = (float) (System.Math.Pow(y - Center.Y, 2) / System.Math.Pow(RadiusY, 2));
+        float xCalc = (float) (Math.Pow(x - Center.X, 2) / Math.Pow(RadiusX, 2));
+        float yCalc = (float) (Math.Pow(y - Center.Y, 2) / Math.Pow(RadiusY, 2));
 
         return xCalc + yCalc <= 1;
     }

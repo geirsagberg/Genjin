@@ -1,8 +1,7 @@
-﻿using System.Drawing;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Runtime.CompilerServices;
-using Genjin.Core.Math;
-using RectangleF = Genjin.Core.Math.RectangleF;
+using Genjin.Core.Primitives;
+using RectangleF = Genjin.Core.Primitives.RectangleF;
 
 namespace Genjin.Core.Extensions;
 
@@ -18,8 +17,8 @@ public static class GeometryExtensions {
     public static Vector2 NormalizedOrZero(this Vector2 vector2) =>
         vector2 == Vector2.Zero ? Vector2.Zero : Vector2.Normalize(vector2);
 
-    public static Vector2 WidthVector(this Size2 size) => new(size.Width, 0);
-    public static Vector2 HeightVector(this Size2 size) => new(0, size.Height);
+    public static Vector2 WidthVector(this Size2F size) => new(size.Width, 0);
+    public static Vector2 HeightVector(this Size2F size) => new(0, size.Height);
 
     public static Vector2 WidthVector(this RectangleF rectangle) => new(rectangle.Width, 0);
     public static Vector2 HeightVector(this RectangleF rectangle) => new(0, rectangle.Height);
@@ -64,7 +63,7 @@ public static class GeometryExtensions {
     /// <param name="a">The penetrating shape.</param>
     /// <param name="b">The shape being penetrated.</param>
     /// <returns>The distance vector from the edge of b to a's Position</returns>
-    public static Vector2 CalculatePenetrationVector(this IShapeF a, IShapeF b) {
+    public static Vector2 CalculatePenetrationVector<T1, T2>(this T1 a, T2 b) where T1 : IShapeF where T2 : IShapeF {
         if (!a.Intersects(b)) return Vector2.Zero;
         var penetrationVector = a switch {
             RectangleF rectA when b is RectangleF rectB => PenetrationVector(rectA, rectB),
@@ -101,7 +100,7 @@ public static class GeometryExtensions {
             return Vector2.Zero;
         }
 
-        var displacement = Point2.Displacement(circ1.Center, circ2.Center);
+        var displacement = Point2F.Displacement(circ1.Center, circ2.Center);
 
         Vector2 desiredDisplacement;
         if (displacement != Vector2.Zero) {
@@ -119,14 +118,14 @@ public static class GeometryExtensions {
         var cToCollPoint = collisionPoint - circ.Center;
 
         if (rect.Contains(circ.Center) || cToCollPoint.Equals(Vector2.Zero)) {
-            var displacement = Point2.Displacement(circ.Center, rect.Center);
+            var displacement = Point2F.Displacement(circ.Center, rect.Center);
 
             Vector2 desiredDisplacement;
             if (displacement != Vector2.Zero) {
                 // Calculate penetration as only in X or Y direction.
                 // Whichever is lower.
-                var dispx = new Vector2(displacement.X, 0).NormalizedCopy();
-                var dispy = new Vector2(0, displacement.Y).NormalizedCopy();
+                var dispx = (displacement with { Y = 0 }).NormalizedCopy();
+                var dispy = (displacement with { X = 0 }).NormalizedCopy();
 
                 dispx *= circ.Radius + (rect.Width / 2);
                 dispy *= circ.Radius + (rect.Height / 2);

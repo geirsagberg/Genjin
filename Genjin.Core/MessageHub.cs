@@ -26,8 +26,19 @@ public class MessageHub {
             }
         }
     }
+    
+    public TResponse Send<TRequest, TResponse>(TRequest request) where TRequest : IRequest<TResponse> {
+        if (RequestHandlers.TryGetValue(typeof(TRequest), out var handler)) {
+            return handler switch {
+                Func<TRequest, TResponse> func => func(request),
+                Func<TRequest, Task<TResponse>> funcAsync => funcAsync(request).GetAwaiter().GetResult(),
+                _ => throw new Exception("Unknown handler type")
+            };
+        }
+        throw new Exception($"No handler found for {typeof(TRequest)}");
+    }
 
-    public async Task<TResponse> Send<TResponse>(IRequest<TResponse> request) {
+    public async Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request) {
         if (RequestHandlers.TryGetValue(request.GetType(), out var handler)) {
             var result = handler.FastDynamicInvoke(request);
             return result switch {
@@ -39,9 +50,25 @@ public class MessageHub {
             throw new Exception("No handler for request " + request.GetType());
         }
     }
+    
+    public void Send<T>(T request) where T : class, IRequest {
+        if (RequestHandlers.TryGetValue(typeof(T), out var handler)) {
+            switch (handler) {
+                case Action<T> action:
+                    action(request);
+                    break;
+                case Func<T, Task>:
+                    throw new Exception("Non-async request not supported");
+                default:
+                    throw new Exception("Unknown handler type");
+            }
+        } else {
+            throw new Exception("No handler for request " + typeof(T));
+        }
+    }
 
-    public async Task Send<T>(T request) where T : class, IRequest {
-        if (RequestHandlers.TryGetValue(request.GetType(), out var handler)) {
+    public async Task SendAsync<T>(T request) where T : class, IRequest {
+        if (RequestHandlers.TryGetValue(typeof(T), out var handler)) {
             switch (handler) {
                 case Action<T> action:
                     action(request);

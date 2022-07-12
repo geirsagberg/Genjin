@@ -1,20 +1,20 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
 
-namespace Genjin.Core.Math; 
+namespace Genjin.Core.Primitives; 
 
 // Real-Time Collision Detection, Christer Ericson, 2005. Chapter 3.5; A Math and Geometry Primer - Lines, Rays, and Segments. pg 53-54    
 /// <summary>
-///     A two dimensional ray defined by a starting <see cref="Point2" /> and a direction <see cref="Vector2" />.
+///     A two dimensional ray defined by a starting <see cref="Point2F" /> and a direction <see cref="Vector2" />.
 /// </summary>
 /// <seealso cref="IEquatable{T}" />
 [DebuggerDisplay("{DebugDisplayString,nq}")]
 public struct Ray2 : IEquatable<Ray2>
 {
     /// <summary>
-    ///     The starting <see cref="Point2" /> of this <see cref="Ray2" />.
+    ///     The starting <see cref="Point2F" /> of this <see cref="Ray2" />.
     /// </summary>
-    public Point2 Position;
+    public Point2F Position;
 
     /// <summary>
     ///     The direction <see cref="Vector2" /> of this <see cref="Ray2" />.
@@ -26,7 +26,7 @@ public struct Ray2 : IEquatable<Ray2>
     /// </summary>
     /// <param name="position">The starting point.</param>
     /// <param name="direction">The direction vector.</param>
-    public Ray2(Point2 position, Vector2 direction)
+    public Ray2(Point2F position, Vector2 direction)
     {
         Position = position;
         Direction = direction;

@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using Genjin.Core.Extensions;
 
-namespace Genjin.Core.Math; 
+namespace Genjin.Core.Primitives; 
 
 internal class PrimitivesHelper
 {
@@ -12,7 +12,7 @@ internal class PrimitivesHelper
     {
         // Real-Time Collision Detection, Christer Ericson, 2005. Chapter 5.3; Basic Primitive Tests - Intersecting Lines, Rays, and (Directed Segments). pg 179-181
 
-        if (System.Math.Abs(directionCoordinate) < float.Epsilon)
+        if (Math.Abs(directionCoordinate) < float.Epsilon)
             return (positionCoordinate >= slabMinimum) && (positionCoordinate <= slabMaximum);
 
         // Compute intersection values of ray with near and far plane of slab
@@ -36,14 +36,14 @@ internal class PrimitivesHelper
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static void CreateRectangleFromPoints(IReadOnlyList<Point2> points, out Point2 minimum, out Point2 maximum)
+    internal static void CreateRectangleFromPoints(IReadOnlyList<Point2F> points, out Point2F minimum, out Point2F maximum)
     {
         // Real-Time Collision Detection, Christer Ericson, 2005. Chapter 4.2; Bounding Volumes - Axis-aligned Bounding Boxes (AABBs). pg 82-84
 
         if (points == null || points.Count == 0)
         {
-            minimum = Point2.Zero;
-            maximum = Point2.Zero;
+            minimum = Point2F.Zero;
+            maximum = Point2F.Zero;
             return;
         }
 
@@ -53,25 +53,25 @@ internal class PrimitivesHelper
         for (var index = points.Count - 1; index > 0; --index)
         {
             var point = points[index];
-            minimum = Point2.Minimum(minimum, point);
-            maximum = Point2.Maximum(maximum, point);
+            minimum = Point2F.Minimum(minimum, point);
+            maximum = Point2F.Maximum(maximum, point);
         }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static void TransformRectangle(ref Point2 center, ref Vector2 halfExtents, ref Matrix3x2 transformMatrix)
+    internal static void TransformRectangle(ref Point2F center, ref Vector2 halfExtents, ref Matrix3x2 transformMatrix)
     {
         // Real-Time Collision Detection, Christer Ericson, 2005. Chapter 4.2; Bounding Volumes - Axis-aligned Bounding Boxes (AABBs). pg 86-87
 
         center = transformMatrix.Transform(center);
-        halfExtents.X = halfExtents.X * System.Math.Abs(transformMatrix.M11) + halfExtents.X * System.Math.Abs(transformMatrix.M12) +
-            halfExtents.X * System.Math.Abs(transformMatrix.M31);
-        halfExtents.Y = halfExtents.Y * System.Math.Abs(transformMatrix.M21) + halfExtents.Y * System.Math.Abs(transformMatrix.M22) +
-            halfExtents.Y * System.Math.Abs(transformMatrix.M32);
+        halfExtents.X = halfExtents.X * Math.Abs(transformMatrix.M11) + halfExtents.X * Math.Abs(transformMatrix.M12) +
+            halfExtents.X * Math.Abs(transformMatrix.M31);
+        halfExtents.Y = halfExtents.Y * Math.Abs(transformMatrix.M21) + halfExtents.Y * Math.Abs(transformMatrix.M22) +
+            halfExtents.Y * Math.Abs(transformMatrix.M32);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static float SquaredDistanceToPointFromRectangle(Point2 minimum, Point2 maximum, Point2 point)
+    internal static float SquaredDistanceToPointFromRectangle(Point2F minimum, Point2F maximum, Point2F point)
     {
         // Real-Time Collision Detection, Christer Ericson, 2005. Chapter 5.1.3.1; Basic Primitive Tests - Closest-point Computations - Distance of Point to AABB.  pg 130-131
         var squaredDistance = 0.0f;
@@ -105,7 +105,7 @@ internal class PrimitivesHelper
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static void ClosestPointToPointFromRectangle(Point2 minimum, Point2 maximum, Point2 point, out Point2 result)
+    internal static void ClosestPointToPointFromRectangle(Point2F minimum, Point2F maximum, Point2F point, out Point2F result)
     {
         // Real-Time Collision Detection, Christer Ericson, 2005. Chapter 5.1.2; Basic Primitive Tests - Closest-point Computations. pg 130-131
            

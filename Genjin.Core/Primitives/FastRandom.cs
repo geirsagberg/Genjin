@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace Genjin.Core.Math; 
+namespace Genjin.Core.Primitives; 
 
 /// <summary>
 ///     A random number generator that uses a fast algorithm to generate random values.
@@ -11,7 +11,7 @@ namespace Genjin.Core.Math;
 /// </summary>
 public class FastRandom
 {
-    private int _state;
+    private int state;
 
     public FastRandom()
         : this(1)
@@ -23,7 +23,7 @@ public class FastRandom
         if (seed < 1)
             throw new ArgumentOutOfRangeException(nameof(seed), "seed must be greater than zero");
 
-        _state = seed;
+        state = seed;
     }
 
     /// <summary>
@@ -32,8 +32,8 @@ public class FastRandom
     /// <returns>A random positive integer.</returns>
     public int Next()
     {
-        _state = 214013*_state + 2531011;
-        return (_state >> 16) & 0x7FFF;
+        state = 214013*state + 2531011;
+        return (state >> 16) & 0x7FFF;
     }
 
     /// <summary>
@@ -120,6 +120,6 @@ public class FastRandom
     public void NextUnitVector(out Vector2 vector)
     {
         var angle = NextAngle();
-        vector = new Vector2((float) System.Math.Cos(angle), (float) System.Math.Sin(angle));
+        vector = new Vector2((float) Math.Cos(angle), (float) Math.Sin(angle));
     }
 }

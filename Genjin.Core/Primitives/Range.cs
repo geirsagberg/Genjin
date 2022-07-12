@@ -1,4 +1,4 @@
-namespace Genjin.Core.Math; 
+namespace Genjin.Core.Primitives; 
 
 /// <summary>
 ///     Represents a closed interval defined by a minimum and a maximum value of a give type.

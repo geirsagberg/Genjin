@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace Genjin.Core.Math; 
+namespace Genjin.Core.Primitives; 
 
 public static class FloatHelper
 {

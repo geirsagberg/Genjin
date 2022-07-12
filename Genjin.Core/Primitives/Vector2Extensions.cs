@@ -3,71 +3,63 @@
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
-namespace Genjin.Core.Math; 
+namespace Genjin.Core.Primitives;
 
-public static class Vector2Extensions
-{
+public static class Vector2Extensions {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector2 SetX(this Vector2 vector2, float x) => new(x, vector2.Y);
+    public static Vector2 SetX(this Vector2 vector2, float x) => vector2 with { X = x };
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector2 SetY(this Vector2 vector2, float y) => new(vector2.X, y);
+    public static Vector2 SetY(this Vector2 vector2, float y) => vector2 with { Y = y };
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2 Translate(this Vector2 vector2, float x, float y) => new(vector2.X + x, vector2.Y + y);
-        
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Size2 ToSize(this Vector2 value) => new(value.X, value.Y);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Size2 ToAbsoluteSize(this Vector2 value)
-    {
-        var x = System.Math.Abs(value.X);
-        var y = System.Math.Abs(value.Y);
-        return new Size2(x, y);
+    public static Size2F ToSize(this Vector2 value) => new(value.X, value.Y);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Size2F ToAbsoluteSize(this Vector2 value) {
+        var x = MathF.Abs(value.X);
+        var y = MathF.Abs(value.Y);
+        return new Size2F(x, y);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector2 Round(this Vector2 value, int digits, MidpointRounding mode)
-    {
-        var x = (float)System.Math.Round(value.X, digits, mode);
-        var y = (float)System.Math.Round(value.Y, digits, mode);
+    public static Vector2 Round(this Vector2 value, int digits, MidpointRounding mode) {
+        var x = MathF.Round(value.X, digits, mode);
+        var y = MathF.Round(value.Y, digits, mode);
         return new Vector2(x, y);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector2 Round(this Vector2 value, int digits)
-    {
-        var x = (float)System.Math.Round(value.X, digits);
-        var y = (float)System.Math.Round(value.Y, digits);
+    public static Vector2 Round(this Vector2 value, int digits) {
+        var x = MathF.Round(value.X, digits);
+        var y = MathF.Round(value.Y, digits);
         return new Vector2(x, y);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector2 Round(this Vector2 value)
-    {
-        var x = (float)System.Math.Round(value.X);
-        var y = (float)System.Math.Round(value.Y);
+    public static Vector2 Round(this Vector2 value) {
+        var x = MathF.Round(value.X);
+        var y = MathF.Round(value.Y);
         return new Vector2(x, y);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool EqualsWithTolerence(this Vector2 value, Vector2 otherValue, float tolerance = 0.00001f)
-    {
-        return System.Math.Abs(value.X - otherValue.X) <= tolerance && (System.Math.Abs(value.Y - otherValue.Y) <= tolerance);
+    public static bool EqualsWithTolerence(this Vector2 value, Vector2 otherValue, float tolerance = 0.00001f) {
+        return MathF.Abs(value.X - otherValue.X) <= tolerance && MathF.Abs(value.Y - otherValue.Y) <= tolerance;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector2 Rotate(this Vector2 value, float radians)
-    {
-        var cos = (float) System.Math.Cos(radians);
-        var sin = (float) System.Math.Sin(radians);
-        return new Vector2(value.X*cos - value.Y*sin, value.X*sin + value.Y*cos);
+    public static Vector2 Rotate(this Vector2 value, float radians) {
+        var cos = MathF.Cos(radians);
+        var sin = MathF.Sin(radians);
+        return new Vector2((value.X * cos) - (value.Y * sin), (value.X * sin) + (value.Y * cos));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector2 NormalizedCopy(this Vector2 value)
-    {
+    public static Vector2 NormalizedCopy(this Vector2 value) {
         var newVector2 = new Vector2(value.X, value.Y);
         return Vector2.Normalize(newVector2);
     }
@@ -79,10 +71,9 @@ public static class Vector2Extensions
     public static Vector2 PerpendicularCounterClockwise(this Vector2 value) => new(-value.Y, value.X);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector2 Truncate(this Vector2 value, float maxLength)
-    {
-        if (value.LengthSquared() > maxLength*maxLength)
-            return value.NormalizedCopy()*maxLength;
+    public static Vector2 Truncate(this Vector2 value, float maxLength) {
+        if (value.LengthSquared() > maxLength * maxLength)
+            return value.NormalizedCopy() * maxLength;
 
         return value;
     }
@@ -91,7 +82,18 @@ public static class Vector2Extensions
     public static bool IsNaN(this Vector2 value) => float.IsNaN(value.X) || float.IsNaN(value.Y);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float ToAngle(this Vector2 value) => (float) System.Math.Atan2(value.X, -value.Y);
+    public static float ToAngle(this Vector2 value) => MathF.Atan2(value.X, -value.Y);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static float AngleBetween(this Vector2 value, Vector2 other) => MathF.Atan2(other.Y - value.Y , other.X - value.X);
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Vector2 NormalizedOrZero(this Vector2 vector2) =>
+        vector2 == Vector2.Zero ? vector2 : Vector2.Normalize(vector2);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Vector2 Wrap(this Vector2 position, Vector2 size)
+        => new(MathHelpers.Wrap(position.X, size.X), MathHelpers.Wrap(position.Y, size.Y));
 
     /// <summary>
     ///     Calculates the dot product of two vectors. If the two vectors are unit vectors, the dot product returns a floating
@@ -106,7 +108,7 @@ public static class Vector2Extensions
     ///     <para>
     ///         For any two vectors, the dot product is defined as: <c>(vector1.X * vector2.X) + (vector1.Y * vector2.Y).</c>
     ///         The result of this calculation, plus or minus some margin to account for floating point error, is equal to:
-    ///         <c>Length(vector1) * Length(vector2) * System.Math.Cos(theta)</c>, where <c>theta</c> is the angle between the
+    ///         <c>Length(vector1) * Length(vector2) * System.MathF.Cos(theta)</c>, where <c>theta</c> is the angle between the
     ///         two vectors.
     ///     </para>
     ///     <para>
@@ -115,7 +117,7 @@ public static class Vector2Extensions
     ///         vectors, the dot product is simply equal to the cosine of the angle between the two vectors. For example, both
     ///         <c>cos</c> values in the following calcuations would be equal in value:
     ///         <c>vector1.Normalize(); vector2.Normalize(); var cos = vector1.Dot(vector2)</c>,
-    ///         <c>var cos = System.Math.Cos(theta)</c>, where <c>theta</c> is angle in radians betwen the two vectors.
+    ///         <c>var cos = System.MathF.Cos(theta)</c>, where <c>theta</c> is angle in radians betwen the two vectors.
     ///     </para>
     ///     <para>
     ///         If <paramref name="vector1" /> and <paramref name="vector2" /> are unit vectors, without knowing the value of
@@ -162,9 +164,8 @@ public static class Vector2Extensions
     ///     </note>
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float Dot(this Vector2 vector1, Vector2 vector2)
-    {
-        return vector1.X*vector2.X + vector1.Y*vector2.Y;
+    public static float Dot(this Vector2 vector1, Vector2 vector2) {
+        return (vector1.X * vector2.X) + (vector1.Y * vector2.Y);
     }
 
     /// <summary>
@@ -183,7 +184,7 @@ public static class Vector2Extensions
     ///     <para>
     ///         For any two vectors, the scalar projection is defined as: <c>vector1.Dot(vector2) / Length(vector2)</c>. The
     ///         result of this calculation, plus or minus some margin to account for floating point error, is equal to:
-    ///         <c>Length(vector1) * System.Math.Cos(theta)</c>, where <c>theta</c> is the angle in radians between
+    ///         <c>Length(vector1) * System.MathF.Cos(theta)</c>, where <c>theta</c> is the angle in radians between
     ///         <paramref name="vector1" /> and <paramref name="vector2" />.
     ///     </para>
     ///     <para>
@@ -205,11 +206,10 @@ public static class Vector2Extensions
     ///     </para>
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float ScalarProjectOnto(this Vector2 vector1, Vector2 vector2)
-    {
-        var dotNumerator = vector1.X*vector2.X + vector1.Y*vector2.Y;
-        var lengthSquaredDenominator = vector2.X*vector2.X + vector2.Y*vector2.Y;
-        return dotNumerator/(float) System.Math.Sqrt(lengthSquaredDenominator);
+    public static float ScalarProjectOnto(this Vector2 vector1, Vector2 vector2) {
+        var dotNumerator = (vector1.X * vector2.X) + (vector1.Y * vector2.Y);
+        var lengthSquaredDenominator = (vector2.X * vector2.X) + (vector2.Y * vector2.Y);
+        return dotNumerator / MathF.Sqrt(lengthSquaredDenominator);
     }
 
     /// <summary>
@@ -229,7 +229,7 @@ public static class Vector2Extensions
     ///         <c>( vector1.Dot(vector2) / Length(vector2)^2 ) * vector2</c>.
     ///         The
     ///         result of this calculation, plus or minus some margin to account for floating point error, is equal to:
-    ///         <c>( Length(vector1) * System.Math.Cos(theta) ) * vector2 / Length(vector2)</c>, where <c>theta</c> is the
+    ///         <c>( Length(vector1) * System.MathF.Cos(theta) ) * vector2 / Length(vector2)</c>, where <c>theta</c> is the
     ///         angle in radians between <paramref name="vector1" /> and <paramref name="vector2" />.
     ///     </para>
     ///     <para>
@@ -239,10 +239,9 @@ public static class Vector2Extensions
     ///     </para>
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector2 ProjectOnto(this Vector2 vector1, Vector2 vector2)
-    {
-        var dotNumerator = vector1.X*vector2.X + vector1.Y*vector2.Y;
-        var lengthSquaredDenominator = vector2.X*vector2.X + vector2.Y*vector2.Y;
-        return dotNumerator/lengthSquaredDenominator*vector2;
+    public static Vector2 ProjectOnto(this Vector2 vector1, Vector2 vector2) {
+        var dotNumerator = (vector1.X * vector2.X) + (vector1.Y * vector2.Y);
+        var lengthSquaredDenominator = (vector2.X * vector2.X) + (vector2.Y * vector2.Y);
+        return dotNumerator / lengthSquaredDenominator * vector2;
     }
 }

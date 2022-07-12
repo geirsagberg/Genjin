@@ -1,5 +1,5 @@
 // MIT-licensed (https://github.com/craftworkgames/MonoGame.Extended)
-namespace Genjin.Core.Math; 
+namespace Genjin.Core.Primitives; 
 
 public struct Thickness : IEquatable<Thickness>
 {
@@ -30,7 +30,7 @@ public struct Thickness : IEquatable<Thickness>
     public int Bottom { get; set; }
     public int Width => Left + Right;
     public int Height => Top + Bottom;
-    public Size Size => new(Width, Height);
+    public Size2 Size => new(Width, Height);
 
     public static implicit operator Thickness(int value)
     {

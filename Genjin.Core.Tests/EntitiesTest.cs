@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Genjin.Core.Entities;
+using Genjin.Example;
 using Xunit;
 
 namespace Genjin.Core.Tests;
@@ -13,7 +14,7 @@ public class EntitiesTest {
 
     [Fact]
     public void GetEntitiesMatchingAll_will_match_entities_that_also_have_other_components() {
-        var world = new World(_ => { });
+        var world = new World(_ => { }, new MessageHub());
 
         var entity = world.CreateEntity();
         entity.Add(new Foo());

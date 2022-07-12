@@ -1,5 +1,5 @@
-﻿using System.Drawing;
-using System.Numerics;
+﻿using System.Numerics;
+using Genjin.Core.Primitives;
 
 namespace Genjin.Core;
 
@@ -13,7 +13,7 @@ namespace Genjin.Core;
  * Size = Original size
  */
 public record Transform {
-    private Transform(Vector2 position, float rotation, Vector2 scale, Vector2 origin, SizeF size) {
+    private Transform(Vector2 position, float rotation, Vector2 scale, Vector2 origin, Size2F size) {
         Position = position;
         Rotation = rotation;
         Scale = scale;
@@ -21,12 +21,12 @@ public record Transform {
         Size = size;
     }
 
-    public Transform(Vector2 position, float rotation, SizeF size) : this(position, rotation, Vector2.One,
+    public Transform(Vector2 position, float rotation, Size2F size) : this(position, rotation, Vector2.One,
         new Vector2(size.Width / 2f, size.Height / 2f),
         size) {
     }
 
-    public SizeF Size { get; set; }
+    public Size2F Size { get; set; }
 
     public Vector2 Origin { get; set; }
 
@@ -38,5 +38,5 @@ public record Transform {
 
     public RectangleF RectangleF => new(Position.X, Position.Y, Size.Width, Size.Height);
 
-    public bool IntersectsWith(Transform transform) => RectangleF.IntersectsWith(transform.RectangleF);
+    public bool Intersects(Transform transform) => RectangleF.Intersects(transform.RectangleF);
 }

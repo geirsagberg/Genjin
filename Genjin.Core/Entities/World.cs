@@ -1,12 +1,15 @@
 using Genjin.Core.Extensions;
+using Genjin.Example;
 
 namespace Genjin.Core.Entities;
 
 public class World : IDrawable, IEntityManager {
     private readonly Action<IUpdatable> addUpdatable;
+    private readonly MessageHub messageHub;
 
-    public World(Action<IUpdatable> addUpdatable) {
+    public World(Action<IUpdatable> addUpdatable, MessageHub messageHub) {
         this.addUpdatable = addUpdatable;
+        this.messageHub = messageHub;
     }
 
     // Bitmask of active components per entity ID
@@ -110,7 +113,8 @@ public class World : IDrawable, IEntityManager {
     }
 
     public World AddSimulationSystems(params ISimulationSystem[] simulationSystems) {
-        var simulation = new Simulation();
+        var simulation = new Simulation(messageHub);
+        
         foreach (var system in simulationSystems) {
             simulation.OnUpdate += system.Update;
         }

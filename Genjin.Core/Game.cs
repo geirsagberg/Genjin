@@ -48,7 +48,8 @@ public abstract class Game {
             gameSettings.Width, gameSettings.Height);
         DefaultFont = LoadFont("Assets/Fonts/arial.ttf");
         CurrentInput = Window.PumpEvents();
-        World = new World(AddUpdatable);
+        World = new World(AddUpdatable, MessageHub);
+        debugRenderer = new DebugRenderer(MessageHub);
 
         updaters.Add(deltaTime => GuiRenderer.Update((float) deltaTime.TotalSeconds, CurrentInput));
 
@@ -138,10 +139,13 @@ public abstract class Game {
 
     protected virtual void ConfigureServices(IServiceCollection services) { }
 
+    private readonly DebugRenderer debugRenderer;
+
     public async Task Start() {
         var services = new ServiceCollection();
         services.AddSingleton<Provide<InputSnapshot>>(() => CurrentInput);
         services.AddSingleton(World);
+        services.AddSingleton<IDebugRenderer>(debugRenderer);
         services.AddSingleton<IEntityManager>(provider => provider.GetRequiredService<World>());
         ConfigureServices(services);
         Services = services.BuildServiceProvider();
@@ -184,8 +188,9 @@ public abstract class Game {
             SpriteBatch.ViewMatrix =
                 Matrix4x4.CreateOrthographicOffCenter(0, Window.Width, 0, Window.Height, -10, 10);
             Draw(deltaTime);
-            SpriteBatch.DrawBatch(CommandList);
+            DrawDebug();
             SpriteBatch.End();
+            SpriteBatch.DrawBatch(CommandList);
 
             GuiRenderer.Render(GraphicsDevice, CommandList);
 
@@ -197,6 +202,25 @@ public abstract class Game {
             if (Window.Exists) {
                 GraphicsDevice.SwapBuffers();
             }
+        }
+    }
+
+    private void DrawDebug() {
+        foreach (var line in debugRenderer.Lines) {
+            ShapeRenderer.DrawLine(line.Start, line.Length, line.Angle, line.Color, line.Thickness, line.LayerDepth);
+        }
+        foreach (var rect in debugRenderer.Rectangles) {
+            ShapeRenderer.DrawRectangle(rect.Rectangle, rect.Color, rect.Thickness, rect.LayerDepth);
+        }
+        foreach (var point in debugRenderer.Points) {
+            ShapeRenderer.DrawPoint(point.Position, point.Color, point.Size, point.LayerDepth);
+        }
+        foreach (var polygonEdge in debugRenderer.PolygonEdges) {
+            ShapeRenderer.DrawPolygonEdge(polygonEdge.Point1, polygonEdge.Point2, polygonEdge.Color,
+                polygonEdge.Thickness, polygonEdge.LayerDepth);
+        }
+        foreach (var filledRectangle in debugRenderer.FilledRectangles) {
+            ShapeRenderer.FillRectangle(filledRectangle.Rectangle, filledRectangle.Color, filledRectangle.LayerDepth);
         }
     }
 

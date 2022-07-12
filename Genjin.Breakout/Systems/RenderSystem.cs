@@ -2,6 +2,8 @@ using System.Drawing;
 using Genjin.Breakout.Components;
 using Genjin.Core;
 using Genjin.Core.Entities;
+using Genjin.Core.Primitives;
+using RectangleF = Genjin.Core.Primitives.RectangleF;
 
 namespace Genjin.Breakout;
 
@@ -27,7 +29,7 @@ internal class RenderSystem : IDrawSystem {
         foreach (var entity in world.GetEntitiesMatchingAll(typeof(GameBounds))) {
             var gameBounds = entity.Get<GameBounds>();
 
-            shapeRenderer.DrawRectangle(new RectangleF(PointF.Empty, gameBounds.Size),
+            shapeRenderer.DrawRectangle(new RectangleF(Point2F.Zero, gameBounds.Size),
                 Color.Blue);
         }
     }

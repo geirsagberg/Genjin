@@ -4,6 +4,7 @@ using Genjin.Breakout.Components;
 using Genjin.Breakout.Systems;
 using Genjin.Core;
 using Genjin.Core.Entities;
+using Genjin.Core.Primitives;
 
 namespace Genjin.Breakout;
 
@@ -31,16 +32,16 @@ internal class GameScene : IScene {
     private void CreateBall(Entity paddle) {
         var ball = world.CreateEntity();
         ball.Add(new Collidable(CollisionType.Ball));
-        ball.Add(new Transform(paddle.Get<Transform>().Position + new Vector2(40, -20), 0, new SizeF(20f, 20f)));
+        ball.Add(new Transform(paddle.Get<Transform>().Position + new Vector2(40, -20), 0, new Size2F(20f, 20f)));
         ball.Add(new Colored(Color.White));
         ball.Add(new Movable());
         ball.Add(new Ball());
     }
 
     private Entity CreatePaddle() {
-        var paddleSize = new Size(100, 20);
+        var paddleSize = new Size2F(100, 20);
         var paddle = world.CreateEntity();
-        paddle.Add(new Collidable(CollisionType.Wall));
+        paddle.Add(new Collidable(CollisionType.Paddle));
         paddle.Add(new Transform(new Vector2((gameSize.Width - paddleSize.Width) / 2, gameSize.Height - 40), 0,
             paddleSize));
         paddle.Add(new Colored(Color.Red));
@@ -51,13 +52,14 @@ internal class GameScene : IScene {
 
     private void CreateBlock(int row, int col) {
         var block = world.CreateEntity();
-        var size = new Size(40, 20);
+        var size = new Size2F(40, 20);
         const int padding = 2;
         var offset = new Vector2((gameSize.Width - (RowCount * size.Width) - (padding * ColCount)) / 2, 50);
 
         block.Add(new Transform(new Vector2(col * (size.Width + padding), row * (size.Height + padding)) + offset, 0,
             size));
         block.Add(new Colored(Color.Gold));
+        block.Add(new Collidable(CollisionType.Wall));
     }
 }
 

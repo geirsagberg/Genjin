@@ -1,7 +1,8 @@
 using System.Drawing;
+using Genjin.Core.Primitives;
 
 namespace Genjin.Breakout.Components;
 
 internal record GameBounds {
-    public SizeF Size { get; set; }
+    public Size2F Size { get; set; }
 }

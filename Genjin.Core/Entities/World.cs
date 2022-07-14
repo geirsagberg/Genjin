@@ -112,6 +112,7 @@ public class World : IDrawable, IEntityManager {
         return this;
     }
 
+    /// Add one or more systems tied to the same simulation, in order.
     public World AddSimulationSystems(params ISimulationSystem[] simulationSystems) {
         var simulation = new Simulation(messageHub);
         

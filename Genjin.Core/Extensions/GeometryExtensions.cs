@@ -43,17 +43,17 @@ public static class GeometryExtensions {
     public static CircleF Inflate(this CircleF circle, float addRadius) =>
         new(circle.Center, circle.Radius + addRadius);
 
-    public static void Wrap(this Transform transform, RectangleF levelSize) {
-        if (transform.Position.X < 0) {
-            transform.Position += levelSize.WidthVector();
-        } else if (transform.Position.X >= levelSize.Width) {
-            transform.Position -= levelSize.WidthVector();
+    public static void Wrap(this Body body, RectangleF levelSize) {
+        if (body.Position.X < 0) {
+            body.Position += levelSize.WidthVector();
+        } else if (body.Position.X >= levelSize.Width) {
+            body.Position -= levelSize.WidthVector();
         }
 
-        if (transform.Position.Y < 0) {
-            transform.Position += levelSize.HeightVector();
-        } else if (transform.Position.Y >= levelSize.Height) {
-            transform.Position -= levelSize.HeightVector();
+        if (body.Position.Y < 0) {
+            body.Position += levelSize.HeightVector();
+        } else if (body.Position.Y >= levelSize.Height) {
+            body.Position -= levelSize.HeightVector();
         }
     }
 
@@ -100,7 +100,7 @@ public static class GeometryExtensions {
             return Vector2.Zero;
         }
 
-        var displacement = Point2F.Displacement(circ1.Center, circ2.Center);
+        var displacement = circ2.Center - circ1.Center;
 
         Vector2 desiredDisplacement;
         if (displacement != Vector2.Zero) {
@@ -118,7 +118,7 @@ public static class GeometryExtensions {
         var cToCollPoint = collisionPoint - circ.Center;
 
         if (rect.Contains(circ.Center) || cToCollPoint.Equals(Vector2.Zero)) {
-            var displacement = Point2F.Displacement(circ.Center, rect.Center);
+            var displacement = rect.Center - circ.Center;
 
             Vector2 desiredDisplacement;
             if (displacement != Vector2.Zero) {

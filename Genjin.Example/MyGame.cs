@@ -37,7 +37,7 @@ internal class MyGame : Game {
             { PlayerState.Running, new(1..9) }
         });
 
-        transform = new Transform(new Vector2(100, 100), default, spriteSheet.SpriteSize);
+        transform = new Body(new Vector2(100, 100), spriteSheet.SpriteSize);
 
         simulation = StartSimulation();
 

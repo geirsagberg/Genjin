@@ -1,4 +1,7 @@
 ﻿// MIT-licensed (https://github.com/craftworkgames/MonoGame.Extended)
+
+using System.Numerics;
+
 namespace Genjin.Core.Primitives; 
 
 /// <summary>
@@ -9,10 +12,9 @@ namespace Genjin.Core.Primitives;
 /// </remakarks>
 public interface IShapeF
 {
-    /// <summary>
-    /// Gets or sets the position of the shape.
-    /// </summary>
-    Point2F Position { get; set; }
+    RectangleF BoundingRectangle { get; }
+    Vector2 Position { get; set; }
+    Size2F Size { get; }
 }
 
 /// <summary>

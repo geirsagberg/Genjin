@@ -17,8 +17,8 @@ public class EntitiesTest {
         var world = new World(_ => { }, new MessageHub());
 
         var entity = world.CreateEntity();
-        entity.Add(new Foo());
-        entity.Add(new Bar());
+        entity.AddComponent(new Foo());
+        entity.AddComponent(new Bar());
 
         world.GetEntitiesMatchingAll(typeof(Foo)).Should().Contain(entity);
     }

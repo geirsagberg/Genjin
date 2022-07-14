@@ -6,51 +6,17 @@ namespace Genjin.Breakout.Systems;
 
 internal class MovableSystem : ISimulationSystem {
     private readonly IEntityManager entityManager;
-    private readonly SharedState sharedState;
 
-    public MovableSystem(IEntityManager entityManager, SharedState sharedState) {
+    public MovableSystem(IEntityManager entityManager) {
         this.entityManager = entityManager;
-        this.sharedState = sharedState;
     }
 
     public void Update(TimeSpan deltaTime) {
-        var entities = entityManager.GetEntitiesMatchingAll(typeof(Movable), typeof(Transform));
+        var entities = entityManager.GetEntitiesMatchingAll(typeof(Movable), typeof(Body));
         foreach (var entity in entities) {
-            var movable = entity.Get<Movable>();
-            var transform = entity.Get<Transform>();
+            var movable = entity.GetComponent<Movable>();
+            var transform = entity.GetComponent<Body>();
             transform.Position += movable.Velocity * (float) deltaTime.TotalSeconds;
-
-            if (entity.TryGet<Collidable>() is { } collidable) {
-                if (transform.Position.X < 0) {
-                    if (collidable.CollisionType == CollisionType.Wall) {
-                        transform.Position = transform.Position with { X = 0 };
-                    } else if (collidable.CollisionType == CollisionType.Ball) {
-                        movable.Velocity = movable.Velocity with { X = -movable.Velocity.X };
-                    }
-                } else if (transform.Position.X + transform.Size.Width > sharedState.GameSize.Width) {
-                    if (collidable.CollisionType == CollisionType.Wall) {
-                        transform.Position = transform.Position with {
-                            X = sharedState.GameSize.Width - transform.Size.Width
-                        };
-                    } else if (collidable.CollisionType == CollisionType.Ball) {
-                        movable.Velocity = movable.Velocity with { X = -movable.Velocity.X };
-                    }
-                } else if (transform.Position.Y < 0) {
-                    if (collidable.CollisionType == CollisionType.Wall) {
-                        transform.Position = transform.Position with { Y = 0 };
-                    } else if (collidable.CollisionType == CollisionType.Ball) {
-                        movable.Velocity = movable.Velocity with { Y = -movable.Velocity.Y };
-                    }
-                } else if (transform.Position.Y + transform.Size.Height > sharedState.GameSize.Height) {
-                    if (collidable.CollisionType == CollisionType.Wall) {
-                        transform.Position = transform.Position with {
-                            Y = sharedState.GameSize.Height - transform.Size.Height
-                        };
-                    } else if (collidable.CollisionType == CollisionType.Ball) {
-                        movable.Velocity = movable.Velocity with { Y = -movable.Velocity.Y };
-                    }
-                }
-            }
         }
     }
 }

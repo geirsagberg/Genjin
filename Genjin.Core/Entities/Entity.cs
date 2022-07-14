@@ -10,8 +10,8 @@ public class Entity {
 
     private World World { get; }
 
-    public T Get<T>() => World.GetComponent<T>(Id);
-    public void Add<T>(T component) where T : class => World.AddComponent(Id, component);
+    public T GetComponent<T>() => World.GetComponent<T>(Id);
+    public void AddComponent<T>(T component) where T : class => World.AddComponent(Id, component);
 
-    public T? TryGet<T>() where T : class => World.TryGetComponent<T>(Id);
+    public T? TryGetComponent<T>() where T : class => World.TryGetComponent<T>(Id);
 }

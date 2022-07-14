@@ -41,6 +41,10 @@ public enum AngleType : byte {
 [DataContract]
 [DebuggerDisplay("{ToString(),nq}")]
 public struct Angle : IComparable<Angle>, IEquatable<Angle> {
+    public override bool Equals(object? obj) => obj is Angle other && Equals(other);
+
+    public override int GetHashCode() => Radians.GetHashCode();
+
     private const float TauInv = (float) (1.0 / Math.Tau);
     private const float DegreeRadian = (float) (Math.PI / 180.0);
     private const float RadianDegree = (float) (180.0 / Math.PI);
@@ -139,16 +143,6 @@ public struct Angle : IComparable<Angle>, IEquatable<Angle> {
         WrapPositive();
         other.WrapPositive();
         return Radians.Equals(other.Radians);
-    }
-
-    public override bool Equals(object obj) {
-        if (ReferenceEquals(null, obj)) return false;
-        return obj is Angle a && Equals(a);
-    }
-
-    public override int GetHashCode() {
-        // ReSharper disable once NonReadonlyMemberInGetHashCode
-        return Radians.GetHashCode();
     }
 
     public static implicit operator float(Angle angle) {

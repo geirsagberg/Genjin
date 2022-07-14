@@ -6,7 +6,7 @@ namespace Genjin.Core.Primitives;
 // Real-Time Collision Detection, Christer Ericson, 2005. Chapter 4.2; Bounding Volumes - Axis-aligned Bounding Boxes (AABBs). pg 77 
 
 /// <summary>
-///     An axis-aligned, four sided, two dimensional box defined by a centre <see cref="Point2F" /> and a radii
+///     An axis-aligned, four sided, two dimensional box defined by a centre <see cref="Vector2" /> and a radii
 ///     <see cref="Vector2" />.
 /// </summary>
 /// <remarks>
@@ -25,7 +25,7 @@ namespace Genjin.Core.Primitives;
 public struct BoundingRectangle : IEquatable<BoundingRectangle>
 {
     /// <summary>
-    ///     The <see cref="BoundingRectangle" /> with <see cref="Center" /> <see cref="Point2F.Zero"/> and
+    ///     The <see cref="BoundingRectangle" /> with <see cref="Center" /> <see cref="Vector2.Zero"/> and
     ///     <see cref="HalfExtents" /> set to <see cref="Vector2.Zero"/>.
     /// </summary>
     public static readonly BoundingRectangle Empty = new();
@@ -33,7 +33,7 @@ public struct BoundingRectangle : IEquatable<BoundingRectangle>
     /// <summary>
     ///     The centre position of this <see cref="BoundingRectangle" />.
     /// </summary>
-    public Point2F Center;
+    public Vector2 Center;
 
     /// <summary>
     ///     The distance from the <see cref="Center" /> point along both axes to any point on the boundary of this
@@ -43,59 +43,59 @@ public struct BoundingRectangle : IEquatable<BoundingRectangle>
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="BoundingRectangle" /> structure from the specified centre
-    ///     <see cref="Point2F" /> and the radii <see cref="Size2F" />.
+    ///     <see cref="Vector2" /> and the radii <see cref="Size2F" />.
     /// </summary>
-    /// <param name="center">The centre <see cref="Point2F" />.</param>
+    /// <param name="center">The centre <see cref="Vector2" />.</param>
     /// <param name="halfExtents">The radii <see cref="Vector2" />.</param>
-    public BoundingRectangle(Point2F center, Size2F halfExtents)
+    public BoundingRectangle(Vector2 center, Size2F halfExtents)
     {
         Center = center;
         HalfExtents = halfExtents;
     }
 
     /// <summary>
-    ///     Computes the <see cref="BoundingRectangle" /> from a minimum <see cref="Point2F" /> and maximum
-    ///     <see cref="Point2F" />.
+    ///     Computes the <see cref="BoundingRectangle" /> from a minimum <see cref="Vector2" /> and maximum
+    ///     <see cref="Vector2" />.
     /// </summary>
     /// <param name="minimum">The minimum point.</param>
     /// <param name="maximum">The maximum point.</param>
     /// <param name="result">The resulting bounding rectangle.</param>
-    public static void CreateFrom(Point2F minimum, Point2F maximum, out BoundingRectangle result)
+    public static void CreateFrom(Vector2 minimum, Vector2 maximum, out BoundingRectangle result)
     {
-        result.Center = new Point2F((maximum.X + minimum.X) * 0.5f, (maximum.Y + minimum.Y) * 0.5f);
+        result.Center = new Vector2((maximum.X + minimum.X) * 0.5f, (maximum.Y + minimum.Y) * 0.5f);
         result.HalfExtents = new Vector2((maximum.X - minimum.X) * 0.5f, (maximum.Y - minimum.Y) * 0.5f);
     }
 
     /// <summary>
-    ///     Computes the <see cref="BoundingRectangle" /> from a minimum <see cref="Point2F" /> and maximum
-    ///     <see cref="Point2F" />.
+    ///     Computes the <see cref="BoundingRectangle" /> from a minimum <see cref="Vector2" /> and maximum
+    ///     <see cref="Vector2" />.
     /// </summary>
     /// <param name="minimum">The minimum point.</param>
     /// <param name="maximum">The maximum point.</param>
     /// <returns>The resulting <see cref="BoundingRectangle" />.</returns>
-    public static BoundingRectangle CreateFrom(Point2F minimum, Point2F maximum)
+    public static BoundingRectangle CreateFrom(Vector2 minimum, Vector2 maximum)
     {
         CreateFrom(minimum, maximum, out var result);
         return result;
     }
 
     /// <summary>
-    ///     Computes the <see cref="BoundingRectangle" /> from a list of <see cref="Point2F" /> structures.
+    ///     Computes the <see cref="BoundingRectangle" /> from a list of <see cref="Vector2" /> structures.
     /// </summary>
     /// <param name="points">The points.</param>
     /// <param name="result">The resulting bounding rectangle.</param>
-    public static void CreateFrom(IReadOnlyList<Point2F> points, out BoundingRectangle result)
+    public static void CreateFrom(IReadOnlyList<Vector2> points, out BoundingRectangle result)
     {
         PrimitivesHelper.CreateRectangleFromPoints(points, out var minimum, out var maximum);
         CreateFrom(minimum, maximum, out result);
     }
 
     /// <summary>
-    ///     Computes the <see cref="BoundingRectangle" /> from a list of <see cref="Point2F" /> structures.
+    ///     Computes the <see cref="BoundingRectangle" /> from a list of <see cref="Vector2" /> structures.
     /// </summary>
     /// <param name="points">The points.</param>
     /// <returns>The resulting <see cref="BoundingRectangle" />.</returns>
-    public static BoundingRectangle CreateFrom(IReadOnlyList<Point2F> points)
+    public static BoundingRectangle CreateFrom(IReadOnlyList<Vector2> points)
     {
         CreateFrom(points, out var result);
         return result;
@@ -170,8 +170,8 @@ public struct BoundingRectangle : IEquatable<BoundingRectangle>
         var secondMinimum = second.Center - second.HalfExtents;
         var secondMaximum = second.Center + second.HalfExtents;
 
-        var minimum = Point2F.Minimum(firstMinimum, secondMinimum);
-        var maximum = Point2F.Maximum(firstMaximum, secondMaximum);
+        var minimum = Vector2.Min(firstMinimum, secondMinimum);
+        var maximum = Vector2.Max(firstMaximum, secondMaximum);
 
         result = CreateFrom(minimum, maximum);
     }
@@ -223,8 +223,8 @@ public struct BoundingRectangle : IEquatable<BoundingRectangle>
         var secondMinimum = second.Center - second.HalfExtents;
         var secondMaximum = second.Center + second.HalfExtents;
 
-        var minimum = Point2F.Maximum(firstMinimum, secondMinimum);
-        var maximum = Point2F.Minimum(firstMaximum, secondMaximum);
+        var minimum = Vector2.Max(firstMinimum, secondMinimum);
+        var maximum = Vector2.Min(firstMaximum, secondMaximum);
 
         if ((maximum.X < minimum.X) || (maximum.Y < minimum.Y))
             result = new BoundingRectangle();
@@ -325,10 +325,10 @@ public struct BoundingRectangle : IEquatable<BoundingRectangle>
     }
 
     /// <summary>
-    ///     Updates this <see cref="BoundingRectangle" /> from a list of <see cref="Point2F" /> structures.
+    ///     Updates this <see cref="BoundingRectangle" /> from a list of <see cref="Vector2" /> structures.
     /// </summary>
     /// <param name="points">The points.</param>
-    public void UpdateFromPoints(IReadOnlyList<Point2F> points)
+    public void UpdateFromPoints(IReadOnlyList<Vector2> points)
     {
         var boundingRectangle = CreateFrom(points);
         Center = boundingRectangle.Center;
@@ -337,7 +337,7 @@ public struct BoundingRectangle : IEquatable<BoundingRectangle>
 
     /// <summary>
     ///     Determines whether the specified <see cref="BoundingRectangle" /> contains the specified
-    ///     <see cref="Point2F" />.
+    ///     <see cref="Vector2" />.
     /// </summary>
     /// <param name="boundingRectangle">The bounding rectangle.</param>
     /// <param name="point">The point.</param>
@@ -345,7 +345,7 @@ public struct BoundingRectangle : IEquatable<BoundingRectangle>
     ///     <c>true</c> if the <paramref name="boundingRectangle" /> contains the <paramref name="point" />; otherwise,
     ///     <c>false</c>.
     /// </returns>
-    public static bool Contains(ref BoundingRectangle boundingRectangle, ref Point2F point)
+    public static bool Contains(ref BoundingRectangle boundingRectangle, ref Vector2 point)
     {
         // Real-Time Collision Detection, Christer Ericson, 2005. Chapter 4.2; Bounding Volumes - Axis-aligned Bounding Boxes (AABBs). pg 78
 
@@ -357,7 +357,7 @@ public struct BoundingRectangle : IEquatable<BoundingRectangle>
 
     /// <summary>
     ///     Determines whether the specified <see cref="BoundingRectangle" /> contains the specified
-    ///     <see cref="Point2F" />.
+    ///     <see cref="Vector2" />.
     /// </summary>
     /// <param name="boundingRectangle">The bounding rectangle.</param>
     /// <param name="point">The point.</param>
@@ -365,41 +365,41 @@ public struct BoundingRectangle : IEquatable<BoundingRectangle>
     ///     <c>true</c> if the <paramref name="boundingRectangle" /> contains the <paramref name="point" />; otherwise,
     ///     <c>false</c>.
     /// </returns>
-    public static bool Contains(BoundingRectangle boundingRectangle, Point2F point)
+    public static bool Contains(BoundingRectangle boundingRectangle, Vector2 point)
     {
         return Contains(ref boundingRectangle, ref point);
     }
 
     /// <summary>
-    ///     Determines whether this <see cref="BoundingRectangle" /> contains the specified <see cref="Point2F" />.
+    ///     Determines whether this <see cref="BoundingRectangle" /> contains the specified <see cref="Vector2" />.
     /// </summary>
     /// <param name="point">The point.</param>
     /// <returns>
     ///     <c>true</c> if this <see cref="BoundingRectangle" /> contains the <paramref name="point" />; otherwise,
     ///     <c>false</c>.
     /// </returns>
-    public bool Contains(Point2F point)
+    public bool Contains(Vector2 point)
     {
         return Contains(this, point);
     }
 
     /// <summary>
-    ///     Computes the squared distance from this <see cref="BoundingRectangle"/> to a <see cref="Point2F"/>.
+    ///     Computes the squared distance from this <see cref="BoundingRectangle"/> to a <see cref="Vector2"/>.
     /// </summary>
     /// <param name="point">The point.</param>
     /// <returns>The squared distance from this <see cref="BoundingRectangle"/> to the <paramref name="point"/>.</returns>
-    public float SquaredDistanceTo(Point2F point)
+    public float SquaredDistanceTo(Vector2 point)
     {
         return PrimitivesHelper.SquaredDistanceToPointFromRectangle(Center - HalfExtents, Center + HalfExtents, point);
     }
 
     /// <summary>
-    ///     Computes the closest <see cref="Point2F" /> on this <see cref="BoundingRectangle" /> to a specified
-    ///     <see cref="Point2F" />.
+    ///     Computes the closest <see cref="Vector2" /> on this <see cref="BoundingRectangle" /> to a specified
+    ///     <see cref="Vector2" />.
     /// </summary>
     /// <param name="point">The point.</param>
-    /// <returns>The closest <see cref="Point2F" /> on this <see cref="BoundingRectangle" /> to the <paramref name="point" />.</returns>
-    public Point2F ClosestPointTo(Point2F point)
+    /// <returns>The closest <see cref="Vector2" /> on this <see cref="BoundingRectangle" /> to the <paramref name="point" />.</returns>
+    public Vector2 ClosestPointTo(Vector2 point)
     {
         PrimitivesHelper.ClosestPointToPointFromRectangle(Center - HalfExtents, Center + HalfExtents, point, out var result);
         return result;
@@ -501,7 +501,7 @@ public struct BoundingRectangle : IEquatable<BoundingRectangle>
     public static implicit operator BoundingRectangle(Rectangle rectangle)
     {
         var radii = new Size2F(rectangle.Width * 0.5f, rectangle.Height * 0.5f);
-        var centre = new Point2F(rectangle.X + radii.Width, rectangle.Y + radii.Height);
+        var centre = new Vector2(rectangle.X + radii.Width, rectangle.Y + radii.Height);
         return new BoundingRectangle(centre, radii);
     }
 
@@ -529,7 +529,7 @@ public struct BoundingRectangle : IEquatable<BoundingRectangle>
     public static implicit operator BoundingRectangle(RectangleF rectangle)
     {
         var radii = new Size2F(rectangle.Width * 0.5f, rectangle.Height * 0.5f);
-        var centre = new Point2F(rectangle.X + radii.Width, rectangle.Y + radii.Height);
+        var centre = new Vector2(rectangle.X + radii.Width, rectangle.Y + radii.Height);
         return new BoundingRectangle(centre, radii);
     }
 

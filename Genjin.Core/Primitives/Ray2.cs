@@ -5,16 +5,16 @@ namespace Genjin.Core.Primitives;
 
 // Real-Time Collision Detection, Christer Ericson, 2005. Chapter 3.5; A Math and Geometry Primer - Lines, Rays, and Segments. pg 53-54    
 /// <summary>
-///     A two dimensional ray defined by a starting <see cref="Point2F" /> and a direction <see cref="Vector2" />.
+///     A two dimensional ray defined by a starting <see cref="Vector2" /> and a direction <see cref="Vector2" />.
 /// </summary>
 /// <seealso cref="IEquatable{T}" />
 [DebuggerDisplay("{DebugDisplayString,nq}")]
 public struct Ray2 : IEquatable<Ray2>
 {
     /// <summary>
-    ///     The starting <see cref="Point2F" /> of this <see cref="Ray2" />.
+    ///     The starting <see cref="Vector2" /> of this <see cref="Ray2" />.
     /// </summary>
-    public Point2F Position;
+    public Vector2 Position;
 
     /// <summary>
     ///     The direction <see cref="Vector2" /> of this <see cref="Ray2" />.
@@ -26,7 +26,7 @@ public struct Ray2 : IEquatable<Ray2>
     /// </summary>
     /// <param name="position">The starting point.</param>
     /// <param name="direction">The direction vector.</param>
-    public Ray2(Point2F position, Vector2 direction)
+    public Ray2(Vector2 position, Vector2 direction)
     {
         Position = position;
         Direction = direction;
@@ -91,97 +91,6 @@ public struct Ray2 : IEquatable<Ray2>
     }
 
     /// <summary>
-    ///     Compares two <see cref="Ray2" /> structures. The result specifies whether the values of the
-    ///     <see cref="Position" />
-    ///     and <see cref="Direction" /> fields of the two <see cref="Ray2" /> structures are equal.
-    /// </summary>
-    /// <param name="first">The first ray.</param>
-    /// <param name="second">The second ray.</param>
-    /// <returns>
-    ///     <c>true</c> if the <see cref="Position" /> and <see cref="Direction" />
-    ///     fields of the two <see cref="Ray2" />
-    ///     structures are equal; otherwise, <c>false</c>.
-    /// </returns>
-    public static bool operator ==(Ray2 first, Ray2 second)
-    {
-        return first.Equals(ref second);
-    }
-
-    /// <summary>
-    ///     Indicates whether this <see cref="Ray2" /> is equal to another <see cref="Ray2" />.
-    /// </summary>
-    /// <param name="ray">The ray.</param>
-    /// <returns>
-    ///     <c>true</c> if this <see cref="Ray2" /> is equal to the <paramref name="ray" /> parameter; otherwise,
-    ///     <c>false</c>.
-    /// </returns>
-    public bool Equals(Ray2 ray)
-    {
-        return Equals(ref ray);
-    }
-
-    /// <summary>
-    ///     Indicates whether this <see cref="Ray2" /> is equal to another <see cref="Ray2" />.
-    /// </summary>
-    /// <param name="ray">The ray.</param>
-    /// <returns>
-    ///     <c>true</c> if this <see cref="Ray2" /> is equal to the <paramref name="ray" />; otherwise,
-    ///     <c>false</c>.
-    /// </returns>
-    public bool Equals(ref Ray2 ray)
-    {
-        // ReSharper disable CompareOfFloatsByEqualityOperator
-        return (ray.Position == Position) && (ray.Direction == Direction);
-        // ReSharper restore CompareOfFloatsByEqualityOperator
-    }
-
-    /// <summary>
-    ///     Returns a value indicating whether this <see cref="Ray2" /> is equal to a specified object.
-    /// </summary>
-    /// <param name="obj">The object to make the comparison with.</param>
-    /// <returns>
-    ///     <c>true</c> if this  <see cref="Ray2" /> is equal to <paramref name="obj" />; otherwise, <c>false</c>.
-    /// </returns>
-    public override bool Equals(object obj)
-    {
-        if (obj is Ray2)
-            return Equals((Ray2) obj);
-        return false;
-    }
-
-    /// <summary>
-    ///     Compares two <see cref="Ray2" /> structures. The result specifies whether the values of the
-    ///     <see cref='Position' />
-    ///     and <see cref="Direction" /> fields of the two <see cref="Ray2" /> structures are unequal.
-    /// </summary>
-    /// <param name="first">The first ray.</param>
-    /// <param name="second">The second ray.</param>
-    /// <returns>
-    ///     <c>true</c> if the <see cref="Position" /> and <see cref="Direction" />
-    ///     fields of the two <see cref="Ray2" />
-    ///     structures are unequal; otherwise, <c>false</c>.
-    /// </returns>
-    public static bool operator !=(Ray2 first, Ray2 second)
-    {
-        return !(first == second);
-    }
-
-    /// <summary>
-    ///     Returns a hash code of this <see cref="Ray2" /> suitable for use in hashing algorithms and data
-    ///     structures like a hash table.
-    /// </summary>
-    /// <returns>
-    ///     A hash code of this <see cref="Ray2" />.
-    /// </returns>
-    public override int GetHashCode()
-    {
-        unchecked
-        {
-            return (Position.GetHashCode()*397) ^ Direction.GetHashCode();
-        }
-    }
-
-    /// <summary>
     ///     Returns a <see cref="string" /> that represents this <see cref="Ray2" />.
     /// </summary>
     /// <returns>
@@ -193,4 +102,18 @@ public struct Ray2 : IEquatable<Ray2>
     }
 
     internal string DebugDisplayString => ToString();
+
+    public bool Equals(Ray2 other) => Position.Equals(other.Position) && Direction.Equals(other.Direction);
+
+    public override bool Equals(object? obj) => obj is Ray2 other && Equals(other);
+
+    public override int GetHashCode() => HashCode.Combine(Position, Direction);
+
+    public static bool operator ==(Ray2 left, Ray2 right) {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(Ray2 left, Ray2 right) {
+        return !(left == right);
+    }
 }

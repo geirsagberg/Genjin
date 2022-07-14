@@ -82,7 +82,7 @@ public static class Vector2Extensions {
     public static bool IsNaN(this Vector2 value) => float.IsNaN(value.X) || float.IsNaN(value.Y);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float ToAngle(this Vector2 value) => MathF.Atan2(value.X, -value.Y);
+    public static float Angle(this Vector2 value) => MathF.Atan2(value.X, -value.Y);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float AngleBetween(this Vector2 value, Vector2 other) => MathF.Atan2(other.Y - value.Y , other.X - value.X);

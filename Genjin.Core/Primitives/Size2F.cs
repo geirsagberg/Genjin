@@ -52,13 +52,13 @@ public struct Size2F : IEquatable<Size2F> {
     /// <summary>
     ///     Compares two <see cref="Size2F" /> structures. The result specifies
     ///     whether the values of the <see cref="Width" /> and <see cref="Height" />
-    ///     fields of the two <see cref="Point2F" /> structures are equal.
+    ///     fields of the two <see cref="Vector2" /> structures are equal.
     /// </summary>
     /// <param name="first">The first size.</param>
     /// <param name="second">The second size.</param>
     /// <returns>
     ///     <c>true</c> if the <see cref="Width" /> and <see cref="Height" />
-    ///     fields of the two <see cref="Point2F" /> structures are equal; otherwise, <c>false</c>.
+    ///     fields of the two <see cref="Vector2" /> structures are equal; otherwise, <c>false</c>.
     /// </returns>
     public static bool operator ==(Size2F first, Size2F second) {
         return first.Equals(ref second);
@@ -69,7 +69,7 @@ public struct Size2F : IEquatable<Size2F> {
     /// </summary>
     /// <param name="size">The size.</param>
     /// <returns>
-    ///     <c>true</c> if this <see cref="Point2F" /> is equal to the <paramref name="size" /> parameter; otherwise,
+    ///     <c>true</c> if this <see cref="Vector2" /> is equal to the <paramref name="size" /> parameter; otherwise,
     ///     <c>false</c>.
     /// </returns>
     public bool Equals(Size2F size) {
@@ -81,7 +81,7 @@ public struct Size2F : IEquatable<Size2F> {
     /// </summary>
     /// <param name="size">The size.</param>
     /// <returns>
-    ///     <c>true</c> if this <see cref="Point2F" /> is equal to the <paramref name="size" />; otherwise,
+    ///     <c>true</c> if this <see cref="Vector2" /> is equal to the <paramref name="size" />; otherwise,
     ///     <c>false</c>.
     /// </returns>
     public bool Equals(ref Size2F size) {
@@ -188,7 +188,7 @@ public struct Size2F : IEquatable<Size2F> {
     ///     structures like a hash table.
     /// </summary>
     /// <returns>
-    ///     A hash code of this <see cref="Point2F" />.
+    ///     A hash code of this <see cref="Vector2" />.
     /// </returns>
     public override int GetHashCode() {
         unchecked {
@@ -197,37 +197,14 @@ public struct Size2F : IEquatable<Size2F> {
     }
 
     /// <summary>
-    ///     Performs an implicit conversion from a <see cref="Point2F" /> to a <see cref="Size2F" />.
+    ///     Performs an implicit conversion from a <see cref="Vector2" /> to a <see cref="Size2F" />.
     /// </summary>
     /// <param name="point">The point.</param>
     /// <returns>
     ///     The resulting <see cref="Size2F" />.
     /// </returns>
-    public static implicit operator Size2F(Point2F point) {
+    public static implicit operator Size2F(Vector2 point) {
         return new Size2F(point.X, point.Y);
-    }
-
-
-    /// <summary>
-    ///     Performs an implicit conversion from a <see cref="Point" /> to a <see cref="Size2F" />.
-    /// </summary>
-    /// <param name="point">The point.</param>
-    /// <returns>
-    ///     The resulting <see cref="Size2F" />.
-    /// </returns>
-    public static implicit operator Size2F(Point point) {
-        return new Size2F(point.X, point.Y);
-    }
-
-    /// <summary>
-    ///     Performs an implicit conversion from a <see cref="Point2F" /> to a <see cref="Size2F" />.
-    /// </summary>
-    /// <param name="size">The size.</param>
-    /// <returns>
-    ///     The resulting <see cref="Point2F" />.
-    /// </returns>
-    public static implicit operator Point2F(Size2F size) {
-        return new Point2F(size.Width, size.Height);
     }
 
     /// <summary>
@@ -239,40 +216,6 @@ public struct Size2F : IEquatable<Size2F> {
     /// </returns>
     public static implicit operator Vector2(Size2F size) {
         return new Vector2(size.Width, size.Height);
-    }
-
-    /// <summary>
-    ///     Performs an implicit conversion from a <see cref="Vector2" /> to a <see cref="Size2F" />.
-    /// </summary>
-    /// <param name="vector">The vector.</param>
-    /// <returns>
-    ///     The resulting <see cref="Size2F" />.
-    /// </returns>
-    public static implicit operator Size2F(Vector2 vector) {
-        return new Size2F(vector.X, vector.Y);
-    }
-
-    ///// <summary>
-    /////     Performs an implicit conversion from a <see cref="Size" /> to a <see cref="Size2" />.
-    ///// </summary>
-    ///// <param name="size">The size.</param>
-    ///// <returns>
-    /////     The resulting <see cref="Size2" />.
-    ///// </returns>
-    //public static implicit operator Size2(Size size)
-    //{
-    //    return new Size2(size.Width, size.Height);
-    //}
-
-    /// <summary>
-    ///     Performs an explicit conversion from a <see cref="Size2F" /> to a <see cref="Point" />.
-    /// </summary>
-    /// <param name="size">The size.</param>
-    /// <returns>
-    ///     The resulting <see cref="Size2F" />.
-    /// </returns>
-    public static explicit operator Point(Size2F size) {
-        return new Point((int) size.Width, (int) size.Height);
     }
 
     /// <summary>

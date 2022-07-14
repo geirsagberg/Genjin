@@ -83,11 +83,11 @@ public struct RectangleF : IEquatable<RectangleF>, IShapeF
     public bool IsEmpty => Width.Equals(0) && Height.Equals(0) && X.Equals(0) && Y.Equals(0);
 
     /// <summary>
-    ///     Gets the <see cref="Point2F" /> representing the the top-left of this <see cref="RectangleF" />.
+    ///     Gets the <see cref="Vector2" /> representing the the top-left of this <see cref="RectangleF" />.
     /// </summary>
-    public Point2F Position
+    public Vector2 Position
     {
-        get { return new Point2F(X, Y); }
+        get { return new Vector2(X, Y); }
         set
         {
             X = value.X;
@@ -109,29 +109,29 @@ public struct RectangleF : IEquatable<RectangleF>, IShapeF
     }
 
     /// <summary>
-    ///     Gets the <see cref="Point2F" /> representing the center of this <see cref="RectangleF" />.
+    ///     Gets the <see cref="Vector2" /> representing the center of this <see cref="RectangleF" />.
     /// </summary>
-    public Point2F Center => new(X + Width * 0.5f, Y + Height * 0.5f);
+    public Vector2 Center => new(X + Width * 0.5f, Y + Height * 0.5f);
 
     /// <summary>
-    ///     Gets the <see cref="Point2F" /> representing the top-left of this <see cref="RectangleF" />.
+    ///     Gets the <see cref="Vector2" /> representing the top-left of this <see cref="RectangleF" />.
     /// </summary>
-    public Point2F TopLeft => new(X, Y);
+    public Vector2 TopLeft => new(X, Y);
 
     /// <summary>
-    ///     Gets the <see cref="Point2F" /> representing the top-right of this <see cref="RectangleF" />.
+    ///     Gets the <see cref="Vector2" /> representing the top-right of this <see cref="RectangleF" />.
     /// </summary>
-    public Point2F TopRight => new(X + Width, Y);
+    public Vector2 TopRight => new(X + Width, Y);
 
     /// <summary>
-    ///     Gets the <see cref="Point2F" /> representing the bottom-left of this <see cref="RectangleF" />.
+    ///     Gets the <see cref="Vector2" /> representing the bottom-left of this <see cref="RectangleF" />.
     /// </summary>
-    public Point2F BottomLeft => new(X, Y + Height);
+    public Vector2 BottomLeft => new(X, Y + Height);
 
     /// <summary>
-    ///     Gets the <see cref="Point2F" /> representing the bottom-right of this <see cref="RectangleF" />.
+    ///     Gets the <see cref="Vector2" /> representing the bottom-right of this <see cref="RectangleF" />.
     /// </summary>
-    public Point2F BottomRight => new(X + Width, Y + Height);
+    public Vector2 BottomRight => new(X + Width, Y + Height);
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="RectangleF" /> structure from the specified top-left xy-coordinate
@@ -151,11 +151,11 @@ public struct RectangleF : IEquatable<RectangleF>, IShapeF
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="RectangleF" /> structure from the specified top-left
-    ///     <see cref="Point2F" /> and the extents <see cref="Size2F" />.
+    ///     <see cref="Vector2" /> and the extents <see cref="Size2F" />.
     /// </summary>
     /// <param name="position">The top-left point.</param>
     /// <param name="size">The extents.</param>
-    public RectangleF(Point2F position, Size2F size)
+    public RectangleF(Vector2 position, Size2F size)
     {
         X = position.X;
         Y = position.Y;
@@ -164,13 +164,13 @@ public struct RectangleF : IEquatable<RectangleF>, IShapeF
     }
 
     /// <summary>
-    ///     Computes the <see cref="RectangleF" /> from a minimum <see cref="Point2F" /> and maximum
-    ///     <see cref="Point2F" />.
+    ///     Computes the <see cref="RectangleF" /> from a minimum <see cref="Vector2" /> and maximum
+    ///     <see cref="Vector2" />.
     /// </summary>
     /// <param name="minimum">The minimum point.</param>
     /// <param name="maximum">The maximum point.</param>
     /// <param name="result">The resulting rectangle.</param>
-    public static void CreateFrom(Point2F minimum, Point2F maximum, out RectangleF result)
+    public static void CreateFrom(Vector2 minimum, Vector2 maximum, out RectangleF result)
     {
         result.X = minimum.X;
         result.Y = minimum.Y;
@@ -179,35 +179,35 @@ public struct RectangleF : IEquatable<RectangleF>, IShapeF
     }
 
     /// <summary>
-    ///     Computes the <see cref="RectangleF" /> from a minimum <see cref="Point2F" /> and maximum
-    ///     <see cref="Point2F" />.
+    ///     Computes the <see cref="RectangleF" /> from a minimum <see cref="Vector2" /> and maximum
+    ///     <see cref="Vector2" />.
     /// </summary>
     /// <param name="minimum">The minimum point.</param>
     /// <param name="maximum">The maximum point.</param>
     /// <returns>The resulting <see cref="RectangleF" />.</returns>
-    public static RectangleF CreateFrom(Point2F minimum, Point2F maximum)
+    public static RectangleF CreateFrom(Vector2 minimum, Vector2 maximum)
     {
         CreateFrom(minimum, maximum, out var result);
         return result;
     }
 
     /// <summary>
-    ///     Computes the <see cref="RectangleF" /> from a list of <see cref="Point2F" /> structures.
+    ///     Computes the <see cref="RectangleF" /> from a list of <see cref="Vector2" /> structures.
     /// </summary>
     /// <param name="points">The points.</param>
     /// <param name="result">The resulting rectangle.</param>
-    public static void CreateFrom(IReadOnlyList<Point2F> points, out RectangleF result)
+    public static void CreateFrom(IReadOnlyList<Vector2> points, out RectangleF result)
     {
         PrimitivesHelper.CreateRectangleFromPoints(points, out var minimum, out var maximum);
         CreateFrom(minimum, maximum, out result);
     }
 
     /// <summary>
-    ///     Computes the <see cref="RectangleF" /> from a list of <see cref="Point2F" /> structures.
+    ///     Computes the <see cref="RectangleF" /> from a list of <see cref="Vector2" /> structures.
     /// </summary>
     /// <param name="points">The points.</param>
     /// <returns>The resulting <see cref="RectangleF" />.</returns>
-    public static RectangleF CreateFrom(IReadOnlyList<Point2F> points)
+    public static RectangleF CreateFrom(IReadOnlyList<Vector2> points)
     {
         CreateFrom(points, out var result);
         return result;
@@ -331,8 +331,8 @@ public struct RectangleF : IEquatable<RectangleF>, IShapeF
         var secondMinimum = second.TopLeft;
         var secondMaximum = second.BottomRight;
 
-        var minimum = Point2F.Maximum(firstMinimum, secondMinimum);
-        var maximum = Point2F.Minimum(firstMaximum, secondMaximum);
+        var minimum = Vector2.Max(firstMinimum, secondMinimum);
+        var maximum = Vector2.Min(firstMaximum, secondMaximum);
 
         if ((maximum.X < minimum.X) || (maximum.Y < minimum.Y))
             result = new RectangleF();
@@ -429,7 +429,7 @@ public struct RectangleF : IEquatable<RectangleF>, IShapeF
 
     /// <summary>
     ///     Determines whether the specified <see cref="RectangleF" /> contains the specified
-    ///     <see cref="Point2F" />.
+    ///     <see cref="Vector2" />.
     /// </summary>
     /// <param name="rectangle">The rectangle.</param>
     /// <param name="point">The point.</param>
@@ -437,14 +437,14 @@ public struct RectangleF : IEquatable<RectangleF>, IShapeF
     ///     <c>true</c> if the <paramref name="rectangle" /> contains the <paramref name="point" />; otherwise,
     ///     <c>false</c>.
     /// </returns>
-    public static bool Contains(ref RectangleF rectangle, ref Point2F point)
+    public static bool Contains(ref RectangleF rectangle, ref Vector2 point)
     {
         return rectangle.X <= point.X && point.X < rectangle.X + rectangle.Width && rectangle.Y <= point.Y && point.Y < rectangle.Y + rectangle.Height;
     }
 
     /// <summary>
     ///     Determines whether the specified <see cref="RectangleF" /> contains the specified
-    ///     <see cref="Point2F" />.
+    ///     <see cref="Vector2" />.
     /// </summary>
     /// <param name="rectangle">The rectangle.</param>
     /// <param name="point">The point.</param>
@@ -452,30 +452,30 @@ public struct RectangleF : IEquatable<RectangleF>, IShapeF
     ///     <c>true</c> if the <paramref name="rectangle" /> contains the <paramref name="point" />; otherwise,
     ///     <c>false</c>.
     /// </returns>
-    public static bool Contains(RectangleF rectangle, Point2F point)
+    public static bool Contains(RectangleF rectangle, Vector2 point)
     {
         return Contains(ref rectangle, ref point);
     }
 
     /// <summary>
     ///     Determines whether this <see cref="RectangleF" /> contains the specified
-    ///     <see cref="Point2F" />.
+    ///     <see cref="Vector2" />.
     /// </summary>
     /// <param name="point">The point.</param>
     /// <returns>
     ///     <c>true</c> if the this <see cref="RectangleF"/> contains the <paramref name="point" />; otherwise,
     ///     <c>false</c>.
     /// </returns>
-    public bool Contains(Point2F point)
+    public bool Contains(Vector2 point)
     {
         return Contains(ref this, ref point);
     }
 
     /// <summary>
-    ///     Updates this <see cref="RectangleF" /> from a list of <see cref="Point2F" /> structures.
+    ///     Updates this <see cref="RectangleF" /> from a list of <see cref="Vector2" /> structures.
     /// </summary>
     /// <param name="points">The points.</param>
-    public void UpdateFromPoints(IReadOnlyList<Point2F> points)
+    public void UpdateFromPoints(IReadOnlyList<Vector2> points)
     {
         var rectangle = CreateFrom(points);
         X = rectangle.X;
@@ -485,32 +485,32 @@ public struct RectangleF : IEquatable<RectangleF>, IShapeF
     }
 
     /// <summary>
-    ///     Computes the squared distance from this <see cref="RectangleF"/> to a <see cref="Point2F"/>.
+    ///     Computes the squared distance from this <see cref="RectangleF"/> to a <see cref="Vector2"/>.
     /// </summary>
     /// <param name="point">The point.</param>
     /// <returns>The squared distance from this <see cref="RectangleF"/> to the <paramref name="point"/>.</returns>
-    public float SquaredDistanceTo(Point2F point)
+    public float SquaredDistanceTo(Vector2 point)
     {
         return PrimitivesHelper.SquaredDistanceToPointFromRectangle(TopLeft, BottomRight, point);
     }
 
     /// <summary>
-    ///     Computes the distance from this <see cref="RectangleF"/> to a <see cref="Point2F"/>.
+    ///     Computes the distance from this <see cref="RectangleF"/> to a <see cref="Vector2"/>.
     /// </summary>
     /// <param name="point">The point.</param>
     /// <returns>The distance from this <see cref="RectangleF"/> to the <paramref name="point"/>.</returns>
-    public float DistanceTo(Point2F point)
+    public float DistanceTo(Vector2 point)
     {
         return (float)Math.Sqrt(SquaredDistanceTo(point));
     }
 
     /// <summary>
-    ///     Computes the closest <see cref="Point2F" /> on this <see cref="RectangleF" /> to a specified
-    ///     <see cref="Point2F" />.
+    ///     Computes the closest <see cref="Vector2" /> on this <see cref="RectangleF" /> to a specified
+    ///     <see cref="Vector2" />.
     /// </summary>
     /// <param name="point">The point.</param>
-    /// <returns>The closest <see cref="Point2F" /> on this <see cref="RectangleF" /> to the <paramref name="point" />.</returns>
-    public Point2F ClosestPointTo(Point2F point)
+    /// <returns>The closest <see cref="Vector2" /> on this <see cref="RectangleF" /> to the <paramref name="point" />.</returns>
+    public Vector2 ClosestPointTo(Vector2 point)
     {
         PrimitivesHelper.ClosestPointToPointFromRectangle(TopLeft, BottomRight, point, out var result);
         return result;
@@ -674,5 +674,7 @@ public struct RectangleF : IEquatable<RectangleF>, IShapeF
         return $"{{X: {X}, Y: {Y}, Width: {Width}, Height: {Height}";
     }
 
-    internal string DebugDisplayString => string.Concat(X, "  ", Y, "  ", Width, "  ", Height);
+    internal string DebugDisplayString => $"{X}  {Y}  {Width}  {Height}";
+    
+    public RectangleF BoundingRectangle => this;
 }

@@ -40,6 +40,10 @@ public interface IShapeRenderer {
         DrawLine(start, length, angle, color, thickness, layerDepth);
     }
 
+    void DrawVector(Vector2 origin, Vector2 vector, Color color, float thickness = 1, float layerDepth = 0) {
+        DrawLine(origin, vector.Length(), vector.Angle(), color, thickness, layerDepth);
+    }
+
     void DrawCircle(Vector2 center, float radius, int sides, Color color, float thickness = 1,
         float layerDepth = 0) =>
         DrawPolygon(center, CreateCircle(radius, sides), color, thickness, layerDepth);

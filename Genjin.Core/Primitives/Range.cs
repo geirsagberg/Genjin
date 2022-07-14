@@ -3,7 +3,7 @@ namespace Genjin.Core.Primitives;
 /// <summary>
 ///     Represents a closed interval defined by a minimum and a maximum value of a give type.
 /// </summary>
-public struct Range<T> : IEquatable<Range<T>> where T : IComparable<T>
+public readonly struct Range<T> : IEquatable<Range<T>> where T : IComparable<T>
 {
     public Range(T min, T max)
     {
@@ -34,23 +34,13 @@ public struct Range<T> : IEquatable<Range<T>> where T : IComparable<T>
     ///     Returns wheter or not this <see cref="Range{T}" /> is degenerate.
     ///     (Min and Max are the same)
     /// </summary>
-    public bool IsDegenerate => Min.Equals(Max);
+    public bool IsDegenerate => Min.CompareTo(Max) == 0;
 
     /// <summary>
     ///     Returns wheter or not this <see cref="Range{T}" /> is proper.
     ///     (Min and Max are not the same)
     /// </summary>
-    public bool IsProper => !Min.Equals(Max);
-
-    public bool Equals(Range<T> value) => Min.Equals(value.Min) && Max.Equals(value.Max);
-
-    public override bool Equals(object obj) => obj is Range<T> && Equals((Range<T>) obj);
-
-    public override int GetHashCode() => Min.GetHashCode() ^ Max.GetHashCode();
-
-    public static bool operator ==(Range<T> value1, Range<T> value2) => value1.Equals(value2);
-
-    public static bool operator !=(Range<T> value1, Range<T> value2) => !value1.Equals(value2);
+    public bool IsProper => !IsDegenerate;
 
     public static implicit operator Range<T>(T value) => new(value, value);
 
@@ -77,5 +67,19 @@ public struct Range<T> : IEquatable<Range<T>> where T : IComparable<T>
         }
 
         return value.CompareTo(Max) <= 0;
+    }
+
+    public bool Equals(Range<T> other) => EqualityComparer<T>.Default.Equals(Min, other.Min) && EqualityComparer<T>.Default.Equals(Max, other.Max);
+
+    public override bool Equals(object? obj) => obj is Range<T> other && Equals(other);
+
+    public override int GetHashCode() => HashCode.Combine(Min, Max);
+
+    public static bool operator ==(Range<T> left, Range<T> right) {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(Range<T> left, Range<T> right) {
+        return !(left == right);
     }
 }

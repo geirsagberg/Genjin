@@ -36,30 +36,29 @@ internal class PrimitivesHelper
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static void CreateRectangleFromPoints(IReadOnlyList<Point2F> points, out Point2F minimum, out Point2F maximum)
+    internal static void CreateRectangleFromPoints(IReadOnlyList<Vector2> points, out Vector2 minimum, out Vector2 maximum)
     {
         // Real-Time Collision Detection, Christer Ericson, 2005. Chapter 4.2; Bounding Volumes - Axis-aligned Bounding Boxes (AABBs). pg 82-84
 
-        if (points == null || points.Count == 0)
+        if (points.Count == 0)
         {
-            minimum = Point2F.Zero;
-            maximum = Point2F.Zero;
+            minimum = Vector2.Zero;
+            maximum = Vector2.Zero;
             return;
         }
 
         minimum = maximum = points[0];
 
-        // ReSharper disable once ForCanBeConvertedToForeach
         for (var index = points.Count - 1; index > 0; --index)
         {
             var point = points[index];
-            minimum = Point2F.Minimum(minimum, point);
-            maximum = Point2F.Maximum(maximum, point);
+            minimum = Vector2.Min(minimum, point);
+            maximum = Vector2.Max(maximum, point);
         }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static void TransformRectangle(ref Point2F center, ref Vector2 halfExtents, ref Matrix3x2 transformMatrix)
+    internal static void TransformRectangle(ref Vector2 center, ref Vector2 halfExtents, ref Matrix3x2 transformMatrix)
     {
         // Real-Time Collision Detection, Christer Ericson, 2005. Chapter 4.2; Bounding Volumes - Axis-aligned Bounding Boxes (AABBs). pg 86-87
 
@@ -71,7 +70,7 @@ internal class PrimitivesHelper
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static float SquaredDistanceToPointFromRectangle(Point2F minimum, Point2F maximum, Point2F point)
+    internal static float SquaredDistanceToPointFromRectangle(Vector2 minimum, Vector2 maximum, Vector2 point)
     {
         // Real-Time Collision Detection, Christer Ericson, 2005. Chapter 5.1.3.1; Basic Primitive Tests - Closest-point Computations - Distance of Point to AABB.  pg 130-131
         var squaredDistance = 0.0f;
@@ -105,7 +104,7 @@ internal class PrimitivesHelper
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static void ClosestPointToPointFromRectangle(Point2F minimum, Point2F maximum, Point2F point, out Point2F result)
+    internal static void ClosestPointToPointFromRectangle(Vector2 minimum, Vector2 maximum, Vector2 point, out Vector2 result)
     {
         // Real-Time Collision Detection, Christer Ericson, 2005. Chapter 5.1.2; Basic Primitive Tests - Closest-point Computations. pg 130-131
            

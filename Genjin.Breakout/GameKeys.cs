@@ -1,5 +1,5 @@
 namespace Genjin.Breakout;
 
 public enum GameKeys {
-    Left, Right
+    Left, Right, IncreaseSpeed, DecreaseSpeed, ResetSpeed
 }

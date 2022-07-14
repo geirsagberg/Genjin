@@ -28,7 +28,7 @@ internal class PaddleSystem : ISimulationSystem {
                 velocity.X += 1;
             }
 
-            paddle.Get<Movable>().Velocity = velocity * 100;
+            paddle.GetComponent<Movable>().Velocity = velocity * 100;
         }
     }
 }

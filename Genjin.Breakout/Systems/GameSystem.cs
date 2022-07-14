@@ -21,7 +21,7 @@ public class GameSystem : ISimulationSystem {
             if (getInputs().Pressed.Any()) {
                 sharedState.GameState = GameState.Playing;
                 foreach (var entity in entityManager.GetEntitiesMatchingAll(typeof(Ball), typeof(Movable))) {
-                    entity.Get<Movable>().Velocity = new Vector2(1, -1) * 100;
+                    entity.GetComponent<Movable>().Velocity = new Vector2(1, -1) * 100;
                 }
             }
         }

@@ -4,12 +4,13 @@ using Genjin.Breakout.Components;
 using Genjin.Core;
 using Genjin.Core.Entities;
 using Genjin.Core.Extensions;
+using Genjin.Core.Primitives;
 
 namespace Genjin.Breakout.Systems;
 
 public class CollisionSystem : ISimulationSystem {
-    private readonly IEntityManager entityManager;
     private readonly IDebugRenderer debugRenderer;
+    private readonly IEntityManager entityManager;
 
     public CollisionSystem(IEntityManager entityManager, IDebugRenderer debugRenderer) {
         this.entityManager = entityManager;
@@ -23,30 +24,39 @@ public class CollisionSystem : ISimulationSystem {
         for (var i = 0; i < entities.Count; i++) {
             var entity = entities[i];
             var collidable = entity.GetComponent<Collidable>();
-            if (collidable.CollisionType == CollisionType.Ball) {
-                var transform = entity.GetComponent<Body>();
-                for (var j = i + 1; j < entities.Count; j++) {
-                    var otherEntity = entities[j];
-                    var otherTransform = otherEntity.GetComponent<Body>();
-                    if (transform.Intersects(otherTransform)) {
-                        var penetrationVector =
-                            transform.RectangleF.CalculatePenetrationVector(otherTransform.RectangleF);
+            var body = entity.GetComponent<Body>();
+            var shape = body.Shape;
+            for (var j = i + 1; j < entities.Count; j++) {
+                var otherEntity = entities[j];
+                var otherBody = otherEntity.GetComponent<Body>();
+                var otherShape = otherBody.Shape;
+                if (shape.Intersects(otherShape)) {
+                    var penetrationVector = shape.CalculatePenetrationVector(otherShape);
 
-                        if (penetrationVector != Vector2.Zero) {
-                            debugRenderer.DrawVector(transform.Position + transform.Origin,  penetrationVector * 10f, Color.Red);
-                            var otherCollidable = otherEntity.GetComponent<Collidable>();
-                            
-                            HandleCollision(entity, collidable, otherEntity, otherCollidable, penetrationVector);
-                        }
+                    if (penetrationVector != Vector2.Zero) {
+                        var otherCollidable = otherEntity.GetComponent<Collidable>();
+                        HandleCollision(entity, collidable, body, otherEntity, otherCollidable, otherBody, penetrationVector);
+                        HandleCollision(otherEntity, otherCollidable, otherBody, entity, collidable, body, -penetrationVector);
                     }
-                }   
+                }
             }
         }
     }
 
-    private void HandleCollision(Entity entity, Collidable collidable, Entity otherEntity, Collidable otherCollidable, Vector2 penetrationVector) {
+    private void HandleCollision(Entity entity, Collidable collidable, Body body, Entity otherEntity,
+        Collidable otherCollidable, Body otherBody, Vector2 penetrationVector) {
+        debugRenderer.DrawVector(body.Center, penetrationVector * 10f, Color.Red);
+
         if (collidable.CollisionType == CollisionType.Ball) {
-            
+            var movable = entity.GetComponent<Movable>();
+            var normal = penetrationVector.NormalizedCopy();
+            body.Position -= penetrationVector;
+            movable.Velocity = movable.Velocity.Reflect(normal);
+
+            if (otherCollidable.CollisionType == CollisionType.Paddle) {
+                var paddle = otherEntity.GetComponent<Movable>();
+                movable.Velocity += paddle.Velocity;
+            }
         }
     }
 }

@@ -11,18 +11,24 @@ public static class Vector2Extensions {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2 SetY(this Vector2 vector2, float y) => vector2 with { Y = y };
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Vector2 AddX(this Vector2 vector2, float x) => vector2 with { X = vector2.X + x };
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Vector2 AddY(this Vector2 vector2, float y) => vector2 with { Y = vector2.Y + y };
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2 Translate(this Vector2 vector2, float x, float y) => new(vector2.X + x, vector2.Y + y);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Size2F ToSize(this Vector2 value) => new(value.X, value.Y);
+    public static Size ToSize(this Vector2 value) => new(value.X, value.Y);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Size2F ToAbsoluteSize(this Vector2 value) {
+    public static Size ToAbsoluteSize(this Vector2 value) {
         var x = MathF.Abs(value.X);
         var y = MathF.Abs(value.Y);
-        return new Size2F(x, y);
+        return new Size(x, y);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -82,7 +88,7 @@ public static class Vector2Extensions {
     public static bool IsNaN(this Vector2 value) => float.IsNaN(value.X) || float.IsNaN(value.Y);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float Angle(this Vector2 value) => MathF.Atan2(value.X, -value.Y);
+    public static float Angle(this Vector2 value) => MathF.Atan2(value.Y, value.X);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float AngleBetween(this Vector2 value, Vector2 other) => MathF.Atan2(other.Y - value.Y , other.X - value.X);
@@ -94,6 +100,9 @@ public static class Vector2Extensions {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2 Wrap(this Vector2 position, Vector2 size)
         => new(MathHelpers.Wrap(position.X, size.X), MathHelpers.Wrap(position.Y, size.Y));
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Vector2 Reflect(this Vector2 value, Vector2 normal) => Vector2.Reflect(value, normal);
 
     /// <summary>
     ///     Calculates the dot product of two vectors. If the two vectors are unit vectors, the dot product returns a floating
@@ -165,7 +174,7 @@ public static class Vector2Extensions {
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float Dot(this Vector2 vector1, Vector2 vector2) {
-        return (vector1.X * vector2.X) + (vector1.Y * vector2.Y);
+        return Vector2.Dot(vector1, vector2);
     }
 
     /// <summary>

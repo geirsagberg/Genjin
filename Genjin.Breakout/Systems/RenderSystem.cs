@@ -6,22 +6,27 @@ using Genjin.Core.Primitives;
 namespace Genjin.Breakout;
 
 internal class RenderSystem : IDrawSystem {
-    private readonly ShapeRenderer shapeRenderer;
+    private readonly IShapeRenderer shapeRenderer;
     private readonly World world;
 
-    public RenderSystem(ShapeRenderer shapeRenderer, World world) {
+    public RenderSystem(IShapeRenderer shapeRenderer, World world) {
         this.shapeRenderer = shapeRenderer;
         this.world = world;
     }
 
     public void Draw() {
         foreach (var entity in world.GetEntitiesMatchingAll(typeof(Body), typeof(Colored))) {
-            var transform = entity.GetComponent<Body>();
+            var shape = entity.GetComponent<Body>().Shape;
             var colored = entity.GetComponent<Colored>();
 
-            shapeRenderer.FillRectangle(
-                new RectangleF(transform.Position.X, transform.Position.Y, transform.Size.Width, transform.Size.Height),
-                colored.Color);
+            switch (shape) {
+                case Rectangle rectangle:
+                    shapeRenderer.FillRectangle(rectangle, colored.Color);
+                    break;
+                case Circle circle:
+                    shapeRenderer.DrawCircle(circle.Center, circle.Radius, 16, colored.Color);
+                    break;
+            }
         }
     }
 }

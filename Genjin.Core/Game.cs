@@ -163,7 +163,10 @@ public abstract class Game {
         var thisFrame = realTime.Elapsed;
         // Time since previous frame
         var deltaTime = thisFrame - lastFrame;
-        CurrentInput = Window.PumpEvents();
+        // Lock in an attempt to avoid "collection was modified" errors
+        lock (this) {
+            CurrentInput = Window.PumpEvents();
+        }
 
         foreach (var updater in updaters) {
             updater(deltaTime);

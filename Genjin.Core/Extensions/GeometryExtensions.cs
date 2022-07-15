@@ -1,7 +1,6 @@
 ﻿using System.Numerics;
 using System.Runtime.CompilerServices;
 using Genjin.Core.Primitives;
-using RectangleF = Genjin.Core.Primitives.RectangleF;
 
 namespace Genjin.Core.Extensions;
 
@@ -17,22 +16,22 @@ public static class GeometryExtensions {
     public static Vector2 NormalizedOrZero(this Vector2 vector2) =>
         vector2 == Vector2.Zero ? Vector2.Zero : Vector2.Normalize(vector2);
 
-    public static Vector2 WidthVector(this Size2F size) => new(size.Width, 0);
-    public static Vector2 HeightVector(this Size2F size) => new(0, size.Height);
+    public static Vector2 WidthVector(this Size size) => new(size.Width, 0);
+    public static Vector2 HeightVector(this Size size) => new(0, size.Height);
 
-    public static Vector2 WidthVector(this RectangleF rectangle) => new(rectangle.Width, 0);
-    public static Vector2 HeightVector(this RectangleF rectangle) => new(0, rectangle.Height);
+    public static Vector2 WidthVector(this Box rectangle) => new(rectangle.Width, 0);
+    public static Vector2 HeightVector(this Box rectangle) => new(0, rectangle.Height);
 
     public static bool IsBetween(this float f, float a, float b) => f >= (a < b ? a : b) && f <= (a < b ? b : a);
 
-    public static bool Contains(this RectangleF first, RectangleF second) =>
+    public static bool Contains(this Box first, Box second) =>
         first.Contains(second.TopLeft) && first.Contains(second.BottomRight);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2 SubtractLength(this Vector2 vector, float length) =>
         vector.NormalizedOrZero() * (vector.Length() - length);
 
-    public static RectangleF Expand(this RectangleF rectangle, Vector2 direction) {
+    public static Box Expand(this Box rectangle, Vector2 direction) {
         if (direction == Vector2.Zero) return rectangle;
         var translated = rectangle;
         translated.Position += direction;
@@ -40,20 +39,20 @@ public static class GeometryExtensions {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static CircleF Inflate(this CircleF circle, float addRadius) =>
-        new(circle.Center, circle.Radius + addRadius);
+    public static Circle Inflate(this Circle circle, float addRadius) =>
+        new(circle.Position, circle.Radius + addRadius);
 
-    public static void Wrap(this Body body, RectangleF levelSize) {
-        if (body.Position.X < 0) {
-            body.Position += levelSize.WidthVector();
-        } else if (body.Position.X >= levelSize.Width) {
-            body.Position -= levelSize.WidthVector();
+    public static void Wrap(this IShape shape, Size levelSize) {
+        if (shape.Position.X < 0) {
+            shape.Position += levelSize.WidthVector();
+        } else if (shape.Position.X >= levelSize.Width) {
+            shape.Position -= levelSize.WidthVector();
         }
 
-        if (body.Position.Y < 0) {
-            body.Position += levelSize.HeightVector();
-        } else if (body.Position.Y >= levelSize.Height) {
-            body.Position -= levelSize.HeightVector();
+        if (shape.Position.Y < 0) {
+            shape.Position += levelSize.HeightVector();
+        } else if (shape.Position.Y >= levelSize.Height) {
+            shape.Position -= levelSize.HeightVector();
         }
     }
 
@@ -63,20 +62,20 @@ public static class GeometryExtensions {
     /// <param name="a">The penetrating shape.</param>
     /// <param name="b">The shape being penetrated.</param>
     /// <returns>The distance vector from the edge of b to a's Position</returns>
-    public static Vector2 CalculatePenetrationVector<T1, T2>(this T1 a, T2 b) where T1 : IShapeF where T2 : IShapeF {
+    public static Vector2 CalculatePenetrationVector<T1, T2>(this T1 a, T2 b) where T1 : class, IShape where T2 : class, IShape {
         if (!a.Intersects(b)) return Vector2.Zero;
         var penetrationVector = a switch {
-            RectangleF rectA when b is RectangleF rectB => PenetrationVector(rectA, rectB),
-            CircleF circA when b is CircleF circB => PenetrationVector(circA, circB),
-            CircleF circA when b is RectangleF rectB => PenetrationVector(circA, rectB),
-            RectangleF rectA when b is CircleF circB => PenetrationVector(rectA, circB),
+            Rectangle rectA when b is Rectangle rectB => PenetrationVector(rectA, rectB),
+            Circle circA when b is Circle circB => PenetrationVector(circA, circB),
+            Circle circA when b is Rectangle rectB => PenetrationVector(circA, rectB),
+            Rectangle rectA when b is Circle circB => PenetrationVector(rectA, circB),
             _ => throw new NotSupportedException("Shapes must be either a CircleF or RectangleF")
         };
         return penetrationVector;
     }
 
-    private static Vector2 PenetrationVector(RectangleF rect1, RectangleF rect2) {
-        var intersectingRectangle = RectangleF.Intersection(rect1, rect2);
+    private static Vector2 PenetrationVector(Box rect1, Box rect2) {
+        var intersectingRectangle = Box.Intersection(rect1, rect2);
         if (intersectingRectangle.IsEmpty) return Vector2.Zero;
 
         Vector2 penetration;
@@ -95,7 +94,7 @@ public static class GeometryExtensions {
         return penetration;
     }
 
-    private static Vector2 PenetrationVector(CircleF circ1, CircleF circ2) {
+    private static Vector2 PenetrationVector(Circle circ1, Circle circ2) {
         if (!circ1.Intersects(circ2)) {
             return Vector2.Zero;
         }
@@ -113,7 +112,7 @@ public static class GeometryExtensions {
         return penetration;
     }
 
-    private static Vector2 PenetrationVector(CircleF circ, RectangleF rect) {
+    private static Vector2 PenetrationVector(Circle circ, Box rect) {
         var collisionPoint = rect.ClosestPointTo(circ.Center);
         var cToCollPoint = collisionPoint - circ.Center;
 
@@ -149,7 +148,7 @@ public static class GeometryExtensions {
         }
     }
 
-    private static Vector2 PenetrationVector(RectangleF rect, CircleF circ) {
+    private static Vector2 PenetrationVector(Box rect, Circle circ) {
         return -PenetrationVector(circ, rect);
     }
 }

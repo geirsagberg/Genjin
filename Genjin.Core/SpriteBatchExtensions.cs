@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.Numerics;
 using Genjin.Core.Primitives;
 using Genjin.Example;
 using Peridot;
@@ -8,24 +9,24 @@ namespace Genjin.Core;
 
 public static class SpriteBatchExtensions {
     public static void DrawSprite(this VeldridSpriteBatch spriteBatch, TextureWrapper textureWrapper,
-        Rectangle sourceRectangle, Body body, SpriteOptions spriteEffects = SpriteOptions.None,
+        System.Drawing.Rectangle sourceRectangle, IShape shape, SpriteOptions spriteEffects = SpriteOptions.None,
         float layerDepth = 0) =>
-        spriteBatch.Draw(textureWrapper, body.Position.Round(), sourceRectangle, Color.White,
-            body.Rotation, body.Origin, body.Scale, spriteEffects, layerDepth);
+        spriteBatch.Draw(textureWrapper, shape.Position.Round(), sourceRectangle, Color.White,
+            0, Vector2.Zero, Vector2.One, spriteEffects, layerDepth);
 
     public static void DrawSprite(this VeldridSpriteBatch spriteBatch, TextureWrapper textureWrapper,
-        Body body, SpriteOptions spriteEffects = SpriteOptions.None, float layerDepth = 0) =>
-        spriteBatch.DrawSprite(textureWrapper, new Rectangle(Point.Empty, textureWrapper.Size), body,
+        IShape shape, SpriteOptions spriteEffects = SpriteOptions.None, float layerDepth = 0) =>
+        spriteBatch.DrawSprite(textureWrapper, new System.Drawing.Rectangle(Point.Empty, textureWrapper.Size), shape,
             spriteEffects, layerDepth);
 
     public static void DrawSprite(this VeldridSpriteBatch spritebatch, SpriteSheet spriteSheet, int column, int row,
-        Body body, SpriteOptions spriteEffects = SpriteOptions.None, float layerDepth = 0) =>
-        spritebatch.DrawSprite(spriteSheet.Texture, spriteSheet.GetSpriteRectangle(column, row), body,
+        IShape shape, SpriteOptions spriteEffects = SpriteOptions.None, float layerDepth = 0) =>
+        spritebatch.DrawSprite(spriteSheet.Texture, spriteSheet.GetSpriteRectangle(column, row), shape,
             spriteEffects, layerDepth);
 
     public static void DrawSprite(this VeldridSpriteBatch spritebatch, SpriteSheet spriteSheet, int spriteSheetIndex,
-        Body body, SpriteOptions spriteEffects = SpriteOptions.None) {
+        IShape shape, SpriteOptions spriteEffects = SpriteOptions.None) {
         var (row, column) = Math.DivRem(spriteSheetIndex, spriteSheet.Columns);
-        spritebatch.DrawSprite(spriteSheet, column, row, body, spriteEffects);
+        spritebatch.DrawSprite(spriteSheet, column, row, shape, spriteEffects);
     }
 }

@@ -58,7 +58,7 @@ internal class PrimitivesHelper
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static void TransformRectangle(ref Vector2 center, ref Vector2 halfExtents, ref Matrix3x2 transformMatrix)
+    internal static void TransformRectangle(ref Vector2 center, ref Vector2 halfExtents, in Matrix3x2 transformMatrix)
     {
         // Real-Time Collision Detection, Christer Ericson, 2005. Chapter 4.2; Bounding Volumes - Axis-aligned Bounding Boxes (AABBs). pg 86-87
 
@@ -70,7 +70,7 @@ internal class PrimitivesHelper
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static float SquaredDistanceToPointFromRectangle(Vector2 minimum, Vector2 maximum, Vector2 point)
+    public static float SquaredDistanceToPointFromRectangle(in Vector2 minimum, in Vector2 maximum, in Vector2 point)
     {
         // Real-Time Collision Detection, Christer Ericson, 2005. Chapter 5.1.3.1; Basic Primitive Tests - Closest-point Computations - Distance of Point to AABB.  pg 130-131
         var squaredDistance = 0.0f;
@@ -81,34 +81,34 @@ internal class PrimitivesHelper
         if (point.X < minimum.X)
         {
             var distance = minimum.X - point.X;
-            squaredDistance += distance * distance;
+            squaredDistance += distance.Squared();
         }
         else if (point.X > maximum.X)
         {
             var distance = maximum.X - point.X;
-            squaredDistance += distance * distance;
+            squaredDistance += distance.Squared();
         }
 
         // y-axis
         if (point.Y < minimum.Y)
         {
             var distance = minimum.Y - point.Y;
-            squaredDistance += distance * distance;
+            squaredDistance += distance.Squared();
         }
         else if (point.Y > maximum.Y)
         {
             var distance = maximum.Y - point.Y;
-            squaredDistance += distance * distance;
+            squaredDistance += distance.Squared();
         }
         return squaredDistance;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static void ClosestPointToPointFromRectangle(Vector2 minimum, Vector2 maximum, Vector2 point, out Vector2 result)
+    public static Vector2 ClosestPointToPointFromRectangle(in Vector2 minimum, in Vector2 maximum, in Vector2 point)
     {
         // Real-Time Collision Detection, Christer Ericson, 2005. Chapter 5.1.2; Basic Primitive Tests - Closest-point Computations. pg 130-131
            
-        result = point;
+        var result = point;
 
         // For each coordinate axis, if the point coordinate value is outside box, clamp it to the box, else keep it as is
         if (result.X < minimum.X)
@@ -120,6 +120,7 @@ internal class PrimitivesHelper
             result.Y = minimum.Y;
         else if (result.Y > maximum.Y)
             result.Y = maximum.Y;
-    }
 
+        return result;
+    }
 }

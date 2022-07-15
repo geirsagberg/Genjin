@@ -9,7 +9,7 @@ public static class RectangleExtensions
     /// <summary>
     ///     Gets the corners of the rectangle in a clockwise direction starting at the top left.
     /// </summary>
-    public static Vector2[] GetCorners(this RectangleF rectangle)
+    public static Vector2[] GetCorners(this Box rectangle)
     {
         var corners = new Vector2[4];
         corners[0] = new Vector2(rectangle.Left, rectangle.Top);
@@ -20,7 +20,7 @@ public static class RectangleExtensions
     }
 
 
-    public static RectangleF Clip(this RectangleF rectangle, RectangleF clippingRectangle)
+    public static Box Clip(this Box rectangle, Box clippingRectangle)
     {
         var clip = clippingRectangle;
         rectangle.X = clip.X > rectangle.X ? clip.X : rectangle.X;
@@ -29,7 +29,7 @@ public static class RectangleExtensions
         rectangle.Height = rectangle.Bottom > clip.Bottom ? clip.Bottom - rectangle.Y : rectangle.Height;
 
         if(rectangle.Width <= 0 || rectangle.Height <= 0)
-            return RectangleF.Empty;
+            return Box.Empty;
 
         return rectangle;
     }

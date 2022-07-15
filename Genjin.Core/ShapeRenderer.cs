@@ -4,7 +4,6 @@ using Genjin.Core.Primitives;
 using Peridot.Veldrid;
 using Veldrid;
 using Rectangle = System.Drawing.Rectangle;
-using RectangleF = Genjin.Core.Primitives.RectangleF;
 
 namespace Genjin.Core;
 
@@ -20,9 +19,8 @@ public class ShapeRenderer : IShapeRenderer {
 
     private TextureWrapper WhitePixelTexture { get; }
 
-    public void FillRectangle(RectangleF rectangle, Color color, float layerDepth = 0) {
-        var rect = new Rectangle((int) rectangle.X, (int) rectangle.Y, (int) rectangle.Width, (int) rectangle.Height);
-        spriteBatch.Draw(WhitePixelTexture, rect, SinglePixelRectangle, color, 0, Vector2.Zero, layerDepth);
+    public void FillRectangle(Box rectangle, Color color, float layerDepth = 0) {
+        spriteBatch.Draw(WhitePixelTexture, (RectangleF) rectangle, SinglePixelRectangle, color, 0, Vector2.Zero, layerDepth);
     }
 
     public void DrawPoint(Vector2 position, Color color, float size = 1f, float layerDepth = 0f) {
@@ -32,7 +30,7 @@ public class ShapeRenderer : IShapeRenderer {
             layerDepth);
     }
 
-    public void DrawRectangle(RectangleF rectangle, Color color, float thickness = 1, float layerDepth = 0) {
+    public void DrawRectangle(Box rectangle, Color color, float thickness = 1, float layerDepth = 0) {
         var topLeft = new Vector2(rectangle.X, rectangle.Y);
         var topRight = new Vector2(rectangle.Right - thickness, rectangle.Y);
         var bottomLeft = new Vector2(rectangle.X, rectangle.Bottom - thickness);

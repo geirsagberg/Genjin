@@ -1,17 +1,16 @@
 ﻿using System.Drawing;
 using System.Numerics;
 using Genjin.Core.Primitives;
-using RectangleF = Genjin.Core.Primitives.RectangleF;
 
 namespace Genjin.Core;
 
 public interface IShapeRenderer {
 
     void DrawPoint(Vector2 position, Color color, float size = 1f, float layerDepth = 0f);
-    void DrawRectangle(RectangleF rectangle, Color color, float thickness = 1, float layerDepth = 0);
+    void DrawRectangle(Box rectangle, Color color, float thickness = 1, float layerDepth = 0);
     void DrawLine(Vector2 start, float length, float angle, Color color, float thickness = 1,
         float layerDepth = 0);
-    void FillRectangle(RectangleF rectangle, Color color, float layerDepth = 0);
+    void FillRectangle(Box rectangle, Color color, float layerDepth = 0);
     
     void DrawPolygon(Vector2 offset, IReadOnlyList<Vector2> points, Color color, float thickness = 1f,
         float layerDepth = 0f) {

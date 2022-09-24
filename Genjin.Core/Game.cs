@@ -7,11 +7,13 @@ using Genjin.Core.Entities;
 using Genjin.Example;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Peridot.Veldrid;
+using Peridot;
+using Peridot.Text;
 using StbImageSharp;
 using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
+using PixelFormat = Veldrid.PixelFormat;
 
 namespace Genjin.Core;
 
@@ -37,12 +39,14 @@ public abstract class Game {
         Window.Resized += OnWindowOnResized;
         var options = GetGraphicsDeviceOptions(gameSettings);
         GraphicsDevice = VeldridStartup.CreateGraphicsDevice(Window, options, GraphicsBackend.Vulkan);
-        var shaders = VeldridSpriteBatch.LoadDefaultShaders(GraphicsDevice);
+        var peridot = new VPeridot(GraphicsDevice);
+        var shaders = peridot.LoadDefaultShaders();
         CommandList = ResourceFactory.CreateCommandList();
         Fence = ResourceFactory.CreateFence(false);
-        SpriteBatch = new VeldridSpriteBatch(GraphicsDevice, GraphicsDevice.SwapchainFramebuffer.OutputDescription,
-            shaders);
-        TextRenderer = new TextRenderer(GraphicsDevice, SpriteBatch);
+        SpriteBatch =
+            peridot.CreateSpriteBatch(new SpriteBatchDescriptor(GraphicsDevice.SwapchainFramebuffer.OutputDescription,
+                shaders));
+        TextRenderer = new TextRenderer(peridot, SpriteBatch);
         ShapeRenderer = new ShapeRenderer(GraphicsDevice, SpriteBatch);
         GuiRenderer = new ImGuiRenderer(GraphicsDevice, GraphicsDevice.SwapchainFramebuffer.OutputDescription,
             gameSettings.Width, gameSettings.Height);
@@ -63,7 +67,7 @@ public abstract class Game {
     protected Sdl2Window Window { get; }
     private GraphicsDevice GraphicsDevice { get; }
     private CommandList CommandList { get; }
-    protected VeldridSpriteBatch SpriteBatch { get; }
+    protected ISpriteBatch<Texture> SpriteBatch { get; }
     protected TextRenderer TextRenderer { get; }
     protected ShapeRenderer ShapeRenderer { get; }
     protected ImGuiRenderer GuiRenderer { get; }
@@ -107,7 +111,7 @@ public abstract class Game {
         }
     }
 
-    protected TextureWrapper LoadTexture(string path) {
+    protected Texture LoadTexture(string path) {
         var bytes = File.ReadAllBytes(path);
         var image = ImageResult.FromMemory(bytes);
         Debug.Assert(image != null);
@@ -122,7 +126,7 @@ public abstract class Game {
         GraphicsDevice.UpdateTexture(texture, image.Data, 0, 0, 0, textureDescription.Width, textureDescription.Height,
             textureDescription.Depth, 0, 0);
 
-        return new TextureWrapper(texture);
+        return texture;
     }
 
     protected static Font LoadFont(string path) {
@@ -193,7 +197,7 @@ public abstract class Game {
             Draw(deltaTime);
             DrawDebug();
             SpriteBatch.End();
-            SpriteBatch.DrawBatch(CommandList);
+            CommandList.DrawBatch(SpriteBatch);
 
             GuiRenderer.Render(GraphicsDevice, CommandList);
 
@@ -212,16 +216,20 @@ public abstract class Game {
         foreach (var line in debugRenderer.Lines) {
             ShapeRenderer.DrawLine(line.Start, line.Length, line.Angle, line.Color, line.Thickness, line.LayerDepth);
         }
+
         foreach (var rect in debugRenderer.Rectangles) {
             ShapeRenderer.DrawRectangle(rect.Rectangle, rect.Color, rect.Thickness, rect.LayerDepth);
         }
+
         foreach (var point in debugRenderer.Points) {
             ShapeRenderer.DrawPoint(point.Position, point.Color, point.Size, point.LayerDepth);
         }
+
         foreach (var polygonEdge in debugRenderer.PolygonEdges) {
             ShapeRenderer.DrawPolygonEdge(polygonEdge.Point1, polygonEdge.Point2, polygonEdge.Color,
                 polygonEdge.Thickness, polygonEdge.LayerDepth);
         }
+
         foreach (var filledRectangle in debugRenderer.FilledRectangles) {
             ShapeRenderer.FillRectangle(filledRectangle.Rectangle, filledRectangle.Color, filledRectangle.LayerDepth);
         }

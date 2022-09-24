@@ -1,15 +1,16 @@
 ﻿using System.Drawing;
-using Peridot.Veldrid;
+using Veldrid;
+using Rectangle = System.Drawing.Rectangle;
 
 namespace Genjin.Example;
 
 public record SpriteSheet {
-    public SpriteSheet(TextureWrapper texture, int columns, int rows) {
-        if (texture.Size.Width % columns > 0) {
+    public SpriteSheet(Texture texture, int columns, int rows) {
+        if (texture.Width % columns > 0) {
             throw new ArgumentException("Columns must be divisor of texture width");
         }
 
-        if (texture.Size.Height % rows > 0) {
+        if (texture.Height % rows > 0) {
             throw new ArgumentException("Rows must be divisor of texture height");
         }
 
@@ -18,12 +19,12 @@ public record SpriteSheet {
         Rows = rows;
     }
 
-    public TextureWrapper Texture { get; init; }
+    public Texture Texture { get; init; }
     public int Columns { get; init; }
     public int Rows { get; init; }
 
-    public int SpriteWidth => Texture.Size.Width / Columns;
-    public int SpriteHeight => Texture.Size.Height / Rows;
+    public int SpriteWidth => (int) (Texture.Width / Columns);
+    public int SpriteHeight => (int) (Texture.Height / Rows);
 
     public Size SpriteSize => new(SpriteWidth, SpriteHeight);
 

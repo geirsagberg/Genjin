@@ -1,27 +1,27 @@
 using System.Drawing;
 using System.Numerics;
 using Genjin.Core.Primitives;
-using Peridot.Veldrid;
+using Peridot;
 using Veldrid;
+using PixelFormat = Veldrid.PixelFormat;
 using Rectangle = System.Drawing.Rectangle;
 
 namespace Genjin.Core;
 
 public class ShapeRenderer : IShapeRenderer {
     private static readonly Rectangle SinglePixelRectangle = new(0, 0, 1, 1);
-    private readonly VeldridSpriteBatch spriteBatch;
+    private readonly ISpriteBatch<Texture> spriteBatch;
 
-    public ShapeRenderer(GraphicsDevice graphicsDevice, VeldridSpriteBatch spriteBatch) {
+    public ShapeRenderer(GraphicsDevice graphicsDevice, ISpriteBatch<Texture> spriteBatch) {
         this.spriteBatch = spriteBatch;
 
         WhitePixelTexture = CreateWhitePixelTexture(graphicsDevice);
     }
 
-    private TextureWrapper WhitePixelTexture { get; }
+    private Texture WhitePixelTexture { get; }
 
-    public void FillRectangle(Box rectangle, Color color, float layerDepth = 0) {
-        spriteBatch.Draw(WhitePixelTexture, (RectangleF) rectangle, SinglePixelRectangle, color, 0, Vector2.Zero, layerDepth);
-    }
+    public void FillRectangle(Box rectangle, Color color, float layerDepth = 0) => spriteBatch.Draw(WhitePixelTexture,
+        (RectangleF) rectangle, SinglePixelRectangle, color, 0, Vector2.Zero, layerDepth);
 
     public void DrawPoint(Vector2 position, Color color, float size = 1f, float layerDepth = 0f) {
         var scale = Vector2.One * size;
@@ -61,11 +61,11 @@ public class ShapeRenderer : IShapeRenderer {
             layerDepth);
     }
 
-    private static TextureWrapper CreateWhitePixelTexture(GraphicsDevice graphicsDevice) {
+    private static Texture CreateWhitePixelTexture(GraphicsDevice graphicsDevice) {
         var textureDescription = new TextureDescription(1, 1, 1, 1, 1, PixelFormat.R8_G8_B8_A8_UNorm,
             TextureUsage.Sampled, TextureType.Texture2D);
         var texture = graphicsDevice.ResourceFactory.CreateTexture(textureDescription);
         graphicsDevice.UpdateTexture(texture, new byte[] { 255, 255, 255, 255 }, 0, 0, 0, 1, 1, 1, 0, 0);
-        return new TextureWrapper(texture);
+        return texture;
     }
 }
